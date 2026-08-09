@@ -11,3 +11,130 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Branch {
+  ARMY
+  NAVY
+  AIR_FORCE
+  MARINES
+  COAST_GUARD
+  SPACE_FORCE
+  MILITARY_SPOUSE
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  branch         Branch
+  targetField    String?
+  separationDate DateTime?
+  createdAt      DateTime @default(now())
+
+  // Inverse side of the User -> SavedEmployer relation.
+  // Prisma needs this array field to know it's one-to-many —
+  // it isn't a real column, just how you traverse the relation
+  // in code (e.g. `user.savedEmployers`).
+  savedEmployers SavedEmployer[]
+}
+
+// TODO (you): Employer model
+// Fields per the brief: id, name, program_name, program_type (enum),
+// url, description, eligibility_notes, industry_tags (array),
+// locations (array), application_window (nullable), created_at, updated_at
+//
+// Hints:
+// - program_type needs its own enum (internship_pipeline, direct_hire,
+//   apprenticeship, fellowship, other) — define it above this model,
+//   same pattern as Branch.
+// - industry_tags / locations are String[] (native Postgres arrays).
+// - updated_at should use @updatedAt instead of @default(now()) —
+//   look up what that attribute does.
+// - This model also needs an inverse relation field back to SavedEmployer,
+//   same idea as `savedEmployers SavedEmployer[]` above.
+
+enum ProgramType {
+  INTERNSHIP_PIPELINE
+  DIRECT_HIRE
+  APPRENTICESHIP 
+  FELLOWSHIP 
+  OTHER
+}
+
+model Employer {
+  id                  String  @id @default(cuid())
+  name                String  @unique
+  programName         String
+  programType         ProgramType
+  url                 String
+  description         String
+  eligibilityNotes    String
+  industryTags        String[]
+  locations           String[]
+  applicationWindow   String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  savedEmployers      SavedEmployer[]
+
+}
+
+// TODO (you): SavedEmployer model
+// Fields per the brief: id, user_id (FK), employer_id (FK), status (enum),
+// notes (nullable), saved_at, updated_at
+//
+// Hints:
+// - status enum: researching, applied, interviewing, offer, rejected
+// - You'll need TWO fields per relation: the scalar FK (e.g. `userId String`)
+//   and the relation field (`user User @relation(fields: [userId], references: [id])`)
+// - Also needs the inverse relation field back to ActionItem
+// - Consider: should (userId, employerId) be unique together? Look up
+//   `@@unique([field1, field2])` for a composite unique constraint —
+//   think about whether a user should be able to save the same employer twice.
+
+enum Status {
+  RESEARCHING
+  APPLIED 
+  INTERVIEWING 
+  OFFER 
+  REJECTED
+}
+
+model SavedEmployer {
+  id                String @id @default(cuid())
+  userId            String
+  user              User  @relation(fields: [userId], references: [id])
+  employerId        String
+  employer          Employer @relation(fields: [employerId], references: [id])
+  status            Status
+  notes             String?
+  savedAt           DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  actionItems       ActionItem[]
+
+  // One saved row per user per employer for v1. Reapplying later means
+  // updating this row's status, not creating a second one — tracking
+  // distinct application attempts over time would need a richer model
+  // (e.g. a separate Application entity) than v1 scope calls for.
+  @@unique([userId, employerId])
+}
+
+// TODO (you): ActionItem model
+// Fields per the brief: id, saved_employer_id (FK), title, completed
+// (boolean, default false), order (int), created_at
+//
+// Note: `order` is a SQL reserved word in some contexts — you may want
+// to check whether Prisma/Postgres has an issue with it as a column name,
+// or use @map to rename it at the DB level while keeping `order` in your
+// Prisma code. Worth testing.
+
+
+model ActionItem {
+  id                        String @id @default(cuid())
+  savedEmployerId           String
+  savedEmployer             SavedEmployer @relation(fields: [savedEmployerId], references: [id])
+  title                     String
+  completed                 Boolean @default(false)
+  order                     Int
+  createdAt                 DateTime @default(now())
+
+}
