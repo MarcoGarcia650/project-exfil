@@ -8,15 +8,23 @@ export const actionItemTemplates = {
     "Tailor resume to the program's stated preferences",
   ],
   DIRECT_HIRE: [
-    // TODO (you): 2-3 default action items for direct-hire programs
+    "Identify the specific team or role this employer typically hires veterans into",
+    "Connect with a current employee or recruiter on LinkedIn",
+    "Tailor resume to translate MOS/experience into the employer's job description language",
   ],
   APPRENTICESHIP: [
-    // TODO (you): 2-3 default action items for apprenticeships
+    "Confirm program length, certification, and DoD SkillBridge eligibility",
+    "Check separation date against the program's application and start window",
+    "Reach out to a program alum for insight into day-to-day expectations",
   ],
   FELLOWSHIP: [
-    // TODO (you): 2-3 default action items for fellowships
+    "Confirm SkillBridge/fellowship eligibility relative to your separation date",
+    "Research past host companies or placements from this fellowship",
+    "Prepare for the fellowship's application process — often more structured than a standard job application",
   ],
   OTHER: [
-    // TODO (you): 2-3 default action items for general resource orgs (e.g. VetsinTech)
+    "Join the organization's community (Slack, local chapter, mailing list)",
+    "Identify one specific event or resource to engage with in the next 30 days",
+    "Connect with a chapter lead or mentor for personalized guidance",
   ],
 };
