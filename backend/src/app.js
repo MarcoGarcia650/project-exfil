@@ -1,6 +1,10 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import employerRoutes from "./routes/employerRoutes.js";
+import savedEmployerRoutes from "./routes/savedEmployerRoutes.js";
+import actionItemRoutes from "./routes/actionItemRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 const app = express();
 
@@ -12,8 +16,9 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
-
-// Feature routes get mounted here as they're built, e.g.:
-// app.use("/employers", employerRoutes);
+app.use("/employers", employerRoutes);
+app.use("/saved-employers", savedEmployerRoutes);
+app.use("/action-items", actionItemRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 export default app;
