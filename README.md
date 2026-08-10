@@ -1,4 +1,4 @@
-# Project Exfill
+# Project Exfil
 
 A web app helping transitioning veterans find real veteran-hiring pipelines (e.g. Amazon's military talent pipeline, Oracle OVIP, Microsoft MSSA), save/track target employers, and get auto-generated next-step action items.
 

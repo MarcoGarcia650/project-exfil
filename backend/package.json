@@ -1,7 +1,7 @@
 {
-  "name": "project-exfill-backend",
+  "name": "project-exfil-backend",
   "version": "1.0.0",
-  "description": "Project Exfill API server",
+  "description": "Project Exfil API server",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
