@@ -6,7 +6,7 @@ export function HomePage() {
       <h1>Find employers who actually hire veterans</h1>
       <p className="home-lede">
         Veteran hiring pipelines exist at companies like Amazon, Oracle, and Microsoft — but they're
-        scattered across LinkedIn posts, individual career pages, and word of mouth. VetPath is a
+        scattered across LinkedIn posts, individual career pages, and word of mouth. Project Exfill is a
         curated database of real programs, so you can stop guessing which "veteran friendly" claims
         are backed by an actual pipeline.
       </p>

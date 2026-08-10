@@ -12,7 +12,7 @@ function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link to="/">VetPath</Link>
+      <Link to="/">Project Exfill</Link>
       <div className="navbar-links">
         {isAuthenticated ? (
           <>
