@@ -1,6 +1,6 @@
 # Project Exfil
 
-**Live demo:** https://d15d5g9qoolce5.cloudfront.net
+**Live demo:** https://projectexfilout.org
 
 ## The problem
 
