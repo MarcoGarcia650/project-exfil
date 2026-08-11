@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Compass, LogOut } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
@@ -12,13 +13,19 @@ function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link to="/">Project Exfil</Link>
+      <Link to="/" className="navbar-brand">
+        <Compass size={20} strokeWidth={2} />
+        Project Exfil
+      </Link>
       <div className="navbar-links">
         {isAuthenticated ? (
           <>
             <Link to="/employers">Browse</Link>
             <Link to="/dashboard">Dashboard</Link>
-            <button onClick={logout}>Log out</button>
+            <button onClick={logout} className="navbar-logout">
+              <LogOut size={16} />
+              Log out
+            </button>
           </>
         ) : (
           <>
@@ -28,6 +35,14 @@ function NavBar() {
         )}
       </div>
     </nav>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      Project Exfil &mdash; a portfolio project. Not affiliated with any listed employer.
+    </footer>
   );
 }
 
@@ -63,6 +78,7 @@ export default function App() {
           />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }

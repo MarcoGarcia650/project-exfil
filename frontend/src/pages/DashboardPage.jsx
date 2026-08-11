@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
+import { EmployerBadge } from "../components/EmployerBadge.jsx";
 
 const STATUSES = ["RESEARCHING", "APPLIED", "INTERVIEWING", "OFFER", "REJECTED"];
 
@@ -53,8 +54,13 @@ export function DashboardPage() {
       <ul className="saved-list">
         {data.savedEmployers.map((se) => (
           <li key={se.id} className="saved-card">
-            <h2>{se.employer.name}</h2>
-            <p className="program-name">{se.employer.programName}</p>
+            <div className="employer-card-header">
+              <EmployerBadge name={se.employer.name} />
+              <div>
+                <h2>{se.employer.name}</h2>
+                <p className="program-name">{se.employer.programName}</p>
+              </div>
+            </div>
 
             <label className="status-label">
               Status

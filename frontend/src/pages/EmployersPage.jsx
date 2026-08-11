@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
+import { EmployerBadge } from "../components/EmployerBadge.jsx";
 
 const PROGRAM_TYPES = ["INTERNSHIP_PIPELINE", "DIRECT_HIRE", "APPRENTICESHIP", "FELLOWSHIP", "OTHER"];
 
@@ -78,12 +80,17 @@ export function EmployersPage() {
       <ul className="employer-list">
         {employers.map((employer) => (
           <li key={employer.id} className="employer-card">
-            <h2>{employer.name}</h2>
-            <p className="program-name">{employer.programName}</p>
+            <div className="employer-card-header">
+              <EmployerBadge name={employer.name} />
+              <div>
+                <h2>{employer.name}</h2>
+                <p className="program-name">{employer.programName}</p>
+              </div>
+            </div>
             <p>{employer.description}</p>
             <p>
-              <a href={employer.url} target="_blank" rel="noreferrer">
-                Program page
+              <a href={employer.url} target="_blank" rel="noreferrer" className="program-link">
+                Program page <ExternalLink size={14} />
               </a>
             </p>
             <button onClick={() => handleSave(employer.id)} disabled={savedIds.has(employer.id)}>
