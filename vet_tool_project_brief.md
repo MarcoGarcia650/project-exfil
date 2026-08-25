@@ -21,7 +21,7 @@
 - **Frontend:** React (or Next.js if we want SSR/routing conveniences — decide at setup)
 - **Auth:** Session-based or JWT — keep simple for v1 (e.g. `bcrypt` + JWT is fine, no need for OAuth/third-party auth in v1)
 - **Deployment target:** Vercel (frontend) + Railway or Render (backend/DB), or AWS RDS for the database specifically if we want to bank real AWS hands-on experience (aligns with ongoing AWS CCP study)
-- **Language:** JavaScript/Node throughout for consistency with prior mini-projects (event log parser, rate limiter) already built during interview prep
+- **Language:** JavaScript/Node throughout for consistency with prior mini-projects (event log parser, rate limiter)
 
 ---
 
@@ -145,16 +145,16 @@ Use these as the initial seeded rows in the Employer table — all real programs
 - Frontend to Vercel
 - Clean README with setup instructions, screenshots, live demo link
 
-**Step 7 — Polish for portfolio**
+**Step 7 — Polish**
 - Add a few more employers to the seed data
 - Clean up UI (doesn't need to be beautiful, needs to be clear and functional)
-- Write a solid README that explains the problem, the solution, and the tech decisions — this matters for interview conversations about the project
+- Write a solid README that explains the problem, the solution, and the tech decisions
 
 ---
 
 ## Notes for Claude Code
 
-- Marco is a USMC veteran, CS student (graduating Dec 2026), building this as his primary portfolio project for SDE job applications (targeting Amazon reapplication May 2027 and fall 2026 new-grad cycle).
+- Marco is a USMC veteran and CS student (graduating Dec 2026).
 - He's built two backend mini-projects already this summer (event log parser, rate limiter) in Node/Express — comfortable with basic Node patterns but still building fluency. Prefers to write code himself with guidance rather than have full solutions generated — use a teaching approach: explain concepts, give structure/scaffolding, let him implement core logic, debug alongside him rather than just fixing things outright.
-- Keep the codebase clean and well-commented — this project needs to be demo-ready and explainable in technical interviews, not just functional.
+- Keep the codebase clean and well-commented — it should be easy to read and explain, not just functional.
 - Prioritize shipping a working v1 over feature completeness. A deployed, functional MVP with the core loop working beats a half-built feature-rich version.

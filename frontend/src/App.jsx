@@ -41,7 +41,7 @@ function NavBar() {
 function Footer() {
   return (
     <footer className="footer">
-      Project Exfil &mdash; a portfolio project. Not affiliated with any listed employer.
+      Project Exfil &mdash; not affiliated with any listed employer.
     </footer>
   );
 }

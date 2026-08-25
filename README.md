@@ -26,8 +26,8 @@ next steps for each.
 | Layer | Choice | Why |
 |---|---|---|
 | Backend | Node/Express | Consistency with prior mini-projects; comfortable baseline to build fluency on. |
-| Data access | Prisma | Started with raw SQL for the interview-signal value, but once the deploy target grew to real AWS infra (RDS, Elastic Beanstalk, S3/CloudFront) for an AWS-apprenticeship-focused job search, that infra work became the more distinctive story to tell in interviews — Prisma buys back the time/complexity budget that raw SQL would've spent on backend plumbing. |
-| Database | PostgreSQL on RDS | Free-tier eligible, and genuine hands-on RDS experience (security groups, subnet groups, managed credentials) directly relevant to an AWS-focused job search. |
+| Data access | Prisma | Started with raw SQL to build that fluency directly, but once the deploy target grew to real AWS infra (RDS, Elastic Beanstalk, S3/CloudFront), that infrastructure work became the more interesting problem to spend time on — Prisma buys back the time/complexity budget that raw SQL would've spent on backend plumbing. |
+| Database | PostgreSQL on RDS | Free-tier eligible, and genuine hands-on experience with a managed production database (security groups, subnet groups, managed credentials) rather than a local-only setup. |
 | Frontend | React (Vite), not Next.js | The app is a logged-in dashboard, not content that benefits from SSR/SEO. Plain React keeps the client/API boundary legible, rather than stacking a second framework's conventions on top of Express fundamentals still being built. |
 | Backend hosting | Elastic Beanstalk, **single-instance mode** | EB's *default* environment type provisions a load balancer — which is not covered by the AWS free tier and runs ~$16+/mo sitting idle. Single-instance mode skips the ALB entirely while still giving real EB deployment/config experience. |
 | Frontend hosting | S3 + CloudFront | Static hosting behind a CDN, effectively free at this scale. |
