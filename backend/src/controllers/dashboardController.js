@@ -1,26 +1,61 @@
 import { prisma } from "../lib/prisma.js";
 
+// What a user sees about each saved listing, by its current status:
+//   PUBLISHED → the listing summary
+//   ARCHIVED  → the summary plus "Archived" and the reason (user decision)
+//   DRAFT     → name, organization and "Under review" only — draft content
+//               is never shown, even to someone who saved it earlier
+function dashboardView(program) {
+  const base = {
+    id: program.id,
+    slug: program.slug,
+    name: program.name,
+    publishStatus: program.publishStatus,
+    organization: program.organization,
+  };
+  if (program.publishStatus === "DRAFT") return base;
+  return {
+    ...base,
+    format: program.format,
+    applicationAvailability: program.applicationAvailability,
+    officialSourceUrl: program.officialSourceUrl,
+    verifiedOn: program.verifiedOn,
+    archivedAt: program.archivedAt,
+    archiveReason: program.archiveReason,
+  };
+}
+
 // GET /dashboard
 // Auth required.
 export async function getDashboard(req, res) {
   const userId = req.user.userId;
 
-  const savedEmployers = await prisma.savedEmployer.findMany({
-    where: { userId },
-    include: { employer: true, actionItems: true },
+  const rows = await prisma.savedEmployer.findMany({
+    // Rows still waiting on the legacy backfill (programId null) are skipped;
+    // migrate-legacy-employers.js must run before this code is deployed.
+    where: { userId, programId: { not: null } },
+    include: {
+      program: { include: { organization: { select: { slug: true, name: true } } } },
+      actionItems: { orderBy: { order: "asc" } },
+    },
     orderBy: { savedAt: "desc" },
   });
 
-  const totalActionItems = savedEmployers.reduce((sum, se) => sum + se.actionItems.length, 0);
-  const completedActionItems = savedEmployers.reduce(
-    (sum, se) => sum + se.actionItems.filter((item) => item.completed).length,
+  const savedPrograms = rows.map(({ program, employerId, ...saved }) => ({
+    ...saved,
+    program: dashboardView(program),
+  }));
+
+  const totalActionItems = savedPrograms.reduce((sum, sp) => sum + sp.actionItems.length, 0);
+  const completedActionItems = savedPrograms.reduce(
+    (sum, sp) => sum + sp.actionItems.filter((item) => item.completed).length,
     0
   );
 
   res.json({
-    savedEmployers,
+    savedPrograms,
     summary: {
-      totalSaved: savedEmployers.length,
+      totalSaved: savedPrograms.length,
       totalActionItems,
       completedActionItems,
     },

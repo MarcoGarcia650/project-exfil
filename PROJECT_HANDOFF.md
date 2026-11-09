@@ -42,7 +42,21 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 
 ## Latest implementation state
 
-- **App code/schema unchanged.** `backend/prisma/schema.prisma` still has a single `Employer` model with `name @unique` and `ProgramType`. Seed has 5 rows.
+- **Phase 1 in progress (branch `feature/programs-directory`, LOCAL DB ONLY).**
+  - **Done:**
+    - expand schema + migration `20261108230000_programs_directory_expand` (additive), applied to local Docker;
+    - [import-programs.js](backend/prisma/import-programs.js) (validator-gated, dry run by default, transition table) plus 10 passing transition tests (`npm test`);
+    - [migrate-legacy-employers.js](backend/prisma/migrate-legacy-employers.js) (backfill);
+    - staging and validator moved to the 4 availability values;
+    - backend switched to `/programs` (PUBLISHED-only browse; DRAFT → 404; archived viewable) and program-based saves/dashboard; new action-item templates.
+  - **Verified locally:**
+    - importer created 13 DRAFTs, and a re-run reported all UNCHANGED;
+    - backfill moved 5 fixture saves with status, notes and 2 action items each intact; HOH and VetsinTech archived with reasons; Oracle a hidden DRAFT; re-run moved 0;
+    - importer then FLAGs oracle-ovip and reports the 2 archived legacy rows as NOT_IN_STAGING, as designed.
+  - **Not yet verified:** the API endpoints over HTTP (blocked, see below).
+  - **Not done:** the frontend switch, which still calls the removed `/employers`.
+  - **Local-only test data:** user `legacy-test@example.com` with 5 saves. `vetswhocode-accelerator` was set PUBLISHED directly via SQL as a stand-in for the unbuilt admin Approve & publish.
+- **BLOCKER (environment):** the repo lives in `~/Documents`, which iCloud Drive syncs with "Optimize Mac Storage" on. **14,822 files in `node_modules` are offloaded** to iCloud (frontend `node_modules` is 0 B on disk), plus 184 files in `.git` and some build/deploy files. Node module reads time out (`ETIMEDOUT` in `readFileSync`), so Prisma CLI and the API take minutes to start or fail outright. The user needs to decide on a fix; see open questions.
 - **Batch 1:** 25 in-scope programs: 13 `SOURCE_VERIFIED` and 12 `NEEDS_RESEARCH`, 0 `APPROVED`. 10 records excluded, 6 of them as active-duty-only. Archive reasons for seed rows are drafted in `existingSeedRecheck`.
   - Source-verified: Microsoft MSSA, Amazon Technical Apprenticeships, Amazon SDE – Military Veterans, Amazon SDE Apprentice – Military Veterans (both from amazon.jobs search results), Salesforce Military, Per Scholas military learners, NPower Path2Tech Cloud, NPower Path2Tech Cybersecurity, NPower Networking & Sysadmin, Code Platoon AI + Fullstack, Fortinet Veterans Program, IVMF Onward to Opportunity, Vets Who Code.
   - Needs research: Amazon SDE Intern – Military Veteran (seasonal; no live posting on 2026-11-08), Oracle OVIP, MSSA Cleared Talent Accelerator, HOH Data Centers Pathway, HOH Salesforce Fellowship, Code Platoon Cloud/DevOps, VetsinTech VIT Academy, ServiceNow RiseUp, SkillStorm, LaunchCode, SANS VetSuccess, BreakLine.
@@ -152,6 +166,11 @@ Data answers (user, 2026-11-08), applied to `programs-staging.json`; validator p
 
 Remaining:
 
+0. **iCloud offloading blocks local dev (decision needed).** Options:
+   - (a) Move the repo out of iCloud, e.g. to `~/dev/VetTool`. This is Claude's recommendation: permanent, and git stays fully local.
+   - (b) Keep it in place but turn off "Optimize Mac Storage", or exclude `node_modules` via a `.nosync` rename plus symlink.
+   - (c) Force-download now (`brctl download`) as a stopgap; files can be offloaded again later.
+
 1. ~~Schema approval~~: **approved (user, 2026-11-08).** Phase 1 starting on the local Docker DB only. Production steps (phase 6) still need explicit user go-ahead.
 2. ~~When and where to review listings~~: **decided (user, 2026-11-08)**. Records are reviewed in the admin page's "Drafts to review" list:
    - The importer loads SOURCE_VERIFIED records as hidden DRAFTs, including in production. The user accepts unreviewed DRAFT rows there, since the listing count is small.
@@ -191,6 +210,12 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-08 (phase 1, part 1) — Claude (VS Code)
+
+- Built and verified the phase 1 data layer on the local DB (details under "Latest implementation state"). Committed on `feature/programs-directory`.
+- Hit an environment blocker: iCloud has offloaded the project's `node_modules` and parts of `.git`. Paused for the user's decision.
+- No production DB, migration, import or deploy work.
 
 ### 2026-11-08 (go-ahead) — Claude (VS Code)
 

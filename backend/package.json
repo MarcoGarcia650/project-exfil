@@ -4,9 +4,11 @@
   "description": "Project Exfil API server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test test/*.test.js",
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "import:programs": "node prisma/import-programs.js",
+    "migrate:legacy": "node prisma/migrate-legacy-employers.js"
   },
   "keywords": [],
   "author": "",

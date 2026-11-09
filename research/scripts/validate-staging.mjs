@@ -1,9 +1,11 @@
 // Validate research/programs-staging.json before any human review or import.
 //
 // Usage:  node research/scripts/validate-staging.mjs [path] [--today=YYYY-MM-DD]
+//   or:   import { validateStaging } from ".../validate-staging.mjs"
 //
-// Read-only: this never touches the database. It exits non-zero on errors so
-// it can gate a future import script ("don't import if validation fails").
+// Read-only: this never touches the database. The CLI exits non-zero on
+// errors; backend/prisma/import-programs.js calls validateStaging() and
+// refuses to import if it returns any errors.
 //
 // Three kinds of checks:
 //   1. Shape   — required fields present, enum values legal, URLs parse.
@@ -12,11 +14,7 @@
 //   3. Hygiene — duplicate detection and stale verification dates.
 
 import fs from "node:fs";
-
-const args = process.argv.slice(2);
-const file = args.find((a) => !a.startsWith("--")) ?? "research/programs-staging.json";
-const todayArg = args.find((a) => a.startsWith("--today="))?.split("=")[1];
-const today = todayArg ? new Date(todayArg) : new Date();
+import { fileURLToPath } from "node:url";
 
 // Re-verify anything older than this. 90 days ≈ one quarterly review cycle.
 const STALE_AFTER_DAYS = 90;
@@ -25,7 +23,7 @@ const ENUMS = {
   techTracks: ["SOFTWARE_DEV", "IT_SUPPORT", "CLOUD", "CYBERSECURITY", "DATA", "unknown"],
   programFormat: ["TRAINING", "CERTIFICATION_TRAINING", "FELLOWSHIP", "INTERNSHIP", "APPRENTICESHIP", "DIRECT_HIRE"],
   eligibleAudiences: ["ACTIVE_DUTY_TRANSITIONING", "VETERAN", "GUARD_RESERVE", "RETIREE", "MILITARY_SPOUSE", "OTHER", "unknown"],
-  applicationStatus: ["OPEN", "OPEN_ROLLING", "UPCOMING", "CLOSED", "NO_COHORTS_SCHEDULED", "UNKNOWN"],
+  applicationStatus: ["ACCEPTING", "ROLLING", "CLOSED", "UNKNOWN"], // = app's ApplicationAvailability
   reviewStatus: ["SOURCE_VERIFIED", "NEEDS_RESEARCH", "OUT_OF_SCOPE", "APPROVED"],
   veteranAccess: ["VERIFIED", "UNVERIFIED", "ACTIVE_DUTY_ONLY"],
   skillbridge: ["DIRECTORY_CONFIRMED", "PROVIDER_STATED", "THIRD_PARTY_ONLY", "NOT_STATED", "UNKNOWN"],
@@ -42,6 +40,7 @@ const REQUIRED = [
   "officialSourceUrl", "applicationUrl", "reviewStatus", "evidence",
 ];
 
+export function validateStaging(data, { today = new Date() } = {}) {
 const errors = [];
 const warnings = [];
 const err = (id, msg) => errors.push(`${id}: ${msg}`);
@@ -80,7 +79,6 @@ function normalizeUrl(u) {
   }
 }
 
-const data = JSON.parse(fs.readFileSync(file, "utf8"));
 const orgIds = new Set(data.organizations.map((o) => o.id));
 const seenIds = new Set();
 const seenNames = new Map(); // normalized org+name -> id
@@ -145,14 +143,35 @@ for (const p of data.programs) {
   }
 }
 
-// ---- Report ----
 const count = (s) => data.programs.filter((p) => p.reviewStatus === s).length;
+return {
+  errors,
+  warnings,
+  counts: {
+    programs: data.programs.length,
+    SOURCE_VERIFIED: count("SOURCE_VERIFIED"),
+    NEEDS_RESEARCH: count("NEEDS_RESEARCH"),
+    OUT_OF_SCOPE: count("OUT_OF_SCOPE"),
+    APPROVED: count("APPROVED"),
+    excluded: data.excluded.length,
+  },
+};
+}
+
+// ---- CLI (only when run directly, not when imported) ----
+if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
+const args = process.argv.slice(2);
+const file = args.find((a) => !a.startsWith("--")) ?? "research/programs-staging.json";
+const todayArg = args.find((a) => a.startsWith("--today="))?.split("=")[1];
+const data = JSON.parse(fs.readFileSync(file, "utf8"));
+const { errors, warnings, counts } = validateStaging(data, { today: todayArg ? new Date(todayArg) : new Date() });
 console.log(`File: ${file}`);
 console.log(
-  `Programs: ${data.programs.length} (SOURCE_VERIFIED ${count("SOURCE_VERIFIED")}, NEEDS_RESEARCH ${count("NEEDS_RESEARCH")}, ` +
-    `OUT_OF_SCOPE ${count("OUT_OF_SCOPE")}, APPROVED ${count("APPROVED")}) | excluded: ${data.excluded.length}`
+  `Programs: ${counts.programs} (SOURCE_VERIFIED ${counts.SOURCE_VERIFIED}, NEEDS_RESEARCH ${counts.NEEDS_RESEARCH}, ` +
+    `OUT_OF_SCOPE ${counts.OUT_OF_SCOPE}, APPROVED ${counts.APPROVED}) | excluded: ${counts.excluded}`
 );
 for (const w of warnings) console.log(`WARN  ${w}`);
 for (const e of errors) console.log(`ERROR ${e}`);
 console.log(errors.length ? `\n${errors.length} error(s).` : "\nNo errors.");
 process.exitCode = errors.length ? 1 : 0;
+}

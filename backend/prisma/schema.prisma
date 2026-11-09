@@ -1,7 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Project Exfil data model.
+//
+// Shape (see research/SCHEMA_PROPOSAL.md for the reasoning):
+//   Organization 1─* Program          — one org can run several programs/designated roles
+//   User 1─* SavedEmployer *─1 Program — a user's tracked listing (+ ActionItems)
+//   Program 1─* Comment (threaded)     — public, timestamped discussion
+//   Comment 1─* Report, Program 1─* Submission — reactive moderation + user leads
+//
+// Migration status: this is the EXPAND step. `Employer` and
+// `SavedEmployer.employerId` are legacy and stay until the contract step,
+// after saved rows have been moved onto `Program` by
+// prisma/migrate-legacy-employers.js.
 
 generator client {
   provider = "prisma-client"
@@ -11,6 +19,8 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─────────────────────────────── Users ───────────────────────────────
 
 enum Branch {
   ARMY
@@ -22,119 +32,287 @@ enum Branch {
   MILITARY_SPOUSE
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String    @id @default(cuid())
+  email          String    @unique // private; never shown publicly
   passwordHash   String
   branch         Branch
   targetField    String?
   separationDate DateTime?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
-  // Inverse side of the User -> SavedEmployer relation.
-  // Prisma needs this array field to know it's one-to-many —
-  // it isn't a real column, just how you traverse the relation
-  // in code (e.g. `user.savedEmployers`).
-  savedEmployers SavedEmployer[]
+  // Public identity. `username` is stored as typed; `usernameKey` is its
+  // lowercase form and carries the unique constraint, so "Marco" and
+  // "marco" can't both exist. Null until chosen (legacy accounts) —
+  // required before posting a comment.
+  username    String?
+  usernameKey String? @unique
+
+  role         Role      @default(USER)
+  suspendedAt  DateTime? // non-null = read-only account
+  tokenVersion Int       @default(0) // bumped on password reset to invalidate old JWTs
+
+  savedEmployers   SavedEmployer[]
+  comments         Comment[]
+  reports          Report[]
+  submissions      Submission[]
+  reviewedPrograms Program[]            @relation("ProgramReviewer")
+  resetTokens      PasswordResetToken[] @relation("ResetTokenOwner")
+  issuedResetTokens PasswordResetToken[] @relation("ResetTokenIssuer")
 }
 
-// TODO (you): Employer model
-// Fields per the brief: id, name, program_name, program_type (enum),
-// url, description, eligibility_notes, industry_tags (array),
-// locations (array), application_window (nullable), created_at, updated_at
-//
-// Hints:
-// - program_type needs its own enum (internship_pipeline, direct_hire,
-//   apprenticeship, fellowship, other) — define it above this model,
-//   same pattern as Branch.
-// - industry_tags / locations are String[] (native Postgres arrays).
-// - updated_at should use @updatedAt instead of @default(now()) —
-//   look up what that attribute does.
-// - This model also needs an inverse relation field back to SavedEmployer,
-//   same idea as `savedEmployers SavedEmployer[]` above.
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation("ResetTokenOwner", fields: [userId], references: [id])
+  tokenHash   String    @unique // only a SHA-256 hash is stored; the raw token lives in the link
+  expiresAt   DateTime
+  usedAt      DateTime? // single use
+  createdById String? // admin who issued it; null later for self-serve email resets
+  createdBy   User?     @relation("ResetTokenIssuer", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+}
 
+// ───────────────────────────── Directory ─────────────────────────────
+
+model Organization {
+  id         String    @id @default(cuid())
+  slug       String    @unique // "amazon" — stable URL + import key
+  name       String
+  websiteUrl String?
+  programs   Program[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+enum ProgramFormat {
+  TRAINING
+  CERTIFICATION_TRAINING
+  FELLOWSHIP
+  INTERNSHIP
+  APPRENTICESHIP
+  DIRECT_HIRE
+}
+
+enum TechTrack {
+  SOFTWARE_DEV
+  IT_SUPPORT
+  CLOUD
+  CYBERSECURITY
+  DATA
+}
+
+// Is the LISTING shown? (our decision)
+enum PublishStatus {
+  DRAFT // imported, awaiting review in the admin page — never public
+  PUBLISHED
+  ARCHIVED // readable at its URL with archiveReason; hidden from browse
+}
+
+// Can someone APPLY right now? (the provider's state, as of verifiedOn)
+enum ApplicationAvailability {
+  ACCEPTING
+  ROLLING
+  CLOSED
+  UNKNOWN
+}
+
+model Program {
+  id             String       @id @default(cuid())
+  slug           String       @unique // = staging id; URL is /programs/:slug
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  name               String
+  description        String
+  format             ProgramFormat
+  techTracks         TechTrack[]
+  // Display text only — NOT proof of verification. Verification is
+  // guaranteed by the review gate (validator → DRAFT import → admin
+  // Approve & publish), never by this column existing.
+  veteranAccessRoute String
+  eligibilityNotes   String? // null = unknown → UI shows "Not stated by provider"
+  prerequisites      String?
+  remoteAvailability String? // "remote" | "in_person" | "hybrid" | "varies"
+  locations          String[]
+  cost               String?
+  duration           String?
+
+  applicationAvailability ApplicationAvailability @default(UNKNOWN)
+  applicationTiming       String?
+  applicationUrl          String?
+  officialSourceUrl       String
+  skillbridgeNote         String?
+
+  verifiedOn DateTime // shown on the listing
+
+  publishStatus PublishStatus @default(DRAFT)
+  archivedAt    DateTime?
+  archiveReason String? // user-facing; required when ARCHIVED (enforced by importer)
+
+  // Review metadata describes exactly what was reviewed: a PUBLISHED row
+  // always has reviewedContentHash == contentHash. A content change sends
+  // the row back to DRAFT and clears these (see import-programs.js).
+  contentHash         String
+  reviewedContentHash String?
+  reviewedById        String?
+  reviewedBy          User?     @relation("ProgramReviewer", fields: [reviewedById], references: [id])
+  reviewedAt          DateTime?
+
+  savedBy     SavedEmployer[]
+  comments    Comment[]
+  submissions Submission[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([publishStatus])
+}
+
+// LEGACY — replaced by Organization/Program. Kept until the contract step.
 enum ProgramType {
   INTERNSHIP_PIPELINE
   DIRECT_HIRE
-  APPRENTICESHIP 
-  FELLOWSHIP 
+  APPRENTICESHIP
+  FELLOWSHIP
   OTHER
 }
 
 model Employer {
-  id                  String  @id @default(cuid())
-  name                String  @unique
-  programName         String
-  programType         ProgramType
-  url                 String
-  description         String
-  eligibilityNotes    String
-  industryTags        String[]
-  locations           String[]
-  applicationWindow   String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  savedEmployers      SavedEmployer[]
-
+  id                String          @id @default(cuid())
+  name              String          @unique
+  programName       String
+  programType       ProgramType
+  url               String
+  description       String
+  eligibilityNotes  String
+  industryTags      String[]
+  locations         String[]
+  applicationWindow String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  savedEmployers    SavedEmployer[]
 }
 
-// TODO (you): SavedEmployer model
-// Fields per the brief: id, user_id (FK), employer_id (FK), status (enum),
-// notes (nullable), saved_at, updated_at
-//
-// Hints:
-// - status enum: researching, applied, interviewing, offer, rejected
-// - You'll need TWO fields per relation: the scalar FK (e.g. `userId String`)
-//   and the relation field (`user User @relation(fields: [userId], references: [id])`)
-// - Also needs the inverse relation field back to ActionItem
-// - Consider: should (userId, employerId) be unique together? Look up
-//   `@@unique([field1, field2])` for a composite unique constraint —
-//   think about whether a user should be able to save the same employer twice.
+// ───────────────────────── Tracking (per user) ─────────────────────────
 
 enum Status {
   RESEARCHING
-  APPLIED 
-  INTERVIEWING 
-  OFFER 
+  APPLIED
+  INTERVIEWING
+  OFFER
   REJECTED
 }
 
+// A user's tracked listing. Name kept for now to avoid a table rename
+// mid-migration; it now points at a Program. `employerId` is legacy.
 model SavedEmployer {
-  id                String @id @default(cuid())
-  userId            String
-  user              User  @relation(fields: [userId], references: [id])
-  employerId        String
-  employer          Employer @relation(fields: [employerId], references: [id])
-  status            Status
-  notes             String?
-  savedAt           DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  actionItems       ActionItem[]
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  programId   String? // required after the contract step
+  program     Program?     @relation(fields: [programId], references: [id])
+  employerId  String? // LEGACY
+  employer    Employer?    @relation(fields: [employerId], references: [id])
+  status      Status
+  notes       String?
+  savedAt     DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  actionItems ActionItem[]
 
-  // One saved row per user per employer for v1. Reapplying later means
-  // updating this row's status, not creating a second one — tracking
-  // distinct application attempts over time would need a richer model
-  // (e.g. a separate Application entity) than v1 scope calls for.
+  // One tracked row per user per listing.
+  @@unique([userId, programId])
   @@unique([userId, employerId])
 }
 
-// TODO (you): ActionItem model
-// Fields per the brief: id, saved_employer_id (FK), title, completed
-// (boolean, default false), order (int), created_at
-//
-// Note: `order` is a SQL reserved word in some contexts — you may want
-// to check whether Prisma/Postgres has an issue with it as a column name,
-// or use @map to rename it at the DB level while keeping `order` in your
-// Prisma code. Worth testing.
-
-
 model ActionItem {
-  id                        String @id @default(cuid())
-  savedEmployerId           String
-  savedEmployer             SavedEmployer @relation(fields: [savedEmployerId], references: [id])
-  title                     String
-  completed                 Boolean @default(false)
-  order                     Int
-  createdAt                 DateTime @default(now())
+  id              String        @id @default(cuid())
+  savedEmployerId String
+  savedEmployer   SavedEmployer @relation(fields: [savedEmployerId], references: [id])
+  title           String
+  completed       Boolean       @default(false)
+  order           Int
+  createdAt       DateTime      @default(now())
+}
 
+// ───────────────────────────── Community ─────────────────────────────
+
+model Comment {
+  id        String  @id @default(cuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id])
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id])
+
+  // Threading. Same-program replies and "no new replies to hidden
+  // comments" are enforced in the controller — the DB can't express them.
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  body         String // 1–2,000 chars, enforced in code
+  createdAt    DateTime  @default(now()) // shown on every comment
+  hiddenAt     DateTime? // shown as "Removed by admin"; replies stay visible
+  hiddenReason String? // admin-only
+  reports      Report[]
+
+  @@index([programId, parentId, createdAt, id])
+  @@index([authorId, createdAt]) // posting rate limit: "my recent comments"
+}
+
+enum ReportStatus {
+  OPEN
+  ACTIONED
+  DISMISSED
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  commentId  String
+  comment    Comment      @relation(fields: [commentId], references: [id])
+  reporterId String
+  reporter   User         @relation(fields: [reporterId], references: [id])
+  reason     String
+  status     ReportStatus @default(OPEN)
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
+
+  @@unique([commentId, reporterId])
+  @@index([status, createdAt])
+}
+
+enum SubmissionKind {
+  LISTING_UPDATE
+  NEW_LISTING_LEAD
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// A lead, never evidence: accepting it only marks it reviewed. The listing
+// change itself still goes staging → validator → import → Approve & publish.
+model Submission {
+  id          String           @id @default(cuid())
+  kind        SubmissionKind
+  programId   String? // required for LISTING_UPDATE (enforced in code)
+  program     Program?         @relation(fields: [programId], references: [id])
+  submitterId String
+  submitter   User             @relation(fields: [submitterId], references: [id])
+  body        String
+  sourceUrl   String?
+  status      SubmissionStatus @default(PENDING)
+  adminNote   String? // shown to the submitter
+  createdAt   DateTime         @default(now())
+  reviewedAt  DateTime?
+
+  @@index([status, createdAt])
+  @@index([submitterId, createdAt])
 }
