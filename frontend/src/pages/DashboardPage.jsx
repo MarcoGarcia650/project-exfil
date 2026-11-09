@@ -47,20 +47,31 @@ export function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
       <p className="summary">
-        {data.summary.totalSaved} saved employers &middot; {data.summary.completedActionItems}/
+        {data.summary.totalSaved} saved programs &middot; {data.summary.completedActionItems}/
         {data.summary.totalActionItems} action items complete
       </p>
 
       <ul className="saved-list">
-        {data.savedEmployers.map((se) => (
+        {data.savedPrograms.map((se) => (
           <li key={se.id} className="saved-card">
             <div className="employer-card-header">
-              <EmployerBadge name={se.employer.name} />
+              <EmployerBadge name={se.program.organization.name} />
               <div>
-                <h2>{se.employer.name}</h2>
-                <p className="program-name">{se.employer.programName}</p>
+                <h2>{se.program.name}</h2>
+                <p className="program-name">{se.program.organization.name}</p>
               </div>
             </div>
+
+            {/* Listing state comes from the server: drafts expose no content,
+                archived listings always carry a user-facing reason. */}
+            {se.program.publishStatus === "DRAFT" && (
+              <p className="listing-notice">Under review: this listing is being re-verified.</p>
+            )}
+            {se.program.publishStatus === "ARCHIVED" && (
+              <p className="listing-notice">
+                <strong>Archived.</strong> {se.program.archiveReason}
+              </p>
+            )}
 
             <label className="status-label">
               Status

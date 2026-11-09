@@ -319,3 +319,17 @@ button:disabled {
   color: var(--text-muted);
   font-size: 13px;
 }
+
+/* Dashboard notice for archived / under-review listings */
+.listing-notice {
+  background: #fef3c7;
+  border-left: 3px solid #d97706;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.program-meta {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}

@@ -4,12 +4,20 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
 
-const PROGRAM_TYPES = ["INTERNSHIP_PIPELINE", "DIRECT_HIRE", "APPRENTICESHIP", "FELLOWSHIP", "OTHER"];
+const TECH_TRACKS = ["SOFTWARE_DEV", "IT_SUPPORT", "CLOUD", "CYBERSECURITY", "DATA"];
+const FORMATS = ["TRAINING", "CERTIFICATION_TRAINING", "FELLOWSHIP", "INTERNSHIP", "APPRENTICESHIP", "DIRECT_HIRE"];
+const AVAILABILITY_LABELS = {
+  ACCEPTING: "Accepting applications",
+  ROLLING: "Rolling applications",
+  CLOSED: "Applications closed",
+  UNKNOWN: "Application status unknown",
+};
+const label = (value) => value.replace(/_/g, " ").toLowerCase().replace(/^./, (c) => c.toUpperCase());
 
 export function EmployersPage() {
   const { token } = useAuth();
-  const [employers, setEmployers] = useState([]);
-  const [filters, setFilters] = useState({ industryTag: "", programType: "", location: "" });
+  const [programs, setPrograms] = useState([]);
+  const [filters, setFilters] = useState({ techTrack: "", format: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savedIds, setSavedIds] = useState(new Set());
@@ -26,8 +34,8 @@ export function EmployersPage() {
     );
 
     api
-      .get(`/employers?${params.toString()}`)
-      .then(setEmployers)
+      .get(`/programs?${params.toString()}`)
+      .then(setPrograms)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [filters]);
@@ -36,11 +44,11 @@ export function EmployersPage() {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   }
 
-  async function handleSave(employerId) {
+  async function handleSave(programId) {
     setSaveError(null);
     try {
-      await api.post("/saved-employers", { employerId }, token);
-      setSavedIds((prev) => new Set(prev).add(employerId));
+      await api.post("/saved-employers", { programId }, token);
+      setSavedIds((prev) => new Set(prev).add(programId));
     } catch (err) {
       setSaveError(err.message);
     }
@@ -48,29 +56,25 @@ export function EmployersPage() {
 
   return (
     <div>
-      <h1>Browse employers</h1>
+      <h1>Browse programs</h1>
 
       <div className="filters">
-        <input
-          name="industryTag"
-          placeholder="Industry tag (e.g. tech)"
-          value={filters.industryTag}
-          onChange={handleFilterChange}
-        />
-        <select name="programType" value={filters.programType} onChange={handleFilterChange}>
-          <option value="">All program types</option>
-          {PROGRAM_TYPES.map((t) => (
+        <select name="techTrack" value={filters.techTrack} onChange={handleFilterChange}>
+          <option value="">All tech tracks</option>
+          {TECH_TRACKS.map((t) => (
             <option key={t} value={t}>
-              {t.replace(/_/g, " ")}
+              {label(t)}
             </option>
           ))}
         </select>
-        <input
-          name="location"
-          placeholder="Location (e.g. Remote)"
-          value={filters.location}
-          onChange={handleFilterChange}
-        />
+        <select name="format" value={filters.format} onChange={handleFilterChange}>
+          <option value="">All formats</option>
+          {FORMATS.map((f) => (
+            <option key={f} value={f}>
+              {label(f)}
+            </option>
+          ))}
+        </select>
       </div>
 
       {saveError && <p className="error">{saveError}</p>}
@@ -78,23 +82,29 @@ export function EmployersPage() {
       {error && <p className="error">{error}</p>}
 
       <ul className="employer-list">
-        {employers.map((employer) => (
-          <li key={employer.id} className="employer-card">
+        {programs.map((program) => (
+          <li key={program.id} className="employer-card">
             <div className="employer-card-header">
-              <EmployerBadge name={employer.name} />
+              <EmployerBadge name={program.organization.name} />
               <div>
-                <h2>{employer.name}</h2>
-                <p className="program-name">{employer.programName}</p>
+                <h2>{program.name}</h2>
+                <p className="program-name">
+                  {program.organization.name} &middot; {label(program.format)}
+                </p>
               </div>
             </div>
-            <p>{employer.description}</p>
+            <p>{program.description}</p>
+            <p className="program-meta">
+              {AVAILABILITY_LABELS[program.applicationAvailability]} &middot; Last verified{" "}
+              {new Date(program.verifiedOn).toLocaleDateString(undefined, { timeZone: "UTC" })}
+            </p>
             <p>
-              <a href={employer.url} target="_blank" rel="noreferrer" className="program-link">
-                Program page <ExternalLink size={14} />
+              <a href={program.officialSourceUrl} target="_blank" rel="noreferrer" className="program-link">
+                Official program page <ExternalLink size={14} />
               </a>
             </p>
-            <button onClick={() => handleSave(employer.id)} disabled={savedIds.has(employer.id)}>
-              {savedIds.has(employer.id) ? "Saved" : "Save"}
+            <button onClick={() => handleSave(program.id)} disabled={savedIds.has(program.id)}>
+              {savedIds.has(program.id) ? "Saved" : "Save"}
             </button>
           </li>
         ))}

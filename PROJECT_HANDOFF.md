@@ -42,21 +42,20 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 
 ## Latest implementation state
 
-- **Phase 1 in progress (branch `feature/programs-directory`, LOCAL DB ONLY).**
-  - **Done:**
-    - expand schema + migration `20261108230000_programs_directory_expand` (additive), applied to local Docker;
-    - [import-programs.js](backend/prisma/import-programs.js) (validator-gated, dry run by default, transition table) plus 10 passing transition tests (`npm test`);
-    - [migrate-legacy-employers.js](backend/prisma/migrate-legacy-employers.js) (backfill);
-    - staging and validator moved to the 4 availability values;
-    - backend switched to `/programs` (PUBLISHED-only browse; DRAFT → 404; archived viewable) and program-based saves/dashboard; new action-item templates.
-  - **Verified locally:**
-    - importer created 13 DRAFTs, and a re-run reported all UNCHANGED;
-    - backfill moved 5 fixture saves with status, notes and 2 action items each intact; HOH and VetsinTech archived with reasons; Oracle a hidden DRAFT; re-run moved 0;
-    - importer then FLAGs oracle-ovip and reports the 2 archived legacy rows as NOT_IN_STAGING, as designed.
-  - **Not yet verified:** the API endpoints over HTTP (blocked, see below).
-  - **Not done:** the frontend switch, which still calls the removed `/employers`.
-  - **Local-only test data:** user `legacy-test@example.com` with 5 saves. `vetswhocode-accelerator` was set PUBLISHED directly via SQL as a stand-in for the unbuilt admin Approve & publish.
-- **BLOCKER (environment):** the repo lives in `~/Documents`, which iCloud Drive syncs with "Optimize Mac Storage" on. **14,822 files in `node_modules` are offloaded** to iCloud (frontend `node_modules` is 0 B on disk), plus 184 files in `.git` and some build/deploy files. Node module reads time out (`ETIMEDOUT` in `readFileSync`), so Prisma CLI and the API take minutes to start or fail outright. The user needs to decide on a fix; see open questions.
+- **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` is stale; don't work there.** It's kept until the user confirms deletion. If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Phase 1 complete, LOCAL ONLY (branch `feature/programs-directory`):**
+  - expand migration `20261108230000_programs_directory_expand` (additive), applied to local Docker only;
+  - [import-programs.js](backend/prisma/import-programs.js): validator-gated, dry run by default, transition table, 10 passing `node:test` cases (`npm test`);
+  - [migrate-legacy-employers.js](backend/prisma/migrate-legacy-employers.js): the backfill;
+  - backend `/programs` (PUBLISHED-only browse with techTrack/format/availability filters; DRAFT → 404; ARCHIVED viewable with reason); `/employers` removed; program-based saves and dashboard (DRAFT shows name/org/"Under review" only; ARCHIVED shows reason); format-based action-item templates;
+  - minimal frontend switch: browse and dashboard use programs. The route is still `/employers` and browse is still behind login; both change in phase 2.
+- **Verified locally (2026-11-09):**
+  - 26/26 HTTP smoke checks: public reads, no review-metadata leak, filters, draft 404s, archived detail, save rules (401/404/409/400), and legacy dashboard intact;
+  - headless-browser end-to-end 8/8: signup → browse → filter → save → dashboard; legacy user sees 2 archived reasons and 3 "Under review"; no console errors;
+  - `vite build` succeeds.
+- **Local-only test data:** users `legacy-test@example.com` (5 migrated saves; local password set for testing) plus a few `smoke-*`/`e2e-*@example.com` signups. `vetswhocode-accelerator` was set PUBLISHED via SQL as a stand-in for the unbuilt admin Approve & publish.
+- **Not done:** the contract step (drop `Employer`, require `programId`), which comes after production is verified. Production is untouched.
+- **Polish note for phase 2:** archive reasons begin with "Archived Nov 2026:", so the dashboard reads "Archived. Archived Nov 2026…". Fix the label or the reason text in the design pass.
 - **Batch 1:** 25 in-scope programs: 13 `SOURCE_VERIFIED` and 12 `NEEDS_RESEARCH`, 0 `APPROVED`. 10 records excluded, 6 of them as active-duty-only. Archive reasons for seed rows are drafted in `existingSeedRecheck`.
   - Source-verified: Microsoft MSSA, Amazon Technical Apprenticeships, Amazon SDE – Military Veterans, Amazon SDE Apprentice – Military Veterans (both from amazon.jobs search results), Salesforce Military, Per Scholas military learners, NPower Path2Tech Cloud, NPower Path2Tech Cybersecurity, NPower Networking & Sysadmin, Code Platoon AI + Fullstack, Fortinet Veterans Program, IVMF Onward to Opportunity, Vets Who Code.
   - Needs research: Amazon SDE Intern – Military Veteran (seasonal; no live posting on 2026-11-08), Oracle OVIP, MSSA Cleared Talent Accelerator, HOH Data Centers Pathway, HOH Salesforce Fellowship, Code Platoon Cloud/DevOps, VetsinTech VIT Academy, ServiceNow RiseUp, SkillStorm, LaunchCode, SANS VetSuccess, BreakLine.
@@ -166,10 +165,7 @@ Data answers (user, 2026-11-08), applied to `programs-staging.json`; validator p
 
 Remaining:
 
-0. **iCloud offloading blocks local dev (decision needed).** Options:
-   - (a) Move the repo out of iCloud, e.g. to `~/dev/VetTool`. This is Claude's recommendation: permanent, and git stays fully local.
-   - (b) Keep it in place but turn off "Optimize Mac Storage", or exclude `node_modules` via a `.nosync` rename plus symlink.
-   - (c) Force-download now (`brctl download`) as a stopgap; files can be offloaded again later.
+0. ~~iCloud offloading~~: **resolved (user chose to move the repo, 2026-11-09).** Remaining: the user to reopen VS Code at `~/projects/VetTool` and confirm deletion of the old `~/Documents` copy.
 
 1. ~~Schema approval~~: **approved (user, 2026-11-08).** Phase 1 starting on the local Docker DB only. Production steps (phase 6) still need explicit user go-ahead.
 2. ~~When and where to review listings~~: **decided (user, 2026-11-08)**. Records are reviewed in the admin page's "Drafts to review" list:
@@ -210,6 +206,14 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 1 complete, local) — Claude (VS Code)
+
+- Moved the repo to `~/projects/VetTool` at the user's request: force-downloaded 187 offloaded files, then rsync-copied excluding regenerable dirs. Verified with a checksum diff (identical), `git fsck` (no errors) and a fresh `npm ci`. Prisma CLI startup went from 14s+/hangs to 1s.
+- Finished phase 1 locally: endpoint smoke tests (26/26), frontend switch, headless end-to-end (8/8), build OK. Committed on `feature/programs-directory`.
+- Copied Claude's project memory to the new path's memory folder.
+- No production DB, migration, import or deploy work.
+- Next: phase 2 (public directory). Open: the user to confirm deleting the old iCloud copy.
 
 ### 2026-11-08 (phase 1, part 1) — Claude (VS Code)
 
