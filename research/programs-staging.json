@@ -1,0 +1,1804 @@
+{
+  "meta": {
+    "batch": "2026-11-tech-batch-1",
+    "createdOn": "2026-11-08",
+    "createdBy": "Claude (research agent) — NOT human-reviewed",
+    "scope": "Tech career programs (SOFTWARE_DEV, IT_SUPPORT, CLOUD, CYBERSECURITY, DATA) that veterans can access AFTER separation. Relevance is judged by career pathway, not employer industry. Active-duty-only SkillBridge opportunities are excluded. A program that also offers SkillBridge stays only if a veteran-accessible route is documented in veteranAccess.",
+    "importable": false,
+    "importBlockers": [
+      "No record has reviewStatus APPROVED. Only a human reviewer may set APPROVED.",
+      "SkillBridge status is secondary under the 2026-11-08 scope. The official directory was also unreachable (TLS certificate expired 2026-10-31), so no skillbridge.status is DIRECTORY_CONFIRMED."
+    ],
+    "conventions": {
+      "unknown": "The literal string \"unknown\" means no official source checked for this batch stated the value. It does not mean 'none' or 'no'.",
+      "verifiedOn": "Date an official provider page was actually fetched and the record's fields were compared against it. null = not source-verified.",
+      "reviewStatus": {
+        "SOURCE_VERIFIED": "Official provider page fetched on verifiedOn. Existence, format, eligible audiences and an application path are confirmed there. Still requires human review before publication.",
+        "NEEDS_RESEARCH": "A lead only. Either the official page could not be fetched, or key facts come from third-party/search sources, or the program may be inactive.",
+        "OUT_OF_SCOPE": "Source-checked, but not a tech career pathway or not a program. Kept for the record and seed reconciliation.",
+        "APPROVED": "Human-only. Reviewed and cleared for import."
+      },
+      "skillbridge.status": {
+        "DIRECTORY_CONFIRMED": "Listed in the official DoD SkillBridge directory on the check date. (None in this batch: directory unreachable.)",
+        "PROVIDER_STATED": "The provider's own official page says the program is a DoD SkillBridge program/provider. Not independently confirmed.",
+        "THIRD_PARTY_ONLY": "Only non-provider sources (news, job boards, base flyers) say so.",
+        "NOT_STATED": "The provider's official page was checked and does not mention SkillBridge. This is NOT a claim that it isn't SkillBridge-approved.",
+        "UNKNOWN": "Not checked against any provider page.",
+        "note": "Secondary under the 2026-11-08 scope: recorded when seen, not researched further."
+      },
+      "programFormat": "TRAINING | CERTIFICATION_TRAINING | FELLOWSHIP | INTERNSHIP | APPRENTICESHIP | DIRECT_HIRE. A training or certification program never implies employment; see outcomeNote.",
+      "applicationStatus": "OPEN | OPEN_ROLLING | UPCOMING | CLOSED | NO_COHORTS_SCHEDULED | UNKNOWN, as of applicationStatusAsOf.",
+      "veteranAccess": {
+        "VERIFIED": "An official provider page states that veterans (post-separation) are eligible; route describes how they apply.",
+        "UNVERIFIED": "Veteran eligibility is plausible but not confirmed on an official page.",
+        "ACTIVE_DUTY_ONLY": "Only open to service members before separation — excluded from the directory."
+      },
+      "archive": "Records whose existing seed row will be archived carry archiveReason, shown to every user who saved it. Never delete."
+    },
+    "scopeDecision": {
+      "decidedBy": "user",
+      "decidedOn": "2026-11-08",
+      "summary": "Focus on post-separation veteran access; exclude active-duty-only SkillBridge; SkillBridge is secondary info, not a filter or schema priority."
+    }
+  },
+  "organizations": [
+    {
+      "id": "org-microsoft",
+      "name": "Microsoft",
+      "website": "https://military.microsoft.com/"
+    },
+    {
+      "id": "org-amazon",
+      "name": "Amazon",
+      "website": "https://www.amazon.jobs/military"
+    },
+    {
+      "id": "org-oracle",
+      "name": "Oracle",
+      "website": "https://www.oracle.com/careers/life-at-oracle/veterans/"
+    },
+    {
+      "id": "org-salesforce",
+      "name": "Salesforce",
+      "website": "https://trailhead.salesforce.com/salesforce-military"
+    },
+    {
+      "id": "org-hoh",
+      "name": "Hiring Our Heroes",
+      "website": "https://www.hiringourheroes.org/"
+    },
+    {
+      "id": "org-perscholas",
+      "name": "Per Scholas",
+      "website": "https://perscholas.org/"
+    },
+    {
+      "id": "org-npower",
+      "name": "NPower",
+      "website": "https://www.npower.org/"
+    },
+    {
+      "id": "org-codeplatoon",
+      "name": "Code Platoon",
+      "website": "https://www.codeplatoon.org/"
+    },
+    {
+      "id": "org-fortinet",
+      "name": "Fortinet",
+      "website": "https://www.fortinet.com/"
+    },
+    {
+      "id": "org-ivmf",
+      "name": "D'Aniello Institute for Veterans and Military Families (IVMF), Syracuse University",
+      "website": "https://ivmf.syracuse.edu/"
+    },
+    {
+      "id": "org-vetsintech",
+      "name": "VetsinTech",
+      "website": "https://vetsintech.co/"
+    },
+    {
+      "id": "org-servicenow",
+      "name": "ServiceNow",
+      "website": "https://www.servicenow.com/"
+    },
+    {
+      "id": "org-skillstorm",
+      "name": "SkillStorm",
+      "website": "https://skillstorm.com/"
+    },
+    {
+      "id": "org-launchcode",
+      "name": "LaunchCode",
+      "website": "https://www.launchcode.org/"
+    },
+    {
+      "id": "org-sans",
+      "name": "SANS Institute",
+      "website": "https://www.sans.org/cybertalent/"
+    },
+    {
+      "id": "org-breakline",
+      "name": "BreakLine",
+      "website": "unknown"
+    },
+    {
+      "id": "org-vetswhocode",
+      "name": "Vets Who Code",
+      "website": "https://vetswhocode.io/"
+    }
+  ],
+  "programs": [
+    {
+      "id": "microsoft-mssa",
+      "organizationId": "org-microsoft",
+      "programName": "Microsoft Software & Systems Academy (MSSA)",
+      "description": "Full-time technical training program for transitioning service members and veterans, with professional-skills training, mentorship and career support. Learning paths: Server and Cloud Administration, Cloud Application Development, Cybersecurity Operations (availability varies by cohort).",
+      "techTracks": [
+        "CLOUD",
+        "SOFTWARE_DEV",
+        "CYBERSECURITY"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "PROVIDER_STATED",
+        "basis": "MSSA eligibility page tells active-duty applicants to 'Check with DOD SkillBridge for your branch's application process'; MSSA also publishes resources for SkillBridge/CSP coordinators. The main MSSA page does not itself say 'SkillBridge'.",
+        "sourceUrl": "https://military.microsoft.com/mssa/how-to-apply/eligibility/"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "GUARD_RESERVE",
+        "VETERAN",
+        "RETIREE"
+      ],
+      "eligibilityNotes": "Active duty: end-of-service date within 180 days of program start, with command approval. Guard/Reserve: command approval. Veterans: DD-214 showing Honorable or General (Under Honorable Conditions). UK MoD service leavers/veterans also eligible. Military spouses are not listed as eligible on the eligibility page.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans and retirees apply directly to an MSSA cohort with a DD-214 showing Honorable or General (Under Honorable Conditions). SkillBridge is only the active-duty route.",
+        "sourceUrl": "https://military.microsoft.com/mssa/how-to-apply/eligibility/"
+      },
+      "prerequisites": "Able to commit full-time for all 17 weeks. Suited to entry-level/career-changers. Cybersecurity Operations path requires 1+ year of cybersecurity experience including networking and server operating systems.",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": "Page mentions live instruction and hands-on virtual labs with classes on Pacific/Central time; does not state in-person vs virtual."
+      },
+      "cost": "No cost to participant stated: page says 'Microsoft is fully funding MSSA program costs'.",
+      "compensation": "unknown",
+      "duration": "17 weeks, full-time",
+      "applicationTiming": "Two-week application windows per cohort, plus a later materials cutoff. Example on page: Apr 5–Jul 30, 2027 cohort accepts applications Nov 16–30, 2026.",
+      "applicationStatus": "UPCOMING",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://military.microsoft.com/mssa/",
+      "applicationUrl": "https://military.microsoft.com/mssa/how-to-apply/",
+      "outcomeNote": "Training program. No job or interview guarantee stated. Provider cites outcome statistics, which are not repeated here as promises.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://military.microsoft.com/mssa/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "duration",
+            "cost",
+            "applicationTiming"
+          ]
+        },
+        {
+          "url": "https://military.microsoft.com/mssa/how-to-apply/eligibility/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "eligibleAudiences",
+            "prerequisites",
+            "skillbridge"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Third-party sources describe 16–18 weeks; official page says 17."
+      ],
+      "notes": "Existing seed row. Seed says locations ['Remote','Multiple US locations']; not confirmed by the official page."
+    },
+    {
+      "id": "microsoft-mcta",
+      "organizationId": "org-microsoft",
+      "programName": "MSSA Cleared Talent Accelerator (MCTA)",
+      "description": "Mentioned on the MSSA-Federal page as a new 90-day program for candidates with TS/SCI clearance or higher. Details not yet reviewed.",
+      "techTracks": [
+        "unknown"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on MSSA-Federal page; dedicated MCTA page not yet fetched.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "TS/SCI clearance or higher (per MSSA-Federal page). Other criteria unknown.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "unknown — only clearance requirement known.",
+        "sourceUrl": null
+      },
+      "prerequisites": "TS/SCI or higher clearance; other prerequisites unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "90 days",
+      "applicationTiming": "unknown",
+      "applicationStatus": "OPEN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://military.microsoft.com/mssa-cleared-talent-accelerator/",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://military.microsoft.com/mssa-federal",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "duration",
+            "applicationStatus"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "Fetch the MCTA page itself for tracks, eligibility, format and cost."
+    },
+    {
+      "id": "amazon-technical-apprenticeship",
+      "organizationId": "org-amazon",
+      "programName": "Amazon Technical Apprenticeships (military)",
+      "description": "Apprenticeship for veterans and military spouses moving into cloud and technical roles: a paid training course (10–18 weeks by track) followed by up to 12 months of paid on-the-job training at Amazon. Tracks include Cloud Support Associate, Associate Cloud Consultant, Solutions Architect, Software Development Engineer, Support Engineer, Technical Account Manager and Technical Sales.",
+      "techTracks": [
+        "CLOUD",
+        "SOFTWARE_DEV",
+        "IT_SUPPORT"
+      ],
+      "programFormat": "APPRENTICESHIP",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Official landing page does not mention SkillBridge.",
+        "sourceUrl": "https://www.amazon.jobs/en/landing_pages/mil-apprentice"
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Page: 'Veterans, military spouses, and people with disabilities are encouraged to apply.' Whether transitioning active-duty members are eligible is not stated. Page says the program is 'GI Bill eligible'.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Landing page invites veterans and military spouses to apply; no SkillBridge involvement.",
+        "sourceUrl": "https://www.amazon.jobs/en/landing_pages/mil-apprentice"
+      },
+      "prerequisites": "Page says apprentices can have 'no previous technical experience'. No degree requirement stated.",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": "No locations listed on the landing page."
+      },
+      "cost": "unknown",
+      "compensation": "Paid: 'a paid training course' and 'up to 12 months of paid, on-the-job training'.",
+      "duration": "Training 10–18 weeks depending on track (Technical Sales 10, Support Engineer/Associate Cloud Consultant/TAM 12, Cloud Support Associate/Solutions Architect 14, SDE 18) + up to 12 months on-the-job training",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.amazon.jobs/en/landing_pages/mil-apprentice",
+      "applicationUrl": "unknown",
+      "outcomeNote": "Apprentices are paid during training and on-the-job training. The page mentions 'placement'. It does not guarantee a permanent role after the apprenticeship.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.amazon.jobs/en/landing_pages/mil-apprentice",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "duration",
+            "compensation",
+            "eligibleAudiences",
+            "prerequisites"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "USER DECISION 2026-11-08: list all tracks, including Technical Sales and Technical Account Manager. techTracks unchanged (no sales track in the enum); those tracks are named in the description. Replaces the existing 'Amazon Military Careers' seed row (saves migrate here)."
+    },
+    {
+      "id": "oracle-ovip",
+      "organizationId": "org-oracle",
+      "programName": "Oracle Veteran Internship Program (OVIP)",
+      "description": "Paid internship for transitioning veterans, reservists/guardsmen and active-duty military spouses. Third-party postings show OVIP intern roles in software engineering, information security, cloud network automation, business analysis, pre-sales and customer success.",
+      "techTracks": [
+        "SOFTWARE_DEV",
+        "CYBERSECURITY",
+        "CLOUD"
+      ],
+      "programFormat": "INTERNSHIP",
+      "skillbridge": {
+        "status": "UNKNOWN",
+        "basis": "Official page could not be fetched (HTTP 403).",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "GUARD_RESERVE",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "From third-party postings: 'US Veteran transitioning from active service or active-duty Military Spouse'. Not confirmed on official page.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "User says (2026-11-08) separated veterans can apply. Not yet confirmed on an official Oracle page; stays UNVERIFIED until the official page (403 to automated fetch) is read in a browser.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": "Postings mention Colorado Springs, Austin, Reston and remote; varies by role."
+      },
+      "cost": "unknown",
+      "compensation": "Paid hourly per third-party postings; amount varies by role. Not confirmed on official page.",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.oracle.com/careers/life-at-oracle/veterans/",
+      "applicationUrl": "unknown",
+      "outcomeNote": "Internship. No conversion guarantee confirmed.",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.oracle.com/careers/life-at-oracle/veterans/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "HTTP 403 to automated fetch. A search-engine snippet of this page calls OVIP a 'quarter-long internship'."
+        },
+        {
+          "url": "https://home.army.mil/stewart/9516/8909/0212/MSEP_Employer_Oracle-Oracle_Veterans_Internship_Program.pdf",
+          "kind": "third_party",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "2024 installation flyer (search snippet only)."
+        }
+      ],
+      "conflicts": [
+        "Project brief says '6-month program'; seed says '12-week'; official-page snippet says 'quarter-long'. Brief is likely wrong, but confirm in a browser."
+      ],
+      "notes": "Existing seed row. Open the official page manually in a browser; the 403 is probably bot blocking. | 2026-11-08: user answered 'yes' to separated-veteran eligibility; recorded as user-provided, not source-verified."
+    },
+    {
+      "id": "salesforce-military",
+      "organizationId": "org-salesforce",
+      "programName": "Salesforce Military (Trailhead)",
+      "description": "Free, self-paced, online Salesforce and AI skills training on Trailhead, with optional virtual instructor-led classes, free certification exam vouchers, mentorship and career resources. Career paths: Administrator, Developer, Consultant, Marketer, Slack, Tableau.",
+      "techTracks": [
+        "SOFTWARE_DEV",
+        "DATA",
+        "IT_SUPPORT"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on official page.",
+        "sourceUrl": "https://trailhead.salesforce.com/salesforce-military"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "MILITARY_SPOUSE",
+        "OTHER"
+      ],
+      "eligibilityNotes": "Current and transitioning service members, their spouses, and veterans of all eras who served in the US, Canada, UK, Australia or New Zealand; US Gold Star children. Military status verified at sign-up.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans of all eras self-register on Trailhead; military status verified at sign-up.",
+        "sourceUrl": "https://trailhead.salesforce.com/salesforce-military"
+      },
+      "prerequisites": "None: page says 'No experience necessary'.",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [],
+        "notes": "100% online."
+      },
+      "cost": "Free: 'no cost to members, ever' (page FAQ).",
+      "compensation": "Not applicable (unpaid training)",
+      "duration": "Self-paced; no overall length stated",
+      "applicationTiming": "Self-registration",
+      "applicationStatus": "OPEN_ROLLING",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://trailhead.salesforce.com/salesforce-military",
+      "applicationUrl": "https://trailhead.salesforce.com/salesforce-military",
+      "outcomeNote": "Training and certification only. Provider says members who earn a first certification can 'access guaranteed interviews with our hiring partners through the Salesforce Talent Alliance'. That is a provider claim of interview access, not a job.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://trailhead.salesforce.com/salesforce-military",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "eligibleAudiences",
+            "cost",
+            "location",
+            "prerequisites"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Page body says up to 20 certifications; page FAQ says 25+."
+      ],
+      "notes": "USER DECISION 2026-11-08: Salesforce Administrator path counts as IT_SUPPORT. Developer→SOFTWARE_DEV, Tableau→DATA."
+    },
+    {
+      "id": "hoh-data-centers-pathway",
+      "organizationId": "org-hoh",
+      "programName": "Hiring Our Heroes Data Centers Pathway",
+      "description": "Listed under 'Industry-focused Programs' (for veterans and transitioning service members) on the HOH fellowships page. Program page not yet fetched.",
+      "techTracks": [
+        "IT_SUPPORT"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "UNKNOWN",
+        "basis": "Program page not fetched.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "ACTIVE_DUTY_TRANSITIONING"
+      ],
+      "eligibilityNotes": "Category heading says veterans and transitioning service members; program-specific eligibility unknown.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "HOH category heading says 'for veterans and transitioning service members'; program page not read.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.hiringourheroes.org/career-services/education-networking/datacenter-pathways",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.hiringourheroes.org/career-services/fellowships/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "programName"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "Format guessed as TRAINING from its 'education-networking' URL path; confirm. Data-center operations is IT-adjacent; reviewer decides scope."
+    },
+    {
+      "id": "hoh-salesforce-fellowship",
+      "organizationId": "org-hoh",
+      "programName": "Hiring Our Heroes Salesforce Fellowship",
+      "description": "12-week fellowship for Salesforce-certified transitioning service members and military spouses (per older sources). Possibly discontinued: the official program URLs return 404 and the current HOH fellowships page does not list it.",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "FELLOWSHIP",
+      "skillbridge": {
+        "status": "UNKNOWN",
+        "basis": "No live official page.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "unknown",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Older sources say veteran fellows were paid through HOH; no live official page.",
+        "sourceUrl": null
+      },
+      "prerequisites": "Older sources: Salesforce certification before the fellowship. Unconfirmed.",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "unknown",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.hiringourheroes.org/career-services/fellowships/industry-focus/salesforce/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "HTTP 404"
+        },
+        {
+          "url": "https://www.hiringourheroes.org/fellowships/salesforce-fellowship-program/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "HTTP 404"
+        }
+      ],
+      "conflicts": [],
+      "notes": "The Salesforce Military page still says a '12 week Salesforce Military Fellowship Program' exists with HOH. Ask HOH or check the SkillBridge directory."
+    },
+    {
+      "id": "perscholas-military",
+      "organizationId": "org-perscholas",
+      "programName": "Per Scholas Military Learner Initiative (tuition-free tech courses)",
+      "description": "Tuition-free, hands-on tech courses with industry certifications for veterans, service members and military spouses, plus career support. Courses include AI Native Software Development, AI-Enabled IT Support, IT Support, AWS re/Start (cloud), Cybersecurity with AI Tools, and data-center/critical-infrastructure technician tracks.",
+      "techTracks": [
+        "SOFTWARE_DEV",
+        "IT_SUPPORT",
+        "CLOUD",
+        "CYBERSECURITY"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "PROVIDER_STATED",
+        "basis": "Page: Per Scholas is an 'approved DoD SkillBridge provider'.",
+        "sourceUrl": "https://perscholas.org/veterans/"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "GUARD_RESERVE",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Veterans, service members, military spouses, Guard and Reserve. No IT-related MOS/AFSC/rating needed. Course-level eligibility may differ.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans apply through the military learner interest form or a course page; tuition-free, no SkillBridge needed.",
+        "sourceUrl": "https://perscholas.org/veterans/"
+      },
+      "prerequisites": "None listed on the military page; IT-background applicants may qualify for advanced courses.",
+      "location": {
+        "remoteAvailability": "varies",
+        "locations": [
+          "Atlanta",
+          "Baltimore",
+          "Boston",
+          "Chicago",
+          "Columbus",
+          "Dallas",
+          "Houston",
+          "New York City",
+          "Philadelphia",
+          "Pittsburgh",
+          "Phoenix"
+        ],
+        "notes": "Varies by course; some courses list a 'National' (remote) option."
+      },
+      "cost": "No cost: 'hands-on training and industry-recognized certifications at no cost to you'.",
+      "compensation": "unknown",
+      "duration": "Mostly 15 weeks; IT Support 12 weeks; Low Voltage & Fiber 11 weeks",
+      "applicationTiming": "Course-specific; not stated on the military page",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://perscholas.org/veterans/",
+      "applicationUrl": "https://perscholas.org/prospective-vets-interest-form",
+      "outcomeNote": "Training program. No placement guarantee; the page has only an alumni testimonial.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://perscholas.org/veterans/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "skillbridge",
+            "eligibleAudiences",
+            "location",
+            "cost",
+            "duration"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "USER DECISION 2026-11-08: split into one record per course (each specific program is its own record under Per Scholas). Pending: fetch each course page (AI Native Software Development, IT Support, AI-Enabled IT Support, AWS re/Start, Cybersecurity with AI Tools, Data Center Technician) in batch 2. Keep this record as the source for the shared veteran route until then."
+    },
+    {
+      "id": "npower-path2tech-cloud",
+      "organizationId": "org-npower",
+      "programName": "NPower Path2Tech: Cloud Computing",
+      "description": "Tuition-free, part-time virtual cloud computing program (3 online sessions/week) preparing for AWS Cloud Practitioner and AWS Solutions Architect – Associate.",
+      "techTracks": [
+        "CLOUD"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on program page.",
+        "sourceUrl": "https://www.npower.org/apply/cloud-computing/"
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "GUARD_RESERVE"
+      ],
+      "eligibilityNotes": "Veterans honorably discharged, or Guard/Reserve members; 18+; authorized to work in the US; HS diploma or equivalent. 'Military Spouse' appears on the application form but not in the stated requirements. Unclear whether non-military applicants are also accepted.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Honorably discharged veterans (or Guard/Reserve) apply via the pre-screening questionnaire.",
+        "sourceUrl": "https://www.npower.org/apply/cloud-computing/"
+      },
+      "prerequisites": "1–2 years professional tech experience or NPower alumni in good standing; CompTIA ITF+/A+/Network+ or Google IT cert preferred; background check and drug test for placement opportunities.",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [
+          "CA",
+          "MD/DC/VA",
+          "MI",
+          "MO",
+          "NC",
+          "NJ",
+          "NY",
+          "OH",
+          "TX"
+        ],
+        "notes": "Virtual delivery, but offered to residents of listed regions."
+      },
+      "cost": "Tuition-free",
+      "compensation": "unknown",
+      "duration": "12 weeks part-time (page also says 'within 5 months', without explanation)",
+      "applicationTiming": "Pre-screening questionnaire; no deadline listed",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.npower.org/apply/cloud-computing/",
+      "applicationUrl": "https://www.npower.org/apply/cloud-computing/",
+      "outcomeNote": "Training. Page says programs 'aim to help students secure a job'; no guarantee.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.npower.org/apply/cloud-computing/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "prerequisites",
+            "location",
+            "cost",
+            "duration"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Duration: '12 weeks' vs 'within 5 months'."
+      ],
+      "notes": "NPower's tuition-free Cybersecurity, Networking & Sysadmin and IT Support tracks are further candidates for batch 2."
+    },
+    {
+      "id": "codeplatoon-fullstack",
+      "organizationId": "org-codeplatoon",
+      "programName": "Code Platoon AI + Fullstack Engineering",
+      "description": "Software engineering bootcamp for veterans, military spouses and servicemembers, offered as a 15-week full-time immersive or a 28-week evening/weekend format. The full-time immersive is the SkillBridge option.",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "PROVIDER_STATED",
+        "basis": "Page: 'As a DoD SkillBridge-approved training provider, Code Platoon equips Servicemembers with software engineering skills.'",
+        "sourceUrl": "https://www.codeplatoon.org/skillbridge"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Homepage: designed for Veterans, military spouses and Servicemembers. SkillBridge route: active duty in the last 120 days of service, with unit commander or education office approval.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans enroll directly (remote or in person); funding via GI Bill, VR&E or a pay-what-you-can scholarship. SkillBridge is the separate active-duty route.",
+        "sourceUrl": "https://www.codeplatoon.org/"
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "hybrid",
+        "locations": [],
+        "notes": "'Attend remotely or in person'. SkillBridge page: remote, or in person with command approval. Campus location not stated on pages fetched."
+      },
+      "cost": "Tuition amount unknown. SkillBridge does not pay tuition; page lists GI Bill, VR&E or a pay-what-you-can scholarship.",
+      "compensation": "Not applicable (training)",
+      "duration": "15 weeks full-time, or 28 weeks evening/weekend",
+      "applicationTiming": "Not listed; see program calendar / info sessions",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.codeplatoon.org/full-stack",
+      "applicationUrl": "https://launchyourcareer.codeplatoon.org/apply-now",
+      "outcomeNote": "Training. Career transition support offered; no placement guarantee on pages fetched.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.codeplatoon.org/skillbridge",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "skillbridge",
+            "eligibilityNotes",
+            "cost",
+            "applicationUrl"
+          ]
+        },
+        {
+          "url": "https://www.codeplatoon.org/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "duration",
+            "eligibleAudiences",
+            "location"
+          ]
+        }
+      ],
+      "conflicts": [
+        "SkillBridge window: official SkillBridge page says last 120 days; other Code Platoon material says within six months.",
+        "A testimonial says the program is 'exclusively for Veterans', but the homepage includes spouses and servicemembers."
+      ],
+      "notes": ""
+    },
+    {
+      "id": "codeplatoon-cloud-devops",
+      "organizationId": "org-codeplatoon",
+      "programName": "Code Platoon AI Cloud and DevOps Engineering",
+      "description": "Fully remote, evenings-and-weekends cloud/DevOps program (per homepage). Program page not fully reviewed.",
+      "techTracks": [
+        "CLOUD"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "SkillBridge page names only the Fullstack immersive as fitting the SkillBridge window.",
+        "sourceUrl": "https://www.codeplatoon.org/skillbridge"
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "Program-specific eligibility not found.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Code Platoon says it serves veterans generally; program-specific eligibility not read.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.codeplatoon.org/ai-cloud-devops-program",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.codeplatoon.org/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "location"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "Fetch the program page directly."
+    },
+    {
+      "id": "fortinet-veterans",
+      "organizationId": "org-fortinet",
+      "programName": "Fortinet Veterans Program",
+      "description": "Free self-paced cybersecurity training, online labs and exam vouchers toward Fortinet Certified Professional (FCP) certifications, plus career services through partner veteran organizations. Part of Fortinet's Education Outreach program.",
+      "techTracks": [
+        "CYBERSECURITY"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on official page.",
+        "sourceUrl": "https://www.fortinet.com/training/veterans-program"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Active and former military personnel transitioning into cybersecurity, plus military spouses. Offered in the US, Canada, UK, Australia, and elsewhere via partners. Full career services require enrolling with a veteran-organization partner.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Former military personnel start free training at training.fortinet.com; enroll with a listed veteran-organization partner to unlock vouchers and labs.",
+        "sourceUrl": "https://www.fortinet.com/training/veterans-program"
+      },
+      "prerequisites": "None stated",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [],
+        "notes": "Self-paced online."
+      },
+      "cost": "Free: training, labs and exam vouchers. Cost of partner-organization services not stated.",
+      "compensation": "Not applicable (training)",
+      "duration": "Self-paced; not stated",
+      "applicationTiming": "Self-start; enroll via a listed partner organization for vouchers/labs",
+      "applicationStatus": "OPEN_ROLLING",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.fortinet.com/training/veterans-program",
+      "applicationUrl": "https://training.fortinet.com/",
+      "outcomeNote": "Training. Page says the program 'helps veterans find employment at Fortinet'; no guarantee.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.fortinet.com/training/veterans-program",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "cost",
+            "location"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "applicationUrl is the general training portal linked as 'Start Your Training'; the partner list is a PDF on the same page."
+    },
+    {
+      "id": "ivmf-o2o",
+      "organizationId": "org-ivmf",
+      "programName": "Onward to Opportunity (O2O)",
+      "description": "Free career training that prepares participants for one of 40+ industry certification exams, followed by job-search help and career coaching. Tech-relevant tracks named on the page: IT and cybersecurity. Other tracks (business, project management, customer service) are out of scope.",
+      "techTracks": [
+        "IT_SUPPORT",
+        "CYBERSECURITY"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "PROVIDER_STATED",
+        "basis": "Page: 'Only locations listed in 1 of the 11 regions above are eligible for SkillBridge or CSP.' Applies to in-person regional locations only.",
+        "sourceUrl": "https://ivmf.syracuse.edu/programs/o2o/"
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "GUARD_RESERVE",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Transitioning active duty separating within 6 months (honorable); veterans with 180+ days active duty (honorable); Guard/Reserve in part-time status; spouses of eligible veterans and of active-duty/Selected Reserve members.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans with 180+ days active duty and an honorable discharge apply online (online cohorts worldwide). SkillBridge/CSP applies only to active duty at the 11 regional in-person hubs.",
+        "sourceUrl": "https://ivmf.syracuse.edu/programs/o2o/"
+      },
+      "prerequisites": "None stated",
+      "location": {
+        "remoteAvailability": "hybrid",
+        "locations": [
+          "Online cohorts worldwide",
+          "In person at select US installations (11 regional hubs, 15 locations)"
+        ],
+        "notes": "Track availability varies by location."
+      },
+      "cost": "Free to access. One certification exam covered for those enrolling during transition from active duty, and for unemployed veterans and spouses. Others pay their own exam fees.",
+      "compensation": "Not applicable (training)",
+      "duration": "20–30 required coursework hours over a few months",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://ivmf.syracuse.edu/programs/o2o/",
+      "applicationUrl": "https://ivmf.syracuse.edu/programs/o2o/application",
+      "outcomeNote": "Certification training plus job-search assistance. No placement guarantee.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://ivmf.syracuse.edu/programs/o2o/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "skillbridge",
+            "eligibleAudiences",
+            "location",
+            "cost",
+            "duration",
+            "applicationUrl"
+          ]
+        }
+      ],
+      "conflicts": [
+        "Older URL ivmf.syracuse.edu/onward-to-opportunity/ now 404. Use /programs/o2o/."
+      ],
+      "notes": "Tech relevance is partial: list only with its IT/cyber tracks highlighted."
+    },
+    {
+      "id": "vetsintech-vit-academy",
+      "organizationId": "org-vetsintech",
+      "programName": "VetsinTech VIT Academy",
+      "description": "Hands-on tech courses for veterans, active military and military spouses in cybersecurity, web development, data science, cloud computing and AI/ML, with career placement support.",
+      "techTracks": [
+        "CYBERSECURITY",
+        "SOFTWARE_DEV",
+        "DATA",
+        "CLOUD"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on education page or homepage.",
+        "sourceUrl": "https://vetsintech.co/education"
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "ACTIVE_DUTY_TRANSITIONING",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Veterans, active military and military spouses (per education page).",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Education page lists veterans as eligible; scholarship application route. (Record still NEEDS_RESEARCH for format/duration/cost.)",
+        "sourceUrl": "https://vetsintech.co/education"
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "Vague: 'little to no cost to participants'; scholarships via application.",
+      "compensation": "Not applicable (training)",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://vetsintech.co/education",
+      "applicationUrl": "https://vetsintech.co/scholarship",
+      "outcomeNote": "Training. No guarantee.",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://vetsintech.co/education",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "techTracks",
+            "eligibleAudiences"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "Program confirmed on the official page, but format, duration and cost are too vague to verify. Check /events-education and /education-faqs. Recommended replacement for the org-level VetsinTech seed row."
+    },
+    {
+      "id": "servicenow-riseup-military",
+      "organizationId": "org-servicenow",
+      "programName": "ServiceNow RiseUp military program (incl. NextGen SkillBridge Academy)",
+      "description": "Per 2022–2023 sources: free, virtual 16-week ServiceNow platform training (7 instructor-led classes, hands-on projects, 3 certification vouchers) for transitioning service members, veterans and military spouses; graduates enter a RiseUp talent database.",
+      "techTracks": [
+        "IT_SUPPORT",
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "THIRD_PARTY_ONLY",
+        "basis": "Official ServiceNow blog returned 403; the description comes from search snippets of it and third-party flyers.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Unconfirmed.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "2022–2023 sources say veterans were eligible for the RiseUp program; not confirmed on a live official page.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.servicenow.com/blogs/2023/helping-veterans-embrace-tech-careers",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.servicenow.com/blogs/2023/helping-veterans-embrace-tech-careers",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "HTTP 403"
+        }
+      ],
+      "conflicts": [],
+      "notes": "Sources are 2–3 years old; confirm the program is still running."
+    },
+    {
+      "id": "skillstorm-military",
+      "organizationId": "org-skillstorm",
+      "programName": "SkillStorm military tech tracks (Cloud Engineering, Cybersecurity)",
+      "description": "Third-party sources describe SkillStorm as a SkillBridge-approved hire-train-deploy firm. An August 2025 report says it launched Cloud Engineering and Cybersecurity certification tracks for the military community. The official homepage does not describe these.",
+      "techTracks": [
+        "CLOUD",
+        "CYBERSECURITY",
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "DIRECT_HIRE",
+      "skillbridge": {
+        "status": "THIRD_PARTY_ONLY",
+        "basis": "trainingindustry.com / podcast summaries; official homepage silent.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "ACTIVE_DUTY_TRANSITIONING",
+        "VETERAN"
+      ],
+      "eligibilityNotes": "unknown",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Third-party sources mention veterans; official site silent.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown (older sources: willingness to relocate)",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://skillstorm.com/",
+      "applicationUrl": "unknown",
+      "outcomeNote": "Hire-train-deploy models usually employ the participant, often with service commitments. Confirm terms before describing as DIRECT_HIRE.",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://skillstorm.com/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "Homepage has no veteran program details."
+        }
+      ],
+      "conflicts": [],
+      "notes": "programFormat is provisional. Might be TRAINING (SkillBridge track) plus DIRECT_HIRE (post-training employment). Possibly two records."
+    },
+    {
+      "id": "launchcode-military-software",
+      "organizationId": "org-launchcode",
+      "programName": "LaunchCode software program (military/veteran cohort)",
+      "description": "A ClearanceJobs profile says LaunchCode (nonprofit, free training and job placement) accepted applications for a SkillBridge-eligible software program beginning May 2026. An Army garrison list describes a no-cost, 17-week, virtual LaunchCode option. The official homepage does not mention military programs.",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "THIRD_PARTY_ONLY",
+        "basis": "ClearanceJobs profile and Army document; not on official homepage.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "unknown",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "An Army garrison list says 'Spouses & Veterans'; LaunchCode's own site doesn't mention a military program.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.launchcode.org/learners",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.launchcode.org/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "No military/SkillBridge content on homepage."
+        }
+      ],
+      "conflicts": [],
+      "notes": "Check /learners and contact LaunchCode."
+    },
+    {
+      "id": "sans-vetsuccess",
+      "organizationId": "org-sans",
+      "programName": "SANS VetSuccess Immersion Academy",
+      "description": "Historically a scholarship-funded, accelerated (3–4 month) cybersecurity training program with GIAC certifications for transitioning veterans. Possibly inactive: the current SANS CyberTalent page lists only a generic 'CyberTalent Immersion Academy' and no veterans academy.",
+      "techTracks": [
+        "CYBERSECURITY"
+      ],
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "UNKNOWN",
+        "basis": "",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "unknown (2015-era criteria not reused)",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Historically for veterans within 5 years of separation (2015); possibly inactive.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.sans.org/cybertalent/",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.sans.org/cybertalent/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "VetSuccess not mentioned."
+        }
+      ],
+      "conflicts": [],
+      "notes": "Likely reject unless SANS confirms an active veterans academy. Check sans.org/about/academies/."
+    },
+    {
+      "id": "breakline-veterans",
+      "organizationId": "org-breakline",
+      "programName": "BreakLine (Veterans track)",
+      "description": "Tech-career transition education program with a Veterans track (sources 2016–2022). Current status, cost and official site not confirmed.",
+      "techTracks": [
+        "unknown"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "UNKNOWN",
+        "basis": "",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "unknown",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Historical Veterans track; current status unknown.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": ""
+      },
+      "cost": "unknown",
+      "compensation": "unknown",
+      "duration": "unknown",
+      "applicationTiming": "unknown",
+      "applicationStatus": "UNKNOWN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "unknown",
+      "applicationUrl": "unknown",
+      "outcomeNote": "unknown",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.bmc.com/newsroom/releases/bmc-sponsors-breakline-tech-program-veterans.html",
+          "kind": "third_party",
+          "retrievedOn": "2026-11-08",
+          "supports": [],
+          "note": "Search result only."
+        }
+      ],
+      "conflicts": [],
+      "notes": "Lowest priority; may be inactive."
+    },
+    {
+      "organizationId": "org-npower",
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on program page.",
+        "sourceUrl": "https://www.npower.org/apply/cybersecurity/"
+      },
+      "compensation": "Not applicable (training)",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "conflicts": [
+        "Eligibility says honorably discharged; form also offers 'General' discharge."
+      ],
+      "id": "npower-path2tech-cyber",
+      "programName": "NPower Path2Tech: Cybersecurity",
+      "description": "Free, part-time advanced online cybersecurity program with mentoring and career-development workshops, preparing for CompTIA Security+ and Linux+ and a Cybersecurity Support Technician credential.",
+      "techTracks": [
+        "CYBERSECURITY"
+      ],
+      "eligibleAudiences": [
+        "VETERAN",
+        "GUARD_RESERVE"
+      ],
+      "eligibilityNotes": "Veterans honorably discharged or Guard/Reserve; 18+; HS diploma or equivalent; authorized to work in the US. Military spouse appears on the form but not in stated requirements.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Honorably discharged veterans apply via the online pre-screening questionnaire. This is the veteran alternative to NPower's active-duty-only SkillBridge cohort.",
+        "sourceUrl": "https://www.npower.org/apply/cybersecurity/"
+      },
+      "prerequisites": "1–2 years technology experience or NPower alumni; strong networking knowledge preferred; Tech+/A+/Network+/Google IT preferred; background check and drug test for placement opportunities.",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [
+          "CA",
+          "MD/DC/VA",
+          "MI",
+          "MO",
+          "NC",
+          "NJ",
+          "NY",
+          "OH",
+          "TX"
+        ],
+        "notes": "Online instruction; offered to residents of listed regions."
+      },
+      "cost": "Free",
+      "duration": "Not stated explicitly ('Within 5 months')",
+      "applicationTiming": "Rolling pre-screening; no deadline listed",
+      "applicationStatus": "OPEN_ROLLING",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.npower.org/apply/cybersecurity/",
+      "applicationUrl": "https://www.npower.org/apply/cybersecurity/",
+      "outcomeNote": "Training. Page shows employer logos and career options but does not claim placement.",
+      "evidence": [
+        {
+          "url": "https://www.npower.org/apply/cybersecurity/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "prerequisites",
+            "location",
+            "cost",
+            "applicationStatus"
+          ]
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "organizationId": "org-npower",
+      "programFormat": "CERTIFICATION_TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on program page.",
+        "sourceUrl": "https://www.npower.org/networkingsa/"
+      },
+      "compensation": "Not applicable (training)",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "conflicts": [
+        "Page heading also calls it 'Networking and Cloud Administration'.",
+        "Locations: page says NJ/NYC; form also lists Texas."
+      ],
+      "id": "npower-networking-sysadmin",
+      "programName": "NPower Networking and Systems Administration",
+      "description": "Free, virtual, live instructor-led program (Mon–Thu) preparing for CompTIA Network+ and Linux+, with a chance to earn Azure Fundamentals (AZ-900) and AI-900. Optional specializations: Data Analytics, Python Automation, Pentest Security, Healthcare IT.",
+      "techTracks": [
+        "IT_SUPPORT",
+        "CLOUD",
+        "CYBERSECURITY",
+        "DATA"
+      ],
+      "eligibleAudiences": [
+        "VETERAN",
+        "GUARD_RESERVE",
+        "MILITARY_SPOUSE",
+        "OTHER"
+      ],
+      "eligibilityNotes": "General applicants 18–26 with HS diploma; military track: veterans and spouses over 21, honorably discharged or serving in Guard/Reserve. All must be authorized to work in the US with basic computer experience. NPower alumni currently not eligible.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans over 21 (honorably discharged) apply through the 'Apply Today' pre-screening form; there is no upper age limit on the military track.",
+        "sourceUrl": "https://www.npower.org/networkingsa/"
+      },
+      "prerequisites": "Basic computer experience; A+/Tech+/Google IT helpful but not required.",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [
+          "Newark, NJ / NYC metro (within 2–3 hours' drive)",
+          "TX (per application form)"
+        ],
+        "notes": "Virtual delivery but geographically restricted; confirm with NPower."
+      },
+      "cost": "Free to selected participants; no post-employment payments.",
+      "duration": "20 weeks + up to 6 weeks optional specialization",
+      "applicationTiming": "Next class starts in August (year not stated on page)",
+      "applicationStatus": "OPEN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://www.npower.org/networkingsa/",
+      "applicationUrl": "https://www.npower.org/networkingsa/",
+      "outcomeNote": "Training. Page names employers where graduates work; no guarantee.",
+      "evidence": [
+        {
+          "url": "https://www.npower.org/networkingsa/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "location",
+            "cost",
+            "duration",
+            "applicationTiming"
+          ]
+        }
+      ],
+      "notes": "Not veteran-exclusive; has a dedicated military eligibility track."
+    },
+    {
+      "id": "vetswhocode-accelerator",
+      "organizationId": "org-vetswhocode",
+      "programName": "Vets Who Code Software Engineering Accelerator",
+      "description": "Free, remote-first, 17-week software engineering program taught by veterans: Foundations, Software Engineering, AI Engineering, and Production Mastery phases.",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "programFormat": "TRAINING",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned on homepage.",
+        "sourceUrl": "https://vetswhocode.io/"
+      },
+      "eligibleAudiences": [
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Veterans and military spouses only. Active-duty eligibility not addressed.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans apply directly at vetswhocode.io/apply; veteran-exclusive program.",
+        "sourceUrl": "https://vetswhocode.io/"
+      },
+      "prerequisites": "'A computer, internet, and discipline.'",
+      "location": {
+        "remoteAvailability": "remote",
+        "locations": [],
+        "notes": "Remote-first."
+      },
+      "cost": "Free ('no tuition')",
+      "compensation": "Not applicable (training)",
+      "duration": "17 weeks",
+      "applicationTiming": "2027 cohort starts Apr 5, 2027",
+      "applicationStatus": "OPEN",
+      "applicationStatusAsOf": "2026-11-08",
+      "officialSourceUrl": "https://vetswhocode.io/",
+      "applicationUrl": "https://vetswhocode.io/apply",
+      "outcomeNote": "Training. Page shows a self-reported employment statistic; not a guarantee and not repeated as a promise.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://vetswhocode.io/",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "cost",
+            "duration",
+            "location",
+            "applicationTiming"
+          ]
+        }
+      ],
+      "conflicts": [],
+      "notes": "New in batch after scope change."
+    },
+    {
+      "organizationId": "org-amazon",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned in the posting summary reviewed.",
+        "sourceUrl": null
+      },
+      "prerequisites": "Role qualifications per posting (not extracted in this batch)",
+      "cost": "Not applicable (paid role)",
+      "applicationStatusAsOf": "2026-11-08",
+      "conflicts": [],
+      "id": "amazon-sde-military-veterans",
+      "programName": "Software Development Engineer – Military Veterans",
+      "description": "Amazon full-time SDE requisition designated for military veterans and service member spouses. Amazon posts these as individual job requisitions; this record tracks the recurring designated role, not one posting.",
+      "programFormat": "DIRECT_HIRE",
+      "eligibleAudiences": [
+        "VETERAN",
+        "GUARD_RESERVE",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Per posting: U.S. citizens who served in the U.S. Armed Forces (including Reserves and National Guard) and service member spouses; service must be listed on the resume. No separation-timing limit stated.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans apply directly to the posting on amazon.jobs; service must appear on the resume.",
+        "sourceUrl": "https://www.amazon.jobs/en/jobs/3179205/software-development-engineer-military-veterans"
+      },
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [
+          "Seattle, WA"
+        ],
+        "notes": "Location of the posting seen 2026-11-08; other copies list other cities."
+      },
+      "compensation": "Salaried; range per posting (not extracted from official page)",
+      "duration": "Not applicable (permanent role)",
+      "applicationTiming": "Individual postings; posting 3179205 dated Feb 11, 2026",
+      "applicationStatus": "OPEN",
+      "officialSourceUrl": "https://www.amazon.jobs/en/jobs/3179205/software-development-engineer-military-veterans",
+      "applicationUrl": "https://www.amazon.jobs/en/jobs/3179205/software-development-engineer-military-veterans",
+      "outcomeNote": "A job opening, not a program; applying does not guarantee an offer.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.amazon.jobs/en/search.json?base_query=military%20veteran%20software%20development%20engineer&result_limit=50&country=USA",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "programName",
+            "eligibleAudiences",
+            "location",
+            "applicationTiming"
+          ],
+          "note": "amazon.jobs search JSON; posting listed as live."
+        }
+      ],
+      "notes": "Posting URLs expire. When this one closes, set applicationStatus CLOSED and point officialSourceUrl at an amazon.jobs search for the title rather than archiving — the role recurs."
+    },
+    {
+      "organizationId": "org-amazon",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned in the posting summary reviewed.",
+        "sourceUrl": null
+      },
+      "prerequisites": "Recent degree (within 24 months) or MSSA/SkillStorm/WA2VETS graduate; U.S. citizenship.",
+      "cost": "Not applicable (paid role)",
+      "applicationStatusAsOf": "2026-11-08",
+      "conflicts": [
+        "Possible overlap with amazon-technical-apprenticeship (which lists an 18-week SDE track). Kept separate per user decision; link the two in the UI."
+      ],
+      "id": "amazon-sde-apprentice-military-veterans",
+      "programName": "Software Development Engineer Apprentice – Military Veterans",
+      "description": "Department of Labor–registered SDE apprenticeship posting limited to military spouses and veterans.",
+      "programFormat": "APPRENTICESHIP",
+      "eligibleAudiences": [
+        "VETERAN",
+        "MILITARY_SPOUSE"
+      ],
+      "eligibilityNotes": "Per posting: military spouses or veterans who served in the U.S. Armed Forces; U.S. citizenship; degree conferred within the last 24 months (or expected Mar–Sep 2026), OR graduate of SkillStorm, WA2VETS or MSSA.",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans apply to the posting; MSSA/SkillStorm/WA2VETS graduates qualify without a recent degree.",
+        "sourceUrl": "https://www.amazon.jobs/en/jobs/3188438/software-development-engineer-apprentice-military-veterans"
+      },
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [
+          "Seattle, WA",
+          "Bellevue, WA",
+          "Denver, CO",
+          "Arlington, VA",
+          "Cupertino, CA"
+        ],
+        "notes": ""
+      },
+      "compensation": "Paid apprenticeship (amount not extracted)",
+      "duration": "unknown",
+      "applicationTiming": "Posting 3188438 dated Feb 24, 2026",
+      "applicationStatus": "OPEN",
+      "officialSourceUrl": "https://www.amazon.jobs/en/jobs/3188438/software-development-engineer-apprentice-military-veterans",
+      "applicationUrl": "https://www.amazon.jobs/en/jobs/3188438/software-development-engineer-apprentice-military-veterans",
+      "outcomeNote": "Paid apprenticeship (employment). No guarantee of a permanent role after it is stated in what was reviewed.",
+      "verifiedOn": "2026-11-08",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.amazon.jobs/en/search.json?base_query=military%20veteran%20software%20development%20engineer&result_limit=50&country=USA",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "programName",
+            "eligibleAudiences",
+            "prerequisites",
+            "location",
+            "applicationTiming"
+          ]
+        }
+      ],
+      "notes": "Good cross-link: MSSA (microsoft-mssa) and SkillStorm (skillstorm-military) graduates are named as qualifying."
+    },
+    {
+      "organizationId": "org-amazon",
+      "techTracks": [
+        "SOFTWARE_DEV"
+      ],
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned in the posting summary reviewed.",
+        "sourceUrl": null
+      },
+      "prerequisites": "unknown",
+      "cost": "Not applicable (paid role)",
+      "applicationStatusAsOf": "2026-11-08",
+      "conflicts": [],
+      "id": "amazon-sde-intern-military-veteran",
+      "programName": "Software Development Engineer Internship – Military Veteran",
+      "description": "Seasonal Amazon SDE internship requisitions designated for military veterans (seen on third-party boards as 'SDE Internship – Military Veteran' and 'SDE Fall Intern – Military Veteran'). No live posting on amazon.jobs on 2026-11-08.",
+      "programFormat": "INTERNSHIP",
+      "eligibleAudiences": [
+        "unknown"
+      ],
+      "eligibilityNotes": "Third-party copies conflict: 'U.S. military veterans, reservists, National Guard members, and military spouses' vs 'U.S. veterans and military spouses'. Likely also requires student enrollment — unconfirmed.",
+      "veteranAccess": {
+        "status": "UNVERIFIED",
+        "route": "Title designates military veterans; confirm on the next official posting.",
+        "sourceUrl": null
+      },
+      "location": {
+        "remoteAvailability": "unknown",
+        "locations": [],
+        "notes": "Copies list Seattle, New York, San Francisco, Arlington VA."
+      },
+      "compensation": "unknown",
+      "duration": "unknown (copies say 12 weeks)",
+      "applicationTiming": "Seasonal; one copy dated May 14, 2026",
+      "applicationStatus": "CLOSED",
+      "officialSourceUrl": "unknown",
+      "applicationUrl": "unknown",
+      "outcomeNote": "Internship; no conversion guarantee.",
+      "verifiedOn": null,
+      "reviewStatus": "NEEDS_RESEARCH",
+      "evidence": [
+        {
+          "url": "https://www.amazon.jobs/en/search.json?base_query=%22military%20veteran%22%20intern&result_limit=25&country=USA",
+          "kind": "official",
+          "retrievedOn": "2026-11-08",
+          "supports": [
+            "applicationStatus"
+          ],
+          "note": "No matching live posting."
+        },
+        {
+          "url": "https://www.monster.com/job-openings/software-development-engineer-fall-intern-military-veteran-seattle-wa--c828fa6d-8bfa-43c1-adaf-c335dc89e6f5",
+          "kind": "third_party",
+          "retrievedOn": "2026-11-08",
+          "supports": []
+        }
+      ],
+      "notes": "Re-check amazon.jobs at the start of each internship recruiting season."
+    }
+  ],
+  "existingSeedRecheck": [
+    {
+      "seedName": "Amazon",
+      "seedProgramName": "Amazon Military Careers",
+      "finding": "amazon.jobs/military is a general military careers hub listing support programs (Military Ambassador Program, mentoring, Warriors at Amazon) and team links. It is not a specific pipeline program. The INTERNSHIP_PIPELINE type and 'Rolling' window are not supported by the page.",
+      "recommendation": "Replace with 'amazon-technical-apprenticeship' (source-verified). Keep the hub URL on the Organization record. Migrate existing SavedEmployer rows to the new program (see SCHEMA_PROPOSAL.md).",
+      "checkedOn": "2026-11-08",
+      "action": "ARCHIVE_AND_MIGRATE_SAVES",
+      "migrateSavesTo": "amazon-technical-apprenticeship",
+      "archiveReason": "This listing pointed to Amazon's general military careers page rather than a specific program. Your save was moved to Amazon Technical Apprenticeships; Amazon's other military programs are listed under Amazon.",
+      "decidedBy": "user",
+      "decidedOn": "2026-11-08"
+    },
+    {
+      "seedName": "Oracle",
+      "seedProgramName": "Oracle Veteran Internship Program (OVIP)",
+      "finding": "Official page blocked automated fetch (403). Search snippet of the official page: 'quarter-long internship'. Seed's '12-week' and '~40 per cohort, twice a year' come from a 2022 Oracle blog (search snippet). The brief's '6-month' looks wrong.",
+      "recommendation": "Keep; mark NEEDS_RESEARCH until the official page is read in a browser. Fix the brief's '6-month' note if confirmed.",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "seedName": "Microsoft",
+      "seedProgramName": "Microsoft Software & Systems Academy (MSSA)",
+      "finding": "Matches the official page: 17 weeks, full-time, three tracks, Microsoft-funded. Seed programType FELLOWSHIP is wrong: MSSA is training (the provider FAQ, per search snippet, says it is 'not a paid training program, nor is it an internship'). Seed locations 'Remote / Multiple US locations' not confirmed. Seed eligibility omits Guard/Reserve, retirees, discharge requirements and the CSO experience prerequisite.",
+      "recommendation": "Keep; reclassify as TRAINING + SkillBridge PROVIDER_STATED; replace fields with 'microsoft-mssa'.",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "seedName": "Hiring Our Heroes",
+      "seedProgramName": "Corporate Fellowship Program",
+      "finding": "Official page confirms a 12-week DoD SkillBridge fellowship, three cohorts a year, in person, free. It names no tech industry or roles. The seed says spouses are eligible; the current page lists only transitioning active-duty members within 180 days.",
+      "recommendation": "Out of scope twice over: active-duty-only (no veteran route on current page) and not a tech pathway. Hide from the directory; keep the row (users have saved it) until the migration plan handles it.",
+      "checkedOn": "2026-11-08",
+      "action": "ARCHIVE",
+      "archiveReason": "Archived Nov 2026: Project Exfil now lists tech programs open to veterans after separation. This fellowship is only open to active-duty members within 180 days of separation and isn't tech-specific.",
+      "decidedBy": "user",
+      "decidedOn": "2026-11-08"
+    },
+    {
+      "seedName": "VetsinTech",
+      "seedProgramName": "VetsinTech",
+      "finding": "Seed row describes the organization, not a program. Official site lists VIT Academy (cyber, web dev, data science, cloud, AI/ML) plus employment and entrepreneurship offerings, and no SkillBridge.",
+      "recommendation": "Make VetsinTech an Organization; add 'vetsintech-vit-academy' once its format, duration and cost are confirmed.",
+      "checkedOn": "2026-11-08",
+      "action": "ARCHIVE",
+      "archiveReason": "Archived Nov 2026: this listing described the VetsinTech organization rather than a specific program. VetsinTech's individual programs will be listed under VetsinTech once verified.",
+      "decidedBy": "user",
+      "decidedOn": "2026-11-08"
+    }
+  ],
+  "relatedResources": [
+    {
+      "id": "va-vet-tec-2",
+      "name": "VA VET TEC 2.0 (High-Tech Program)",
+      "kind": "FUNDING_BENEFIT",
+      "summary": "VA benefit paying tuition/fees, monthly housing allowance and books for approved non-degree high-tech training (programming, software, data processing, information sciences, media applications). Eligibility: discharged under conditions other than dishonorable, or active duty within 180 days of separation; at least 36 months active duty; under 62 at approval. Capped at 4,000 paid participants per fiscal year. Page says you can apply online now and lists 2,273 openings as of Oct 30, 2026.",
+      "officialSourceUrl": "https://www.va.gov/education/other-va-education-benefits/vet-tec-2/",
+      "verifiedOn": "2026-11-08",
+      "notes": "Not a program, so it is not in `programs`. Useful as a funding attribute on programs ('accepts VET TEC 2.0'). Approved providers are on the GI Bill Comparison Tool. Third-party sources say authorization covers programs beginning before Sept 30, 2027; not stated on the VA page."
+    }
+  ],
+  "excluded": [
+    {
+      "name": "Amazon Military Careers hub (amazon.jobs/military)",
+      "reason": "General careers hub, not a program. Use as an Organization URL.",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "name": "Microsoft MSSA-Federal",
+      "reason": "Official page: 'There are no future cohorts scheduled.'",
+      "officialSourceUrl": "https://military.microsoft.com/mssa-federal",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "name": "Hiring Our Heroes Skilled Trades (Construction, Manufacturing, Automotive)",
+      "reason": "Not a tech pathway.",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "name": "Akamai Technical Academy",
+      "reason": "Offered in Costa Rica, Poland and India; not a US military program.",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "amazon-skillbridge-fellowships",
+      "name": "Amazon Military Fellowships / SkillBridge roles",
+      "reason": "ACTIVE_DUTY_ONLY: SkillBridge roles for members within 180 days of separation; no veteran route found.",
+      "officialSourceUrl": "unknown",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "hoh-corporate-fellowship",
+      "name": "Hiring Our Heroes Corporate Fellowship Program",
+      "reason": "ACTIVE_DUTY_ONLY: Active duty / transition leave within 180 days only; also not a tech pathway. EXISTING SEED ROW with saved users — hide, don't delete.",
+      "officialSourceUrl": "https://www.hiringourheroes.org/career-services/fellowships/internships/cfp/",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "npower-skillbridge-cyber",
+      "name": "NPower SkillBridge: Cybersecurity",
+      "reason": "ACTIVE_DUTY_ONLY: Active duty within 180 days of separation only. Veterans: see npower-path2tech-cyber instead.",
+      "officialSourceUrl": "https://www.npower.org/skillbridge/",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "akamai-military-apprenticeship",
+      "name": "Akamai Military Apprenticeships (SkillBridge)",
+      "reason": "ACTIVE_DUTY_ONLY: Described as SkillBridge for active-duty members nearing separation; no veteran route found.",
+      "officialSourceUrl": "https://www.akamai.com/careers/students-and-recent-graduates",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "crowdstrike-skillbridge",
+      "name": "CrowdStrike SkillBridge Internships",
+      "reason": "ACTIVE_DUTY_ONLY: SkillBridge internships must be completed before separation; no veteran route found.",
+      "officialSourceUrl": "https://www.crowdstrike.com/blog/skillbridge-program-connects-veterans-with-crowdstrike-internships/",
+      "checkedOn": "2026-11-08"
+    },
+    {
+      "id": "paloalto-skillbridge",
+      "name": "Palo Alto Networks SkillBridge",
+      "reason": "ACTIVE_DUTY_ONLY: Official page describes SkillBridge only; its 'Veterans Program' has no details or defined veteran route. Lead for later: re-check jobs.paloaltonetworks.com/en/military-veterans.",
+      "officialSourceUrl": "https://jobs.paloaltonetworks.com/en/military",
+      "checkedOn": "2026-11-08"
+    }
+  ]
+}
