@@ -24,7 +24,9 @@ export function HomePage() {
         {isAuthenticated ? (
           <Link to="/dashboard">Go to your dashboard</Link>
         ) : (
-          <Link to="/signup">Create a free account to save and track programs</Link>
+          <Link to="/signup">
+            Create a free account to save and track programs, and to discuss programs and employers with other veterans
+          </Link>
         )}
       </div>
 

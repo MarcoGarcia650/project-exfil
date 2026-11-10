@@ -67,7 +67,7 @@ export function ProgramDetailPage() {
         </p>
       </div>
 
-      <CommentsSection programSlug={program.slug} />
+      <CommentsSection basePath={`/programs/${program.slug}`} />
     </article>
   );
 }

@@ -308,6 +308,20 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-10 (chunk 5: icon B + organization discussions) — Claude (VS Code)
+
+- **Icon:** the user picked option B ("Exfil arrow") from the icon canvas https://claude.ai/artifact/NZdm5FJZ9FmedKeU5foede.
+  - `favicon.svg` and `apple-touch-icon.png` were re-rendered; the navbar uses `ExfilMark.jsx` (same drawing, theme colors).
+  - Icon links are versioned `?v=3` so browsers drop the cached Vite icon.
+- **Home copy:** the signup link now mentions discussing programs and employers.
+- **Organization discussions (user request):** comments on organization pages, same rules as listing comments.
+  - Additive migration `20261110070704_organization_comments`: `Comment.programId` becomes nullable, plus a new nullable `organizationId` (FK RESTRICT) and an index, plus CHECK `Comment_exactly_one_target` (exactly one of programId/organizationId). **Applied locally only.**
+  - `GET/POST /organizations/:slug/comments` (visible when the org has a public program, like its page). The comment controller was generalized via `findTarget(kind)`.
+  - The thread endpoint returns `target {kind, slug, name}` (keeps `program` for listing threads). Reports and the admin report queue handle org comments.
+  - Frontend: `CommentsSection`/`CommentComposer`/`CommentNode` take `basePath`; the org page has a Discussion section; the thread page links back to the right target.
+  - Tests: `orgDiscussion.test.js` (20 checks, incl. no cross-discussion replies); a community e2e step. Unit 33/33, integration 8/8 suites, e2e 5/5, lint and build clean.
+- **Release queue (feature branch, in order):** chunk 3 (contact/About/FAQ) is on main awaiting approval (run 42772008391). Next push to `main` ships chunk 4 (add listing, no migration) + chunk 5 (**migration `20261110070704_organization_comments` must be applied to prod first**: additive, safe for the running code).
+
 ### 2026-11-10 (chunk 3 awaiting approval; chunk 4 built) — Claude (VS Code)
 
 - Chunk 3: the user applied `20261110054723_contact_messages` to prod (verified: migrate status up to date); pushed `main` (a3561ba) → run **42772008391**, waiting for the user's approval.

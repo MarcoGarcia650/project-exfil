@@ -4,9 +4,10 @@ import { CommentNode } from "./CommentNode.jsx";
 import { addReply } from "../lib/commentTree.js";
 import { CommentComposer } from "./CommentComposer.jsx";
 
-// Public discussion under a listing. Top-level comments oldest-first,
-// 20 at a time.
-export function CommentsSection({ programSlug }) {
+// Public discussion for a listing or an organization. Top-level comments
+// oldest-first, 20 at a time. basePath: "/programs/<slug>" or
+// "/organizations/<slug>" (used for both API calls and links).
+export function CommentsSection({ basePath, intro = "Share experiences and questions." }) {
   const [comments, setComments] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
   const [total, setTotal] = useState(0);
@@ -17,7 +18,7 @@ export function CommentsSection({ programSlug }) {
   useEffect(() => {
     setLoading(true);
     api
-      .get(`/programs/${programSlug}/comments`)
+      .get(`${basePath}/comments`)
       .then((d) => {
         setComments(d.comments);
         setNextCursor(d.nextCursor);
@@ -25,11 +26,11 @@ export function CommentsSection({ programSlug }) {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [programSlug]);
+  }, [basePath]);
 
   async function loadMore() {
     try {
-      const d = await api.get(`/programs/${programSlug}/comments?cursor=${encodeURIComponent(nextCursor)}`);
+      const d = await api.get(`${basePath}/comments?cursor=${encodeURIComponent(nextCursor)}`);
       setComments((prev) => [...prev, ...d.comments]);
       setNextCursor(d.nextCursor);
     } catch (err) {
@@ -54,7 +55,7 @@ export function CommentsSection({ programSlug }) {
     <section className="discussion" aria-labelledby="discussion-heading">
       <h2 id="discussion-heading">Discussion {total > 0 && <span className="muted">({total})</span>}</h2>
       <p className="field-hint">
-        Share experiences and questions. Posts are public under your username; be respectful.
+        {intro} Posts are public under your username; be respectful.
       </p>
       {error && <p className="error">{error}</p>}
       {loading && <p>Loading discussion...</p>}
@@ -62,7 +63,7 @@ export function CommentsSection({ programSlug }) {
 
       <ul className="comment-list">
         {comments.map((c) => (
-          <CommentNode key={c.id} comment={c} depth={0} programSlug={programSlug} onReplied={handleReplied} />
+          <CommentNode key={c.id} comment={c} depth={0} basePath={basePath} onReplied={handleReplied} />
         ))}
       </ul>
       {nextCursor && (
@@ -72,7 +73,7 @@ export function CommentsSection({ programSlug }) {
       )}
 
       {notice && <p className="success">{notice}</p>}
-      <CommentComposer programSlug={programSlug} onPosted={handlePosted} />
+      <CommentComposer basePath={basePath} onPosted={handlePosted} />
     </section>
   );
 }

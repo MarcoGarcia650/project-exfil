@@ -104,5 +104,21 @@ test("discussion, reports and suggestions", async ({ page, browser }) => {
     await expect(q.locator(".discussion > .composer textarea")).toBeVisible();
   });
 
+  await test.step("organization discussion: post, reply, thread link back", async () => {
+    await p.goto(`/organizations/vetswhocode`);
+    await expect(p.getByText(/General discussion about Vets Who Code/)).toBeVisible();
+    await p.locator(".discussion > .composer textarea").fill(`org comment ${n}`);
+    await p.getByRole("button", { name: "Post comment" }).click();
+    const c = p.locator(".comment", { hasText: `org comment ${n}` }).first();
+    await expect(c.locator(".comment-meta strong").first()).toHaveText(E.username);
+    await c.locator(":scope > article").getByRole("button", { name: "Reply" }).click();
+    await c.locator(".composer textarea").fill(`org reply ${n}`);
+    await c.locator(".composer").getByRole("button", { name: "Reply" }).click();
+    await expect(p.locator(".comment-replies .comment", { hasText: `org reply ${n}` })).toBeVisible();
+    // The listing's own discussion doesn't show organization comments.
+    await p.goto(`/programs/${PUB}`);
+    await expect(p.locator(".comment", { hasText: `org comment ${n}` })).toHaveCount(0);
+  });
+
   expect([...errors, ...pErrors]).toEqual([]);
 });

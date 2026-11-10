@@ -7,7 +7,8 @@ const MAX = 2000;
 
 // Posts a top-level comment (no parentId) or a reply. Shows what the
 // visitor needs to do first if they can't post yet.
-export function CommentComposer({ programSlug, parentId = null, onPosted, onCancel, autoFocus = false }) {
+// basePath: "/programs/<slug>" or "/organizations/<slug>".
+export function CommentComposer({ basePath, parentId = null, onPosted, onCancel, autoFocus = false }) {
   const { token, user, isAuthenticated } = useAuth();
   const location = useLocation();
   const [body, setBody] = useState("");
@@ -38,7 +39,7 @@ export function CommentComposer({ programSlug, parentId = null, onPosted, onCanc
     setError(null);
     setPosting(true);
     try {
-      const comment = await api.post(`/programs/${programSlug}/comments`, { body, parentId }, token);
+      const comment = await api.post(`${basePath}/comments`, { body, parentId }, token);
       setBody("");
       onPosted(comment);
     } catch (err) {

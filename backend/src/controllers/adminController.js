@@ -42,6 +42,7 @@ export async function listOpenReports(req, res) {
       id: true, body: true, createdAt: true, hiddenAt: true, hiddenReason: true, parentId: true,
       author: { select: { id: true, username: true, suspendedAt: true, role: true } },
       program: { select: { slug: true, name: true } },
+      organization: { select: { slug: true, name: true } },
       reports: {
         where: { status: "OPEN" },
         orderBy: { createdAt: "asc" },

@@ -13,7 +13,8 @@ export function ThreadPage() {
   const [data, setData] = useState(null);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState(null);
-  useDocumentTitle(data ? `Thread · ${data.program.name}` : "Thread");
+  useDocumentTitle(data ? `Thread · ${data.target.name}` : "Thread");
+  const basePath = data ? `/${data.target.kind === "program" ? "programs" : "organizations"}/${data.target.slug}` : "";
 
   useEffect(() => {
     setStatus("loading");
@@ -56,7 +57,7 @@ export function ThreadPage() {
   return (
     <div className="discussion">
       <p className="breadcrumb">
-        <Link to={`/programs/${data.program.slug}`}>{data.program.name}</Link> / Thread
+        <Link to={basePath}>{data.target.name}</Link> / Thread
       </p>
       {data.root.parentId && (
         <p>
@@ -64,7 +65,7 @@ export function ThreadPage() {
         </p>
       )}
       <ul className="comment-list">
-        <CommentNode comment={data.root} depth={0} programSlug={data.program.slug} onReplied={handleReplied} pagedByParent />
+        <CommentNode comment={data.root} depth={0} basePath={basePath} onReplied={handleReplied} pagedByParent />
       </ul>
       {data.nextCursor && (
         <button type="button" className="button-secondary-btn" onClick={loadMore}>

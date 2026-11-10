@@ -15,7 +15,13 @@ function ReportedComment({ c, onDone }) {
   return (
     <li className="employer-card admin-item">
       <p className="program-meta">
-        On <Link to={`/programs/${c.program.slug}`}>{c.program.name}</Link> ·{" "}
+        On{" "}
+        {c.program ? (
+          <Link to={`/programs/${c.program.slug}`}>{c.program.name}</Link>
+        ) : (
+          <Link to={`/organizations/${c.organization.slug}`}>{c.organization.name} (organization discussion)</Link>
+        )}{" "}
+        ·{" "}
         <Link to={`/comments/${c.id}`}>view in thread</Link> · posted {formatDateTime(c.createdAt)}
       </p>
       <p>

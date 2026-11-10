@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Compass, Search, LogOut } from "lucide-react";
+import { Search, LogOut } from "lucide-react";
+import { ExfilMark } from "./ExfilMark.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 
@@ -50,7 +51,7 @@ export function NavBar() {
   return (
     <header className="navbar">
       <Link to="/" className="navbar-brand">
-        <Compass size={22} strokeWidth={2} aria-hidden="true" />
+        <ExfilMark size={26} />
         Project Exfil
       </Link>
       <HeaderSearch />

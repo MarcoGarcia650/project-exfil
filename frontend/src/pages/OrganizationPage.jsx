@@ -7,6 +7,7 @@ import { useDocumentTitle } from "../lib/useDocumentTitle.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
 import { ProgramTile } from "../components/ProgramTile.jsx";
 import { NotFoundPage } from "./NotFoundPage.jsx";
+import { CommentsSection } from "../components/CommentsSection.jsx";
 
 // /organizations/:slug — public. Active programs, then archived ones
 // (linked, so their reasons stay readable). Drafts never appear.
@@ -79,6 +80,11 @@ export function OrganizationPage() {
           </ul>
         </>
       )}
+
+      <CommentsSection
+        basePath={`/organizations/${org.slug}`}
+        intro={`General discussion about ${org.name}: hiring, culture, and experiences across its programs. For a specific program, use that listing's discussion.`}
+      />
     </div>
   );
 }

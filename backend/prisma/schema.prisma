@@ -86,6 +86,7 @@ model Organization {
   name       String
   websiteUrl String?
   programs   Program[]
+  comments   Comment[] // general discussion about the organization
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 }
@@ -230,8 +231,13 @@ model ActionItem {
 
 model Comment {
   id        String  @id @default(cuid())
-  programId String
-  program   Program @relation(fields: [programId], references: [id])
+  // A comment belongs to exactly ONE of: a program listing, or an
+  // organization's general discussion (CHECK constraint in the migration
+  // 20261110…_organization_comments; enforced in the controller too).
+  programId      String?
+  program        Program?      @relation(fields: [programId], references: [id], onDelete: Restrict)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   authorId  String
   author    User    @relation(fields: [authorId], references: [id])
 
@@ -248,6 +254,7 @@ model Comment {
   reports      Report[]
 
   @@index([programId, parentId, createdAt, id])
+  @@index([organizationId, parentId, createdAt, id])
   @@index([authorId, createdAt]) // posting rate limit: "my recent comments"
 }
 

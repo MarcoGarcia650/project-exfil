@@ -52,7 +52,7 @@ function ReportForm({ commentId, onDone }) {
 // Bodies render as plain text: React escapes them; never use innerHTML here.
 // `pagedByParent`: the thread view pages this node's replies itself, so
 // it shouldn't also link to "view all replies" (that would be this page).
-export function CommentNode({ comment, depth, programSlug, onReplied, pagedByParent = false }) {
+export function CommentNode({ comment, depth, basePath, onReplied, pagedByParent = false }) {
   const { isAuthenticated, user } = useAuth();
   const [mode, setMode] = useState(null); // null | "reply" | "report"
   const [notice, setNotice] = useState(null);
@@ -90,7 +90,7 @@ export function CommentNode({ comment, depth, programSlug, onReplied, pagedByPar
         {notice && <p className="field-hint">{notice}</p>}
         {mode === "reply" && (
           <CommentComposer
-            programSlug={programSlug}
+            basePath={basePath}
             parentId={comment.id}
             autoFocus
             onCancel={() => setMode(null)}
@@ -114,7 +114,7 @@ export function CommentNode({ comment, depth, programSlug, onReplied, pagedByPar
       {showChildren && comment.replies.length > 0 && (
         <ul className="comment-replies">
           {comment.replies.map((r) => (
-            <CommentNode key={r.id} comment={r} depth={depth + 1} programSlug={programSlug} onReplied={onReplied} />
+            <CommentNode key={r.id} comment={r} depth={depth + 1} basePath={basePath} onReplied={onReplied} />
           ))}
         </ul>
       )}
