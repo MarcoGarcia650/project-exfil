@@ -1,5 +1,7 @@
-# Runs on every push and pull request. Nothing here touches AWS or the
-# production database: tests use a throwaway Postgres container.
+# Runs on every push and pull request: tests on a throwaway Postgres, no
+# AWS access. On a push to main, after every check passes, it also
+# deploys to production — but only once the "production" GitHub
+# environment's required reviewer approves the run.
 name: CI
 
 on:
@@ -124,3 +126,127 @@ jobs:
             e2e/playwright-report/
             e2e/test-results/
           retention-days: 7
+
+  # ---------------------------------------------------------------------
+  # Production. Only on pushes to main, only after all checks pass.
+  # ---------------------------------------------------------------------
+
+  release-plan:
+    name: Release plan (read before approving)
+    needs: [backend, frontend, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Summarize what this deploy contains
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          range="$BEFORE..$GITHUB_SHA"
+          git cat-file -e "$BEFORE^{commit}" 2>/dev/null || range="$GITHUB_SHA~1..$GITHUB_SHA"
+          {
+            echo "## Release plan"
+            echo
+            echo "**Commits** ($range):"
+            git log --format='- %h %s' "$range"
+            echo
+            migrations=$(git diff --name-only "$range" -- backend/prisma/migrations | grep migration.sql || true)
+            if [ -n "$migrations" ]; then
+              echo "### ⚠️ Database migrations in this release"
+              echo "The pipeline does **not** run migrations (RDS only accepts the admin's IP)."
+              echo "Apply additive migrations **before** approving; destructive ones after the new code is live:"
+              echo "$migrations" | sed 's/^/- /'
+              echo "::warning title=Migrations::This release contains database migrations; see the release plan."
+            else
+              echo "No database migrations."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy to production
+    needs: [release-plan]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://projectexfilout.org
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      id-token: write   # OIDC login to AWS (no stored keys)
+      contents: read
+    env:
+      AWS_REGION: us-east-1
+      EB_APP: vetpath
+      EB_ENV: vetpath-env
+      FRONTEND_BUCKET: vetpath-frontend-600406561374
+      CF_DISTRIBUTION: E13O5U324HB46D
+      SITE: https://projectexfilout.org
+      API: https://api.projectexfilout.org
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build backend bundle (dependencies pre-installed)
+        run: sh backend/scripts/build-ci-bundle.sh "$RUNNER_TEMP/backend.zip"
+
+      - name: Deploy backend (Immutable)
+        id: backend
+        run: |
+          label="ci-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}"
+          prev=$(aws elasticbeanstalk describe-environments --environment-names "$EB_ENV" --query 'Environments[0].VersionLabel' --output text)
+          echo "prev=$prev" >> "$GITHUB_OUTPUT"
+          echo "Currently live: $prev → deploying $label"
+          bucket=$(aws elasticbeanstalk create-storage-location --query S3Bucket --output text)
+          aws s3 cp "$RUNNER_TEMP/backend.zip" "s3://$bucket/$EB_APP/$label.zip" --only-show-errors
+          aws elasticbeanstalk create-application-version --application-name "$EB_APP" --version-label "$label" \
+            --source-bundle "S3Bucket=$bucket,S3Key=$EB_APP/$label.zip" --process >/dev/null
+          for i in $(seq 1 30); do
+            s=$(aws elasticbeanstalk describe-application-versions --application-name "$EB_APP" --version-labels "$label" --query 'ApplicationVersions[0].Status' --output text)
+            [ "$s" = "PROCESSED" ] && break
+            [ "$s" = "FAILED" ] && { echo "::error::Version processing failed"; exit 1; }
+            sleep 5
+          done
+          aws elasticbeanstalk update-environment --environment-name "$EB_ENV" --version-label "$label" >/dev/null
+          sh .github/scripts/wait-eb.sh "$EB_ENV" "$label"
+
+      - name: Smoke test API
+        id: smoke
+        run: sh .github/scripts/smoke.sh api
+
+      - name: Roll back backend if the smoke test failed
+        if: failure() && steps.backend.outputs.prev != ''
+        run: |
+          echo "::error::Rolling back to ${{ steps.backend.outputs.prev }}"
+          aws elasticbeanstalk update-environment --environment-name "$EB_ENV" --version-label "${{ steps.backend.outputs.prev }}" >/dev/null
+          sh .github/scripts/wait-eb.sh "$EB_ENV" "${{ steps.backend.outputs.prev }}"
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm ci && npm run build   # uses frontend/.env.production
+
+      - name: Deploy frontend
+        run: |
+          # Hashed assets never change: cache for a year. index.html etc.: always revalidate.
+          aws s3 sync frontend/dist/assets "s3://$FRONTEND_BUCKET/assets" --only-show-errors \
+            --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync frontend/dist "s3://$FRONTEND_BUCKET" --only-show-errors --exclude "assets/*" \
+            --cache-control "no-cache"
+          id=$(aws cloudfront create-invalidation --distribution-id "$CF_DISTRIBUTION" --paths "/*" --query Invalidation.Id --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$CF_DISTRIBUTION" --id "$id"
+
+      - name: Smoke test site
+        run: sh .github/scripts/smoke.sh site frontend/dist/index.html

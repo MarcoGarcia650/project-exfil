@@ -101,6 +101,21 @@ The integration suites reset `exfil_test` to a small fixture set each run (`back
 Deployed on AWS: S3 + CloudFront (frontend), Elastic Beanstalk single-instance (backend), RDS Postgres
 (database). See the table above for the reasoning behind each piece.
 
+**Pipeline** (`.github/workflows/ci.yml`): every push to `main` runs all checks; if they pass, a
+**Release plan** job summarizes the commits and flags any database migrations, and the **Deploy** job
+waits for approval on the GitHub `production` environment. After approval it:
+
+1. builds the backend bundle on Linux with production dependencies pre-installed (the server never runs `npm install`);
+2. deploys it to Elastic Beanstalk with an **Immutable** policy (a fresh instance is health-checked before it replaces the old one);
+3. smoke-tests the API, rolling back to the previous version automatically if that fails;
+4. builds and syncs the frontend to S3 (hashed assets cached for a year, `index.html` always revalidated) and invalidates CloudFront;
+5. smoke-tests the live site.
+
+AWS access uses GitHub OIDC (no stored keys), via a role that only this repo's `production` environment
+can assume (`infra/github-deploy/`). Database migrations are **not** run by the pipeline: RDS only accepts
+the admin's IP, so additive migrations are applied before approving a deploy, and destructive ones after
+the code that no longer needs the old columns is live.
+
 ## What's not in v1
 
 AI-powered resume/MOS translation, resume upload, community features, email notifications, an admin
