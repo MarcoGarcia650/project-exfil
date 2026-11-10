@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/requireAuth.js";
+import { requireAuth, requireActiveAccount } from "../middleware/requireAuth.js";
 import { updateActionItem } from "../controllers/actionItemController.js";
 
 const router = Router();
 
-router.patch("/:id", requireAuth, updateActionItem);
+router.patch("/:id", requireAuth, requireActiveAccount, updateActionItem);
 
 export default router;

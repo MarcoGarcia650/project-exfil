@@ -10,6 +10,8 @@ import { ProgramDetailPage } from "./pages/ProgramDetailPage.jsx";
 import { OrganizationPage } from "./pages/OrganizationPage.jsx";
 import { SuggestPage } from "./pages/SuggestPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage.jsx";
+import { ChooseUsernamePage } from "./pages/ChooseUsernamePage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 
 function NavBar() {
@@ -76,6 +78,15 @@ export default function App() {
           <Route path="/organizations/:slug" element={<OrganizationPage />} />
           <Route path="/suggest" element={<SuggestPage />} />
           <Route path="/employers" element={<LegacyEmployersRedirect />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/account/username"
+            element={
+              <ProtectedRoute>
+                <ChooseUsernamePage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

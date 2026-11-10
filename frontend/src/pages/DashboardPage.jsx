@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { UserRound } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
@@ -7,7 +8,7 @@ import { EmployerBadge } from "../components/EmployerBadge.jsx";
 const STATUSES = ["RESEARCHING", "APPLIED", "INTERVIEWING", "OFFER", "REJECTED"];
 
 export function DashboardPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -47,6 +48,17 @@ export function DashboardPage() {
   return (
     <div>
       <h1>Dashboard</h1>
+      {user?.suspended && (
+        <p className="listing-notice">This account is suspended and is read-only.</p>
+      )}
+      {user && !user.username && !user.suspended && (
+        <p className="prompt-banner">
+          <UserRound size={18} />
+          <span>
+            Pick a username so you're ready to join discussions. <Link to="/account/username">Choose one</Link>
+          </span>
+        </p>
+      )}
       <p className="summary">
         {data.summary.totalSaved} saved programs &middot; {data.summary.completedActionItems}/
         {data.summary.totalActionItems} action items complete

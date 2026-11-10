@@ -43,6 +43,15 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 ## Latest implementation state
 
 - **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Phase 3 complete, LOCAL ONLY (2026-11-09, same branch). Account hardening (no schema change; the expand migration already had the fields):**
+  - [accountRules.js](backend/src/lib/accountRules.js): username rules from the schema doc (3–20 `[A-Za-z0-9_]`, starts with a letter, reserved list, case-insensitive via `usernameKey`), password 8 chars to 72 bytes (bcrypt limit), loose email check, signup body parsing (branch enum, targetField ≤100, optional date). Bad input now returns 400 instead of a 500;
+  - emails stored lowercase; login and duplicate checks match case-insensitively so older mixed-case rows still work. [normalize-emails.js](backend/prisma/normalize-emails.js) (dry run default; refuses if two accounts differ only by case) lowercases existing rows. Local dry run: 9 users, 0 need changes;
+  - [requireAuth.js](backend/src/middleware/requireAuth.js) loads the user row per request: `tokenVersion` mismatch → 401 (JWTs now carry `tv`; old tokens without it count as 0). `requireActiveAccount` makes suspended accounts read-only (403 on POST/PATCH). `requireAdmin` is left for phase 5;
+  - [rateLimits.js](backend/src/middleware/rateLimits.js) (`express-rate-limit`, in-memory): login 30/15 min per IP, plus 10 failed/15 min per email; signup 20/h per IP; reset 10/15 min per IP. `trust proxy` is set only from `TRUST_PROXY` (a hop count), never `true`;
+  - endpoints: `GET /auth/me`, `POST /auth/username` (only while unset), `POST /auth/reset-password` (hashed, single-use, 24h token; bumps `tokenVersion`; race-safe conditional update);
+  - [passwordReset.js](backend/src/lib/passwordReset.js) keeps token creation separate from delivery. Until the phase 5 admin button: `npm run reset-link -- <email-or-username>` in `backend/` prints the link (uses `FRONTEND_URL`). A new link voids older unused ones;
+  - frontend: username at signup (with hints), `/account/username` plus a dashboard prompt for accounts without one, `/reset-password` page, a login notice after reset, a "contact the admin" note for forgotten passwords, and auto-logout when the API returns 401 for a session.
+- **Verified locally (Phase 3, 2026-11-09):** `npm test` 18/18 (8 new rule tests); HTTP smoke 39/39 (validation 400s, case-insensitive email/username 409s, login case, /me, username set-once, pre-`tv` JWT accepted, suspension 403/200, reset: voided/short/bogus/used/expired links rejected, old session 401, old password 401, new one works, rate-limit 429 after 10 failures with other accounts unaffected); browser 14/14 (signup, reset in a second tab logs out the stale tab, used link, legacy username prompt → taken error → set → prompt gone); Phase 2 browser rerun 24/24; build and lint clean. Not checked: rate limiting behind the real CloudFront/nginx chain.
 - **Phase 2 complete, LOCAL ONLY (2026-11-09, same branch). Public directory:**
   - backend: `GET /organizations/:slug` ([organizationController.js](backend/src/controllers/organizationController.js)): PUBLISHED programs plus ARCHIVED ones listed separately; DRAFTs never appear; an org with nothing public returns 404. `GET /saved-employers/program-ids` (auth) returns the user's saved program ids for Save-button state;
   - frontend: public `/programs` browse (no login) with techTrack/format/availability filters in the URL; unknown values ignored; empty state with Clear filters and a "Suggest a program" link;
@@ -188,9 +197,12 @@ Remaining:
    - Oracle OVIP official-page check.
 
 4. **Untracked `.vscode/`** (appeared after reopening VS Code): user to say whether to commit it or add it to `.gitignore`. Left untouched.
-5. **Signup crashes with a 500 when `branch` is missing** (seen during phase 2 smoke tests). This is the known no-validation finding; it's fixed in phase 3, not now.
+5. **Production `TRUST_PROXY` value (phase 6):** log the request headers on the real deployment to confirm the CloudFront → EB nginx hop count before setting it. Until then the per-IP limits may group all visitors under the proxy's IP; the per-email login limit still works.
+6. **`npm audit` (backend, prod deps): 8 existing advisories** (1 critical `proxy-addr`, 6 high incl. `body-parser`, `fast-uri`, Prisma's `deepmerge-ts`/`mysql2`; 1 moderate `qs`). All were present before phase 3, and all have non-breaking fixes. Not applied: it touches the Prisma toolchain and needs a retest. User to decide whether to run `npm audit fix` before phase 6.
+7. **Production rollout steps added by phase 3 (phase 6):** set `FRONTEND_URL` on EB; run `normalize-emails.js` dry run, then `--apply`, against RDS (after the snapshot). Existing users will see the username prompt.
 
 Resolved and removed from this list:
+- Signup 500 on missing `branch` (Claude's phase 2 finding): fixed by phase 3 validation.
 - Codex's 4 doc findings: applied to the schema and plan docs.
 - Username details: proposed per the user's rules.
 - DM design questions: deferred with DMs.
@@ -218,6 +230,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 3 complete, local) — Claude (VS Code)
+
+- Built account hardening (details under "Latest implementation state"): validation, lowercase emails, DB-backed sessions with `tokenVersion`, read-only suspension, rate limits, usernames (signup and set-once for existing accounts), reset links via script, and the reset page.
+- Added dependency: `express-rate-limit` ^7.5.1 (backend).
+- Checks run: `npm test` 18/18, HTTP smoke 39/39, browser 14/14, Phase 2 browser regression 24/24, build and lint.
+- Local test data: `Smoke3-*`/`e2e-p3-*@example.com` users; the phase 2 smoke user now has a username; a few used/expired reset tokens.
+- No production DB, migration, import or deploy work.
+- Next: phase 4 (community: comments, reports, submissions). Open: `.vscode/`, `npm audit fix` decision.
 
 ### 2026-11-09 (phase 2 complete, local) — Claude (VS Code)
 

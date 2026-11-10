@@ -8,7 +8,9 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "import:programs": "node prisma/import-programs.js",
-    "migrate:legacy": "node prisma/migrate-legacy-employers.js"
+    "migrate:legacy": "node prisma/migrate-legacy-employers.js",
+    "reset-link": "node prisma/reset-link.js",
+    "normalize:emails": "node prisma/normalize-emails.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.0"
   },

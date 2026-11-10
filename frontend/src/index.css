@@ -555,3 +555,33 @@ button:disabled {
 .archived-list li {
   padding: 4px 0;
 }
+
+/* ---- Phase 3: accounts ---- */
+
+.field-hint {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--text-muted);
+}
+
+.success {
+  color: var(--ok-text);
+  background: var(--ok-bg);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.prompt-banner {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.prompt-banner svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}

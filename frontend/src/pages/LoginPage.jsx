@@ -30,16 +30,20 @@ export function LoginPage() {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       <h1>Log in</h1>
+      {location.state?.notice && <p className="success">{location.state.notice}</p>}
       {error && <p className="error">{error}</p>}
       <label>
         Email
-        <input type="email" name="email" value={form.email} onChange={handleChange} required />
+        <input type="email" name="email" value={form.email} onChange={handleChange} required autoComplete="email" />
       </label>
       <label>
         Password
-        <input type="password" name="password" value={form.password} onChange={handleChange} required />
+        <input type="password" name="password" value={form.password} onChange={handleChange} required autoComplete="current-password" />
       </label>
       <button type="submit">Log in</button>
+      <p className="field-hint">
+        Forgot your password? Contact the site admin for a reset link.
+      </p>
       <p>
         Need an account? <Link to="/signup" state={location.state}>Sign up</Link>
       </p>

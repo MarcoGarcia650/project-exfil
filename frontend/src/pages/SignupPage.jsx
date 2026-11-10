@@ -11,7 +11,7 @@ export function SignupPage() {
   // Return to the page that sent the visitor here (e.g. "Log in to save").
   const from = location.state?.from;
   const next = from ? `${from.pathname}${from.search ?? ""}` : "/programs";
-  const [form, setForm] = useState({ email: "", password: "", branch: BRANCHES[0], targetField: "" });
+  const [form, setForm] = useState({ email: "", username: "", password: "", branch: BRANCHES[0], targetField: "" });
   const [error, setError] = useState(null);
 
   function handleChange(e) {
@@ -35,11 +35,39 @@ export function SignupPage() {
       {error && <p className="error">{error}</p>}
       <label>
         Email
-        <input type="email" name="email" value={form.email} onChange={handleChange} required />
+        <input type="email" name="email" value={form.email} onChange={handleChange} required autoComplete="email" />
+      </label>
+      <label>
+        Username
+        <input
+          type="text"
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          required
+          minLength={3}
+          maxLength={20}
+          pattern="[A-Za-z][A-Za-z0-9_]{2,19}"
+          autoComplete="username"
+          aria-describedby="username-hint"
+        />
+        <span id="username-hint" className="field-hint">
+          Shown publicly. 3–20 letters, numbers or underscores, starting with a letter. Can't be changed later.
+        </span>
       </label>
       <label>
         Password
-        <input type="password" name="password" value={form.password} onChange={handleChange} required />
+        <input
+          type="password"
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          required
+          minLength={8}
+          autoComplete="new-password"
+          aria-describedby="password-hint"
+        />
+        <span id="password-hint" className="field-hint">At least 8 characters.</span>
       </label>
       <label>
         Branch
