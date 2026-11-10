@@ -302,6 +302,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-09 (local dev + tests in repo + CI) — Claude (VS Code)
+
+- User asked for professional local testing and CI before more v2 work (deploy pipeline/CD comes later; contract deploy and pushing `main` still on hold).
+- `npm run db:reset` ([dev-reset.js](backend/prisma/dev-reset.js)): local-only rebuild (refuses non-localhost; asks to confirm), imports and publishes verified programs locally, creates `admin@example.com` / `user@example.com`. Prisma blocks `migrate reset` when an AI agent runs it unless the user consents explicitly; the user did ("yes, reset my local database"), and the local DB was reset: 2 users, 14 published, 0 comments.
+- HTTP integration tests moved into the repo: [backend/test/integration/](backend/test/integration/), 5 suites / 193 checks in about 13s against a separate `exfil_test` DB with fixed fixtures. The harness refuses non-`*_test` DBs and non-local hosts outside CI. `npm run test:integration`. The two importer-against-staging checks were dropped (they'd overwrite fixtures; the importer has unit tests).
+- Browser tests moved into the repo: [e2e/](e2e/) with `@playwright/test` 1.64.1, 4 specs. The config starts a test API (:4100) and frontend (:5174). Locally they use installed Chrome; CI installs Chromium.
+- CI: [.github/workflows/ci.yml](.github/workflows/ci.yml), with backend, frontend and e2e jobs on Postgres service containers. Simulated locally step by step (all green). The drift check was confirmed to fail (exit 2) on an unmigrated schema change. **Not yet run on GitHub: it needs a push (on hold).**
+- The ad-hoc scratchpad suites are superseded by the repo tests.
+
 ### 2026-11-09 (CloudFront-only origin, deployed) — Claude (VS Code)
 
 - With the user's go-ahead, deployed EB version `sg-cf-b1a1013` (the live `swap-b1a1013` code + `.ebextensions` SG override). Green in about 90s. Verified the SG rule, CloudFront 200, direct origin blocked, live 12/12, rate-limit probe OK. Deleted the stale local contract zip that lacked the config.

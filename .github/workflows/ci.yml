@@ -1,0 +1,126 @@
+# Runs on every push and pull request. Nothing here touches AWS or the
+# production database: tests use a throwaway Postgres container.
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "24"
+  # Throwaway Postgres from the `services` blocks below.
+  TEST_DATABASE_URL: postgresql://vetpath:ci_password@localhost:5432/exfil_test?schema=public
+  DATABASE_URL: postgresql://vetpath:ci_password@localhost:5432/exfil_test?schema=public
+
+jobs:
+  backend:
+    name: Backend (unit, integration, schema, data)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vetpath
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: exfil_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vetpath"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Validate Prisma schema
+        run: npx prisma validate
+      - name: Validate research staging data
+        working-directory: .
+        run: node research/scripts/validate-staging.mjs
+      - name: Unit tests
+        run: npm test
+      - name: Integration tests (HTTP suites)
+        run: npm run test:integration
+      - name: Migrations match the schema (no drift)
+        # The integration run applied every migration to the CI database;
+        # any difference from schema.prisma means a migration is missing.
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+
+  frontend:
+    name: Frontend (lint, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  e2e:
+    name: Browser tests (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vetpath
+          POSTGRES_PASSWORD: ci_password
+          POSTGRES_DB: exfil_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vetpath"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - name: Install backend
+        working-directory: backend
+        run: npm ci && npx prisma generate
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci
+      - name: Install Playwright
+        working-directory: e2e
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Run browser tests
+        working-directory: e2e
+        run: npm test
+      - name: Upload report and traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+          retention-days: 7

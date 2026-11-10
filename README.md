@@ -92,6 +92,8 @@ npm test                    # browser tests (Playwright; uses your installed Chr
 
 The browser tests start their own API (port 4100, `exfil_test`) and frontend (port 5174), so they can run while your dev servers are up. On failure, `npm run report` opens a trace of each step.
 
+**CI**: `.github/workflows/ci.yml` runs all of the above on every push and pull request (backend unit + integration tests, schema validation, a migrations-vs-schema drift check, staging-data validation, frontend lint and build, and the browser tests), each against a throwaway Postgres. Nothing in CI touches AWS.
+
 The integration suites reset `exfil_test` to a small fixture set each run (`backend/test/integration/fixtures.js`), so they never touch your dev data. They refuse any database not named `*_test`.
 
 ## Deployment
