@@ -35,12 +35,11 @@ next steps for each.
 
 ## Data model
 
-Four tables: `User`, `Employer` (the curated program data), `SavedEmployer` (join table with a
-`status` field and a `@@unique(userId, employerId)` constraint — one tracked relationship per employer
-per user, not multiple parallel attempts), and `ActionItem` (the per-employer checklist, seeded via a
-Prisma nested write when a `SavedEmployer` is created). Action items are generated from a static lookup
-table keyed by `programType` — deliberately non-AI for v1, per the brief's "prioritize shipping a
-working v1 over feature completeness."
+- `Organization` → `Program`: one organization can run several programs, and each program is its own listing with a stable slug (`/programs/:slug`).
+- `Program.publishStatus`: `DRAFT` (imported, awaiting admin review), `PUBLISHED`, `ARCHIVED` (public at its URL with a reason, hidden from browse), `REJECTED` (failed review, never public). Only `PUBLISHED`/`ARCHIVED` are ever served publicly.
+- Listing content only enters the database through the importer (`research/programs-staging.json` → validator → `import-programs.js`), and only an admin's Approve & publish makes it public.
+- `SavedEmployer` + `ActionItem`: a user's tracked program, status and checklist.
+- `Comment` (threaded), `Report`, `Submission`: public discussion with reactive moderation, plus user suggestions reviewed by the admin.
 
 ## Structure
 
@@ -49,20 +48,46 @@ working v1 over feature completeness."
 
 ## Local development
 
+Everything runs on your machine against a local Postgres in Docker; nothing touches the live site.
+
+**First time**
+
 ```bash
-# Postgres, if not already running
-docker start vetpath-db   # or: docker run -d --name vetpath-db -e POSTGRES_USER=vetpath -e POSTGRES_PASSWORD=vetpath_dev -e POSTGRES_DB=vetpath -p 5432:5432 postgres:16
+# Postgres (Docker)
+docker run -d --name vetpath-db -e POSTGRES_USER=vetpath -e POSTGRES_PASSWORD=vetpath_dev \
+  -e POSTGRES_DB=vetpath -p 5432:5432 postgres:16
+docker exec vetpath-db psql -U vetpath -c "CREATE DATABASE exfil_test"   # for integration tests
 
-# backend
-cd backend
-cp .env.example .env   # fill in DATABASE_URL
-npm run dev             # http://localhost:4000
-
-# frontend
-cd frontend
-cp .env.example .env
-npm run dev             # http://localhost:5173
+cd backend  && npm ci && cp .env.example .env   # set DATABASE_URL to the local database
+cd frontend && npm ci && cp .env.example .env   # VITE_API_URL=http://localhost:4000
 ```
+
+**Every day**
+
+```bash
+docker start vetpath-db
+cd backend  && npm run dev      # API on http://localhost:4000, restarts on save
+cd frontend && npm run dev      # app on http://localhost:5173, live reload
+```
+
+**Fresh, realistic data**: `cd backend && npm run db:reset` wipes the *local* database, applies all migrations, imports the verified programs, publishes them locally, and creates two accounts:
+
+| Account | Password | Role |
+| --- | --- | --- |
+| `admin@example.com` | `local-admin-1` | admin (see `/admin`) |
+| `user@example.com` | `local-user-1` | regular user |
+
+It refuses to run unless `DATABASE_URL` points at localhost.
+
+**Tests**
+
+```bash
+cd backend
+npm test                    # unit tests (importer rules, validation)
+npm run test:integration    # HTTP suites against a separate exfil_test database
+```
+
+The integration suites reset `exfil_test` to a small fixture set each run (`backend/test/integration/fixtures.js`), so they never touch your dev data. They refuse any database not named `*_test`.
 
 ## Deployment
 
