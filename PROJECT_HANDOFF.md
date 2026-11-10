@@ -255,7 +255,7 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Production `TRUST_PROXY` value (phase 6):** log the request headers on the real deployment to confirm the CloudFront → EB nginx hop count before setting it. Until then the per-IP limits may group all visitors under the proxy's IP; the per-email login limit still works.
+5. **Lock the EB origin to CloudFront (Claude's proposal, needs user decision):** `TRUST_PROXY=2` is set and verified (see log), but the EB security group allows port 80 from `0.0.0.0/0`, so a client who calls `vetpath-env.eba-rk5q6evh…elasticbeanstalk.com` directly can fake `X-Forwarded-For` and dodge the per-IP limits. The per-email login limit still applies. Fix: allow port 80 only from the AWS-managed CloudFront origin-facing prefix list. This SG is managed by EB's CloudFormation stack, so do it via EB config (`.ebextensions`), not a manual edit that could drift.
 6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
    1. RDS snapshot.
    2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
@@ -300,6 +300,13 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (live test, TRUST_PROXY, contract) — Claude (VS Code)
+
+- **Logged-in live test** (user approved): a throwaway `exfil-smoke-*@example.com` account covered signup + username, save, reload, dashboard status and action item, my submissions, comment box visible, admin API 403, and re-login with different email case. **13/13.** Private features only (no comments, reports or submissions). The account and its rows were deleted afterwards; production is back to 2 users and 1 save. Minor UX note: action-item checkboxes update only after the server round trip.
+- **TRUST_PROXY=2 set on EB** (user approved). The before/after rate-limit probe on `/auth/reset-password` (bogus tokens, no side effects) showed that before, *all* traffic shared one bucket (127.0.0.1), making per-IP limits site-wide. After: CloudFront traffic is keyed per viewer, and a faked XFF through CloudFront doesn't change the bucket. A direct-to-origin faked XFF does, which is the open item above.
+- **Contract step** (user asked): migration `20261110024000_contract_drop_legacy_employer` (guarded: aborts if any SavedEmployer lacks programId) drops `Employer`, `employerId`, `ProgramType` and makes `programId` required. Retired `seed.js` and `migrate-legacy-employers.js`. Fixed `listSavedProgramIds`, which filtered on the now-required column (500s, caught by the browser suites). Local: all suites green after clearing piled-up local test data (101 pending submissions exceeded the admin list's 100-row page; noted, not changed). Commit `ddcc924`.
+  - Production: precheck shows 0 unmapped saves; RDS snapshot `vetpath-db-before-contract` is available. **Backend deploy `contract-ddcc924` blocked by Claude Code's safety check; not yet deployed.** Order: deploy the backend first (it works with both schemas), then `migrate deploy`.
 
 ### 2026-11-09 (Oracle import + swap) — Claude (VS Code)
 
