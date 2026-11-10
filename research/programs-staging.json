@@ -322,7 +322,7 @@
       "id": "oracle-ovip",
       "organizationId": "org-oracle",
       "programName": "Oracle Veteran Internship Program (OVIP)",
-      "description": "Paid internship for transitioning veterans, reservists/guardsmen and active-duty military spouses. Third-party postings show OVIP intern roles in software engineering, information security, cloud network automation, business analysis, pre-sales and customer success.",
+      "description": "12-week paid internship for transitioning military veterans, reservists, guardsmen and active-duty military spouses moving into corporate tech and business roles at Oracle. Roles vary by team; past postings have included software engineering, information security and cloud roles.",
       "techTracks": [
         "SOFTWARE_DEV",
         "CYBERSECURITY",
@@ -331,7 +331,7 @@
       "programFormat": "INTERNSHIP",
       "skillbridge": {
         "status": "UNKNOWN",
-        "basis": "Official page could not be fetched (HTTP 403).",
+        "basis": "Not mentioned in the official page wording read on 2026-11-09.",
         "sourceUrl": null
       },
       "eligibleAudiences": [
@@ -339,36 +339,53 @@
         "GUARD_RESERVE",
         "MILITARY_SPOUSE"
       ],
-      "eligibilityNotes": "From third-party postings: 'US Veteran transitioning from active service or active-duty Military Spouse'. Not confirmed on official page.",
+      "eligibilityNotes": "Official page: for transitioning military veterans, reservists, guardsmen and active-duty military spouses, including veterans who have already separated.",
       "veteranAccess": {
-        "status": "UNVERIFIED",
-        "route": "User says (2026-11-08) separated veterans can apply. Not yet confirmed on an official Oracle page; stays UNVERIFIED until the official page (403 to automated fetch) is read in a browser.",
-        "sourceUrl": null
+        "status": "VERIFIED",
+        "route": "Veterans, including those already separated, apply to OVIP roles directly on Oracle's careers site (search 'OVIP').",
+        "sourceUrl": "https://www.oracle.com/careers/life-at-oracle/veterans/"
       },
       "prerequisites": "unknown",
       "location": {
-        "remoteAvailability": "unknown",
+        "remoteAvailability": "varies",
         "locations": [],
-        "notes": "Postings mention Colorado Springs, Austin, Reston and remote; varies by role."
+        "notes": "Official page: depends on the role, team and location."
       },
       "cost": "unknown",
       "compensation": "Paid hourly per third-party postings; amount varies by role. Not confirmed on official page.",
-      "duration": "unknown",
-      "applicationTiming": "unknown",
+      "duration": "12 weeks",
+      "applicationTiming": "Openings are posted individually on Oracle's careers site; search 'OVIP' to see current listings.",
       "applicationStatus": "UNKNOWN",
-      "applicationStatusAsOf": "2026-11-08",
+      "applicationStatusAsOf": "2026-11-09",
       "officialSourceUrl": "https://www.oracle.com/careers/life-at-oracle/veterans/",
-      "applicationUrl": "unknown",
+      "applicationUrl": "https://careers.oracle.com/en/sites/jobsearch/jobs?keyword=ovip",
       "outcomeNote": "Internship. No conversion guarantee confirmed.",
-      "verifiedOn": null,
-      "reviewStatus": "NEEDS_RESEARCH",
+      "verifiedOn": "2026-11-09",
+      "reviewStatus": "SOURCE_VERIFIED",
       "evidence": [
         {
           "url": "https://www.oracle.com/careers/life-at-oracle/veterans/",
           "kind": "official",
-          "retrievedOn": "2026-11-08",
-          "supports": [],
-          "note": "HTTP 403 to automated fetch. A search-engine snippet of this page calls OVIP a 'quarter-long internship'."
+          "retrievedOn": "2026-11-09",
+          "supports": [
+            "description",
+            "eligibleAudiences",
+            "eligibilityNotes",
+            "veteranAccess",
+            "duration",
+            "location"
+          ],
+          "note": "Read in a real browser by the project admin on 2026-11-09 (automated fetch gets HTTP 403); wording relayed to Claude. Confirms already-separated veterans are eligible and a 12-week length."
+        },
+        {
+          "url": "https://careers.oracle.com/en/sites/jobsearch/jobs?keyword=ovip",
+          "kind": "official",
+          "retrievedOn": "2026-11-09",
+          "supports": [
+            "applicationUrl",
+            "applicationTiming"
+          ],
+          "note": "Oracle careers search for 'ovip', given by the project admin as the way to apply. The admin's link also had a location filter; the keyword-only search is used so it isn't limited to one location."
         },
         {
           "url": "https://home.army.mil/stewart/9516/8909/0212/MSEP_Employer_Oracle-Oracle_Veterans_Internship_Program.pdf",
@@ -378,10 +395,8 @@
           "note": "2024 installation flyer (search snippet only)."
         }
       ],
-      "conflicts": [
-        "Project brief says '6-month program'; seed says '12-week'; official-page snippet says 'quarter-long'. Brief is likely wrong, but confirm in a browser."
-      ],
-      "notes": "Existing seed row. Open the official page manually in a browser; the 403 is probably bot blocking. | 2026-11-08: user answered 'yes' to separated-veteran eligibility; recorded as user-provided, not source-verified."
+      "conflicts": [],
+      "notes": "Existing seed row. Open the official page manually in a browser; the 403 is probably bot blocking. | 2026-11-08: user answered 'yes' to separated-veteran eligibility; recorded as user-provided, not source-verified. | 2026-11-09: official page read in a browser by the project admin. Separated-veteran eligibility confirmed; length is 12 weeks (resolves the 6-month / 12-week / quarter-long conflict: the brief's '6-month' was wrong). Cost and compensation not stated (paid internship per earlier third-party postings)."
     },
     {
       "id": "salesforce-military",
