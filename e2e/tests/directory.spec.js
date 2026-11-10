@@ -21,12 +21,13 @@ test("public directory and saving", async ({ page }) => {
   await test.step("checkbox filters live in the URL; empty state; clear", async () => {
     // A value no published listing has, so the empty state must appear.
     const other = Object.keys(AVAIL).find((a) => !pub.some((p) => p.applicationAvailability === a));
-    await filterPanel.getByLabel(AVAIL[other]).check();
+    await filterPanel.getByLabel(AVAIL[other]).click();
+    await expect(filterPanel.getByLabel(AVAIL[other])).toBeChecked();
     await expect(page.locator(".empty-state")).toBeVisible();
     expect(page.url()).toContain(`availability=${other}`);
     await expect(page.getByRole("link", { name: "Suggest a program" })).toBeVisible();
     // Adding a second value widens the results (any-of).
-    await filterPanel.getByLabel(AVAIL[first.applicationAvailability]).check();
+    await filterPanel.getByLabel(AVAIL[first.applicationAvailability]).click();
     await expect(page.locator(".tile").first()).toBeVisible();
     expect(decodeURIComponent(page.url())).toMatch(new RegExp(`availability=(${other},${first.applicationAvailability}|${first.applicationAvailability},${other})`));
     await filterPanel.getByRole("button", { name: "Clear all" }).click();
@@ -104,7 +105,7 @@ test("public directory and saving", async ({ page }) => {
 
   await test.step("organization pages", async () => {
     await page.goto(`/organizations/${first.organization.slug}`);
-    await expect(page.locator(".employer-card").first()).toBeVisible();
+    await expect(page.locator(".tile").first()).toBeVisible();
     await page.goto("/organizations/hoh");
     await expect(page.getByText("No longer active")).toBeVisible();
     await page.goto("/organizations/amazon");

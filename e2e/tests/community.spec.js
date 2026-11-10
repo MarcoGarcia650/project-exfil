@@ -97,7 +97,7 @@ test("discussion, reports and suggestions", async ({ page, browser }) => {
     // Earlier specs may have given the fixture account a username already.
     if (await q.getByRole("link", { name: "Choose a username" }).count()) {
       await q.getByRole("link", { name: "Choose a username" }).click();
-      await q.fill("input", `Fresh_${n}`.slice(0, 20));
+      await q.getByLabel("Username").fill(`Fresh_${n}`.slice(0, 20));
       await q.getByRole("button", { name: "Save username" }).click();
       await q.waitForURL(new RegExp(`/programs/${PUB}$`));
     }

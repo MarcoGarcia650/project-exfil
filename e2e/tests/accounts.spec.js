@@ -60,10 +60,10 @@ test("signup, password reset, username prompt", async ({ page, browser }) => {
     await lp.goto("/dashboard");
     await expect(lp.locator(".prompt-banner")).toBeVisible();
     await lp.getByRole("link", { name: "Choose one" }).click();
-    await lp.fill("input", username.toLowerCase());
+    await lp.getByLabel("Username").fill(username.toLowerCase());
     await lp.getByRole("button", { name: "Save username" }).click();
     await expect(lp.locator(".error")).toContainText("taken");
-    await lp.fill("input", `Leg_${n}`.slice(0, 20));
+    await lp.getByLabel("Username").fill(`Leg_${n}`.slice(0, 20));
     await lp.getByRole("button", { name: "Save username" }).click();
     await lp.waitForURL(/\/dashboard$/);
     await expect(lp.locator(".summary")).toBeVisible();

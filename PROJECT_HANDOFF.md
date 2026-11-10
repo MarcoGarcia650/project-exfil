@@ -322,7 +322,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
   - `ProgramsPage.jsx` rewritten as D (sidebar checkboxes, tile grid);
   - org page uses tiles; `ProgramCard.jsx` deleted; `index.css` fully rewritten (tokens for both themes, dark buttons use dark text on the light accent for contrast).
   - Screenshots checked: browse light/dark, modal light/dark, phone 390px (no horizontal scroll), detail page. All good.
-- **e2e: 1/4 passing after the redesign. Fixes needed (test-side, diagnosed):**
+- **e2e: FIXED, 4/4 passing (commit after 1a70556).** The fixes below were applied; next: run backend `npm test` + `npm run test:integration`, lint/build, then merge to `main` → pipeline → user approves. Original notes:
   1. `accounts.spec.js` + `community.spec.js` username steps use `fill("input", …)`, which now hits the **navbar search input** first. Change to `getByLabel("Username")`.
   2. `directory.spec.js` checkbox step: the checkboxes are controlled (they update after the URL changes), so Playwright's `.check()` complains. Use `.click()` then `expect(...).toBeChecked()`.
   3. `directory.spec.js` ~line 107 still uses `.employer-card` (browse is now `.tile`); review the remaining steps for the new structure.
