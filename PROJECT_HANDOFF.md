@@ -307,6 +307,22 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-10 (chunk 2 to main; chunk 3 built) — Claude (VS Code)
+
+- Chunk 2 (Direction D redesign) final checks: unit 28/28, integration 5/5 suites, e2e 4/4, lint and build clean; no migrations. Pushed to `main` (5bce5b6) → pipeline run **42764247483**, waiting for the user's approval.
+- **Chunk 3 built (on `feature/programs-directory`, NOT on main yet; pushing main would cancel the waiting chunk 2 run):**
+  - **Contact admin:** additive migration `20261110054723_contact_messages` (ContactMessage + ContactStatus OPEN/RESOLVED), applied locally only.
+    - `POST /contact`: auth; suspended users allowed so they can ask about it; subject 1–120, body 1–3,000; 5/day.
+    - `GET /contact/mine`.
+    - Admin `GET /admin/messages?status=`, `POST /admin/messages/:id/reply` (reply → RESOLVED, once); summary `openMessages`.
+    - UI: `/contact`, `/account/messages`, admin **Messages** tab. The navbar "Contact" shows for non-admins.
+  - **About** (`/about`) and **FAQ** (`/faq`, 12 Q&As) pages, drafted from project facts. **Placeholders for the user:** About → "Who runs it"; FAQ → "I forgot my password" (how to reach the admin off-site).
+  - Navbar: About, FAQ, Contact. New footer links: About · FAQ · Contact · Suggest a program.
+  - Tests: new `contact.test.js` (23 checks) and `e2e/tests/pages.spec.js` (About/FAQ + the full send → reply → read loop). All green: integration 6/6 suites, e2e 5/5, lint and build.
+  - **Deploy order for chunk 3:** apply the migration first (`sh backend/scripts/with-prod-db.sh npx prisma migrate deploy`; additive), then push `main` → approve.
+- Follow-up noted: on phones the logged-in navbar wraps to 3 rows; a collapsible menu would be tidier.
+- Remaining v2: chunk 4, admin "Add listing" (form → DRAFT).
+
 ### 2026-11-09 (STOPPING POINT: chunk 2 redesign WIP) — Claude (VS Code)
 
 **Resume here.** The user hit their usage limit; work stopped mid-chunk 2.

@@ -63,6 +63,7 @@ model User {
   reviewedPrograms Program[]            @relation("ProgramReviewer")
   resetTokens      PasswordResetToken[] @relation("ResetTokenOwner")
   issuedResetTokens PasswordResetToken[] @relation("ResetTokenIssuer")
+  contactMessages   ContactMessage[]
 }
 
 model PasswordResetToken {
@@ -300,4 +301,27 @@ model Submission {
 
   @@index([status, createdAt])
   @@index([submitterId, createdAt])
+}
+
+enum ContactStatus {
+  OPEN // waiting for the admin
+  RESOLVED // the admin replied (or closed it); the user sees the reply
+}
+
+// "Contact admin": a logged-in user's message to the admin, answered with a
+// reply note the user reads on their "My messages" page. Private to the
+// sender and admins. Suspended users may still send (to ask about it).
+model ContactMessage {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id])
+  subject    String // 1–120 chars, enforced in code
+  body       String // 1–3,000 chars, enforced in code
+  status     ContactStatus @default(OPEN)
+  adminReply String? // shown to the sender
+  createdAt  DateTime      @default(now())
+  repliedAt  DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt]) // posting limit + "my messages"
 }

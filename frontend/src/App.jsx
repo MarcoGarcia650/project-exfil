@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { NavBar } from "./components/NavBar.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
@@ -15,11 +15,21 @@ import { ThreadPage } from "./pages/ThreadPage.jsx";
 import { MySubmissionsPage } from "./pages/MySubmissionsPage.jsx";
 import { AdminPage } from "./pages/admin/AdminPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
+import { AboutPage } from "./pages/AboutPage.jsx";
+import { FaqPage } from "./pages/FaqPage.jsx";
+import { ContactPage } from "./pages/ContactPage.jsx";
+import { MyMessagesPage } from "./pages/MyMessagesPage.jsx";
 
 function Footer() {
   return (
     <footer className="footer">
-      Project Exfil &mdash; not affiliated with any listed employer.
+      <nav aria-label="Footer" className="footer-links">
+        <Link to="/about">About</Link>
+        <Link to="/faq">FAQ</Link>
+        <Link to="/contact">Contact</Link>
+        <Link to="/suggest">Suggest a program</Link>
+      </nav>
+      Project Exfil &mdash; not affiliated with any listed organization.
     </footer>
   );
 }
@@ -58,6 +68,17 @@ export default function App() {
           <Route path="/suggest" element={<SuggestPage />} />
           <Route path="/employers" element={<LegacyEmployersRedirect />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route
+            path="/account/messages"
+            element={
+              <ProtectedRoute>
+                <MyMessagesPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/comments/:id" element={<ThreadPage />} />
           <Route
             path="/admin"

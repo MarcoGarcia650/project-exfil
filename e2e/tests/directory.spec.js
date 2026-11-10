@@ -25,7 +25,7 @@ test("public directory and saving", async ({ page }) => {
     await expect(filterPanel.getByLabel(AVAIL[other])).toBeChecked();
     await expect(page.locator(".empty-state")).toBeVisible();
     expect(page.url()).toContain(`availability=${other}`);
-    await expect(page.getByRole("link", { name: "Suggest a program" })).toBeVisible();
+    await expect(page.locator(".empty-state").getByRole("link", { name: "Suggest a program" })).toBeVisible();
     // Adding a second value widens the results (any-of).
     await filterPanel.getByLabel(AVAIL[first.applicationAvailability]).click();
     await expect(page.locator(".tile").first()).toBeVisible();

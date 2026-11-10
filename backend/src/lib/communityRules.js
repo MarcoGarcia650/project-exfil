@@ -13,6 +13,7 @@ export const RATE = {
   comment: { limit: 5, windowMs: 10 * 60 * 1000, label: "5 comments per 10 minutes" },
   submission: { limit: 10, windowMs: 24 * 3600 * 1000, label: "10 submissions per day" },
   report: { limit: 30, windowMs: 24 * 3600 * 1000, label: "30 reports per day" },
+  contact: { limit: 5, windowMs: 24 * 3600 * 1000, label: "5 messages per day" },
 };
 
 // Trims and checks a required text field.
@@ -67,3 +68,8 @@ export function afterCursor(cursor) {
     ],
   };
 }
+
+export const CONTACT_SUBJECT_MAX = 120;
+export const CONTACT_BODY_MAX = 3000;
+export const parseContactSubject = (v) => text(v, CONTACT_SUBJECT_MAX, "Subject");
+export const parseContactBody = (v) => text(v, CONTACT_BODY_MAX, "Message");

@@ -18,13 +18,14 @@ function trimmedText(value, max, what, { required }) {
 
 // GET /admin/summary — counts for the admin tabs.
 export async function summary(req, res) {
-  const [openReports, pendingSubmissions, drafts, rejected] = await Promise.all([
+  const [openReports, pendingSubmissions, drafts, rejected, openMessages] = await Promise.all([
     prisma.comment.count({ where: { reports: { some: { status: "OPEN" } } } }),
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.program.count({ where: { publishStatus: "DRAFT" } }),
     prisma.program.count({ where: { publishStatus: "REJECTED" } }),
+    prisma.contactMessage.count({ where: { status: "OPEN" } }),
   ]);
-  res.json({ openReports, pendingSubmissions, drafts, rejected });
+  res.json({ openReports, pendingSubmissions, drafts, rejected, openMessages });
 }
 
 // ---------- Reports ----------
@@ -285,6 +286,44 @@ export async function restoreRejected(req, res) {
   if (count === 0) {
     const exists = await prisma.program.count({ where: { id: req.params.id } });
     return res.status(exists ? 409 : 404).json({ error: exists ? "Not rejected" : "Program not found" });
+  }
+  res.json({ ok: true });
+}
+
+// ---------- Contact messages ----------
+
+const REPLY_MAX = 3000;
+
+// GET /admin/messages?status=OPEN|RESOLVED (default OPEN).
+// Open: oldest first (work the queue in order). Resolved: newest first.
+export async function listMessages(req, res) {
+  const status = req.query.status === "RESOLVED" ? "RESOLVED" : "OPEN";
+  const rows = await prisma.contactMessage.findMany({
+    where: { status },
+    orderBy: { createdAt: status === "OPEN" ? "asc" : "desc" },
+    take: 100,
+    select: {
+      id: true, subject: true, body: true, status: true, adminReply: true, createdAt: true, repliedAt: true,
+      user: { select: { id: true, username: true, email: true, suspendedAt: true } },
+    },
+  });
+  res.json(rows);
+}
+
+// POST /admin/messages/:id/reply — Body: { reply }
+// Saves the reply (shown to the sender on "My messages") and resolves it.
+// Once resolved it can't be re-answered; the user can send a new message.
+export async function replyToMessage(req, res) {
+  const reply = trimmedText(req.body?.reply, REPLY_MAX, "Reply", { required: true });
+  if (reply.error) return res.status(400).json({ error: reply.error });
+
+  const { count } = await prisma.contactMessage.updateMany({
+    where: { id: req.params.id, status: "OPEN" },
+    data: { status: "RESOLVED", adminReply: reply.value, repliedAt: new Date() },
+  });
+  if (count === 0) {
+    const exists = await prisma.contactMessage.count({ where: { id: req.params.id } });
+    return res.status(exists ? 409 : 404).json({ error: exists ? "Already answered" : "Message not found" });
   }
   res.json({ ok: true });
 }

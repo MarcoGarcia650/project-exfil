@@ -72,7 +72,7 @@ export function DashboardPage() {
         </p>
       )}
       <p className="dashboard-links">
-        <Link to="/account/submissions">My submissions</Link>
+        <Link to="/account/submissions">My submissions</Link> · <Link to="/account/messages">My messages</Link>
       </p>
       <p className="summary">
         {data.summary.totalSaved} saved programs &middot; {data.summary.completedActionItems}/

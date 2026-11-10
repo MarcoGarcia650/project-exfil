@@ -58,6 +58,17 @@ export function NavBar() {
         <NavLink to="/programs" className={navClass}>
           Browse
         </NavLink>
+        <NavLink to="/about" className={navClass}>
+          About
+        </NavLink>
+        <NavLink to="/faq" className={navClass}>
+          FAQ
+        </NavLink>
+        {user?.role !== "ADMIN" && (
+          <NavLink to="/contact" className={navClass}>
+            Contact
+          </NavLink>
+        )}
         {isAuthenticated && (
           <NavLink to="/dashboard" className={navClass}>
             Dashboard

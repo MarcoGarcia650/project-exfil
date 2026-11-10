@@ -1406,3 +1406,74 @@ button.nav-link:hover:not(:disabled) {
 .checklist input {
   margin-top: 3px;
 }
+
+/* ---------- content pages (About, FAQ, Contact, messages) ---------- */
+
+.prose-page {
+  max-width: 720px;
+}
+
+.prose-page h2 {
+  margin-top: 28px;
+}
+
+.prose-page ul {
+  padding-left: 20px;
+}
+
+.prose-page li {
+  margin: 6px 0;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.faq-item {
+  padding: 14px 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.faq-item summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.faq-item p {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+}
+
+.wide-form {
+  max-width: 640px;
+  margin: 16px 0 0;
+}
+
+.message-subject {
+  font-size: 18px;
+  margin: 10px 0 4px;
+}
+
+.admin-reply {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+}
