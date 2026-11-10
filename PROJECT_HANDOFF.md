@@ -39,7 +39,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Proposed (Claude) | Replace `ProgramType` with `ProgramFormat` (TRAINING, CERTIFICATION_TRAINING, FELLOWSHIP, INTERNSHIP, APPRENTICESHIP, DIRECT_HIRE) | The current enum has no training value; MSSA is mis-seeded as FELLOWSHIP. |
 | Proposed (Claude) | Required `veteranAccessRoute` column; null = unknown; evidence stays in git, not Postgres | Enforces the inclusion rule while keeping the schema small. |
 | Agreed (user, 2026-11-08) | (Claude writes the importer, per the working mode.) Importer loads SOURCE_VERIFIED records as DRAFT (also in production); review and publish happen in the admin page via Approve & publish (status-only). Dry run by default, upserts by slug, never deletes. Supersedes "imports only APPROVED". | See the plan doc. Marco to write it, per the teaching approach. |
-| Proposed (Claude, 2026-11-09) — **needs user acknowledgement** | Additive migration `20261110003637_program_awaiting_research`: `Program.awaitingResearch` (default false), backfilled true for the legacy `oracle-ovip` DRAFT. Admin Approve & publish refuses flagged rows; the importer clears the flag whenever it writes SOURCE_VERIFIED content. | Found in phase 5: the legacy Oracle draft (NEEDS_RESEARCH) was indistinguishable from verified drafts, so it could have been published by mistake. Applied to local Docker only. |
+| Agreed (user, 2026-11-09) | Additive migration `20261110003637_program_awaiting_research`: `Program.awaitingResearch` (default false), backfilled true for the legacy `oracle-ovip` DRAFT. Admin Approve & publish refuses flagged rows; the importer clears the flag whenever it writes SOURCE_VERIFIED content. | Found in phase 5: the legacy Oracle draft (NEEDS_RESEARCH) was indistinguishable from verified drafts, so it could have been published by mistake. Applied to local Docker only. |
 
 ## Latest implementation state
 
@@ -246,9 +246,11 @@ Remaining:
    5. Set `FRONTEND_URL` on EB (and `TRUST_PROXY` only after checking headers); deploy with `npm ci` (Prisma 7.10.1).
    6. `make-admin.js <your account>`; review and publish drafts in the admin page; smoke test.
    - Existing users will see the username prompt.
-7. **User acknowledgement needed:** the `awaitingResearch` migration (Decisions table). It's additive and reversible (drop the column), but it is a schema change after the schema was approved.
+7. **Deploy method (phase 6), user deciding:** the user asked whether to use the AWS console. The August deploy used the EB CLI (`eb deploy` from `backend/`) and the AWS CLI (S3 sync + CloudFront invalidation). Claude recommended a hybrid: the user does the console steps (snapshot, EB "Upload and deploy" of a clean zip, env vars, S3 upload + invalidation), and Claude runs the DB scripts one at a time with go-ahead.
+8. **Deploy bundle hygiene (fix before phase 6):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
 
 Resolved and removed from this list:
+- `awaitingResearch` migration acknowledgement (Claude's phase 5 proposal): approved by the user, 2026-11-09.
 - `.vscode/` (Claude's finding): ignored via root `.gitignore` (user, 2026-11-09).
 - `npm audit` (Claude's phase 3 finding): user approved the fix (2026-11-09). Backend production deps and the frontend are now at 0 advisories. Prisma moved to 7.10.1 (CLI, client and adapter kept in step). 2 moderate dev-only advisories remain in `nodemon`'s dependency chain; fixing them needs a breaking `--force` upgrade, and they never ship.
 - Signup 500 on missing `branch` (Claude's phase 2 finding): fixed by phase 3 validation.
