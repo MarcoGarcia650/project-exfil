@@ -311,7 +311,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 **Resume here.** The user hit their usage limit; work stopped mid-chunk 2.
 
-- **Chunk 1** (search, unsave, home when logged in, favicon) was pushed to `main` (68250bb); the pipeline run 42753726255 was approved by the user. **Not yet verified:** confirm it finished green (`gh run view 42753726255`) and the live site shows search + unsave.
+- **Chunk 1** (search, unsave, home when logged in, favicon) was pushed to `main` (68250bb); the pipeline run 42753726255 was approved by the user. **Verified: deployed** (pipeline success; EB `ci-68250bb-8` Ready/Green; live `/programs?q=vets` 200).
 - **Chunk 2 = Direction D redesign: built, committed as WIP on `feature/programs-directory` only (NOT on main, NOT deployed).** Done:
   - backend multi-value filters (`?techTrack=CLOUD,DATA`, any-of; integration 41/41);
   - theme system (light default, `[data-theme=dark]` = old colors, saved in localStorage `exfil-theme`, applied pre-paint in `index.html`; Inter font);
