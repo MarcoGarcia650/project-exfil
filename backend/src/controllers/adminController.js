@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma.js";
 import { createResetToken, resetLink, RESET_TOKEN_TTL_HOURS } from "../lib/passwordReset.js";
 import { PUBLIC_SELECT } from "./programController.js";
+import { parseListingInput } from "../lib/listingInput.js";
+import { contentHashFor } from "../../prisma/lib/programContent.js";
 
 // Every handler here runs behind requireAuth + requireAdmin.
 // Moderation is reactive and status-only: no handler edits listing content
@@ -326,4 +328,56 @@ export async function replyToMessage(req, res) {
     return res.status(exists ? 409 : 404).json({ error: exists ? "Already answered" : "Message not found" });
   }
   res.json({ ok: true });
+}
+
+// ---------- Add listing ----------
+
+// GET /admin/organizations — for the Add listing form's picker.
+export async function listOrganizations(req, res) {
+  const orgs = await prisma.organization.findMany({
+    orderBy: { name: "asc" },
+    select: { slug: true, name: true, websiteUrl: true },
+  });
+  res.json(orgs);
+}
+
+// POST /admin/listings — creates a DRAFT from the admin form.
+// Same review path as imported listings: it appears in Drafts to review
+// and only Approve & publish makes it public. contentHash uses the
+// importer's function, so review and future imports treat it the same way.
+export async function createListing(req, res) {
+  const { error, data, warnings } = parseListingInput(req.body);
+  if (error) return res.status(400).json({ error });
+
+  const { organization, slug, ...fields } = data;
+  let org;
+  if (organization.existingSlug) {
+    org = await prisma.organization.findUnique({ where: { slug: organization.existingSlug } });
+    if (!org) return res.status(400).json({ error: "That organization doesn't exist" });
+  } else if (await prisma.organization.findUnique({ where: { slug: organization.newOrg.slug } })) {
+    return res.status(409).json({ error: "An organization with that slug already exists; pick it from the list" });
+  }
+
+  if (await prisma.program.findUnique({ where: { slug }, select: { id: true } })) {
+    return res.status(409).json({ error: `A listing with the URL slug "${slug}" already exists` });
+  }
+
+  const orgSlug = org ? org.slug : organization.newOrg.slug;
+  const contentHash = contentHashFor({ organizationSlug: orgSlug, ...fields });
+
+  try {
+    const program = await prisma.$transaction(async (tx) => {
+      const orgId = org ? org.id : (await tx.organization.create({ data: organization.newOrg })).id;
+      return tx.program.create({
+        data: { ...fields, slug, organizationId: orgId, contentHash, publishStatus: "DRAFT" },
+        select: { id: true, slug: true, publishStatus: true },
+      });
+    });
+    res.status(201).json({ ...program, warnings });
+  } catch (err) {
+    if (err.code === "P2002") {
+      return res.status(409).json({ error: "This organization already has a listing with that name" });
+    }
+    throw err;
+  }
 }

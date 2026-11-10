@@ -84,9 +84,16 @@ export function ProgramsPage() {
   function close() {
     if (location.state?.listingModal) navigate(-1);
     else update((next) => next.delete("listing"));
-    // Return focus to the card that opened it.
-    setTimeout(() => openerRef.current?.focus(), 0);
   }
+
+  // Return focus to the card that opened the modal once it has actually
+  // closed (focusing earlier fails: the open modal makes the page inert).
+  useEffect(() => {
+    if (!listingSlug && openerRef.current) {
+      openerRef.current.focus();
+      openerRef.current = null;
+    }
+  }, [listingSlug]);
 
   const activeCount = FILTERS.reduce((n, { name }) => n + selected[name].length, 0) + (q ? 1 : 0);
 

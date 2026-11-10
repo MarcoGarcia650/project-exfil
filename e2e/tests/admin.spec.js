@@ -97,5 +97,23 @@ test("admin page", async ({ page, browser }) => {
     await expect(page.locator(".admin-item h2", { hasText: "Fortinet" })).toBeVisible();
   });
 
+  await test.step("add listing → draft → appears in Drafts to review", async () => {
+    await page.getByRole("tab", { name: "Add listing" }).click();
+    const form = page.locator(".listing-form");
+    await form.getByLabel("Organization *").selectOption("vetswhocode");
+    await form.getByLabel("Program name *").fill(`E2E Data Track ${n}`);
+    await form.getByLabel("Data").check();
+    await form.getByLabel("Description *").fill("A free data program for veterans.");
+    await form.getByLabel("How veterans can access it *").fill("Veterans apply directly on the official page.");
+    await form.getByLabel("Official program page * (https)").fill("https://example.org/data");
+    await expect(form.getByRole("button", { name: "Save as draft" })).toBeDisabled();
+    await form.getByLabel(/I read the official page/).check();
+    await form.getByRole("button", { name: "Save as draft" }).click();
+    await expect(page.getByRole("heading", { name: "Draft created" })).toBeVisible();
+    await page.getByRole("button", { name: "Go to Drafts to review" }).click();
+    await expect(page.locator(".admin-item h2", { hasText: `E2E Data Track ${n}` })).toBeVisible();
+    expect((await api("GET", `/programs/e2e-data-track-${n}`)).status).toBe(404);
+  });
+
   expect(errors).toEqual([]);
 });

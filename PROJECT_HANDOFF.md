@@ -308,6 +308,17 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-10 (chunk 3 awaiting approval; chunk 4 built) — Claude (VS Code)
+
+- Chunk 3: the user applied `20261110054723_contact_messages` to prod (verified: migrate status up to date); pushed `main` (a3561ba) → run **42772008391**, waiting for the user's approval.
+- **Chunk 4 built (feature branch only):** admin **Add listing** tab.
+  - `POST /admin/listings` → creates a DRAFT (with an optional new organization), `contentHash` via the importer's `contentHashFor`, then the normal Drafts to review → Approve & publish path.
+  - Rules in [listingInput.js](backend/src/lib/listingInput.js) mirror the validator: https official page required, veteran route required + an "I read the official page" confirmation, ≥1 tech track, verifiedOn not in the future, slug format/uniqueness, (org, name) unique, a "guarantee" warning. `GET /admin/organizations` feeds the picker.
+  - Admin-added listings live only in the DB, not `programs-staging.json`. A later import of the same slug would update them by the normal transition rules.
+  - Tests: unit 33/33 (+5), integration 7/7 suites (`listings.test.js`, 15 checks), e2e 5/5 (admin spec adds a listing).
+- Fixes: modal focus now returns to the opening card after close (an effect on `listing` clearing, not a timeout); favicon links versioned `?v=2`, because browsers had cached the old Vite icon.
+- The user asked for **favicon/icon drafts** as a design canvas; in progress.
+
 ### 2026-11-10 (redesign live; domain email in progress) — Claude (VS Code) with user
 
 - **Chunk 2 (Direction D redesign) deployed:** pipeline 42764247483 approved by the user → success; EB `ci-5bce5b6-14` Green; live check (6 tiles, modal opens, Escape closes, dark toggle, no console errors).

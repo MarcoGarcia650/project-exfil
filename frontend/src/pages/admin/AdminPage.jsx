@@ -8,6 +8,7 @@ import { UsersTab } from "./UsersTab.jsx";
 import { DraftsTab } from "./DraftsTab.jsx";
 import { RejectedTab } from "./RejectedTab.jsx";
 import { MessagesTab } from "./MessagesTab.jsx";
+import { AddListingTab } from "./AddListingTab.jsx";
 
 const TABS = [
   { id: "reports", label: "Reports", count: "openReports", Component: ReportsTab },
@@ -16,6 +17,7 @@ const TABS = [
   { id: "users", label: "Users", Component: UsersTab },
   { id: "drafts", label: "Drafts to review", count: "drafts", Component: DraftsTab },
   { id: "rejected", label: "Rejected", Component: RejectedTab },
+  { id: "add", label: "Add listing", Component: AddListingTab },
 ];
 
 // /admin?tab=… — admin-only. The server enforces this on every /admin

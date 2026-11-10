@@ -4,6 +4,7 @@ import {
   summary, listOpenReports, hideComment, dismissReports, listSubmissions, reviewSubmission,
   searchUsers, setSuspended, issueResetLink, listDrafts, publishDraft,
   rejectDraft, listRejected, restoreRejected, listMessages, replyToMessage,
+  listOrganizations, createListing,
 } from "../controllers/adminController.js";
 
 const router = Router();
@@ -27,6 +28,8 @@ router.post("/drafts/:id/reject", rejectDraft);
 router.get("/rejected", listRejected);
 router.post("/rejected/:id/restore", restoreRejected);
 router.get("/messages", listMessages);
+router.get("/organizations", listOrganizations);
+router.post("/listings", createListing);
 router.post("/messages/:id/reply", replyToMessage);
 
 export default router;
