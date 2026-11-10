@@ -321,7 +321,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Photo: public-domain U.S. Air Force photo (Kadena career summit, Feb 2026, A1C Francisco Huerta; Wikimedia Commons, ID 260205-F-BX574-1055), resized to 1200px in [frontend/src/assets/home-career-summit.jpg](frontend/src/assets/home-career-summit.jpg) (bundled/hashed, no hotlink); credit shown as a caption. Old Unsplash hotlinked banner and `PathIllustration.jsx` removed.
 - `/` gets `page page-home` (full-bleed sections); the navbar search is hidden on `/` only (the hero has its own).
 - Checks: frontend lint + build clean; screenshots desktop light/dark (signed in) and 390px phone, no horizontal scroll, no console errors; new [e2e/tests/home.spec.js](e2e/tests/home.spec.js); full Playwright suite 6/6 passing locally.
-- Next: user review, then merge to `main` and approve the pipeline deploy (frontend-only change, no migrations).
+- **Deployed 2026-11-10** (run 42906518705, commit 4a272f7, with the About wording "grew out of frustration with my own search…"). First approval was cancelled by the user mid-build (nothing deployed); re-run approved and green. Live check: new bundle served, photo 200, 3 recent tiles, no page errors.
 - Palette exploration (user, 2026-11-10): green options mocked up at https://claude.ai/artifact/ASJGZXrVvqrTR9ngc8urpH (emerald #047857, forest #166534, olive drab #556b2f, pine #0f766e, light + dark). **Decision: keep the current purple**; greens kept for reference only. If revisited, note the "Accepting" status badge is green and would need another hue with emerald/forest.
 
 
