@@ -85,7 +85,12 @@ It refuses to run unless `DATABASE_URL` points at localhost.
 cd backend
 npm test                    # unit tests (importer rules, validation)
 npm run test:integration    # HTTP suites against a separate exfil_test database
+
+cd ../e2e && npm ci
+npm test                    # browser tests (Playwright; uses your installed Chrome locally)
 ```
+
+The browser tests start their own API (port 4100, `exfil_test`) and frontend (port 5174), so they can run while your dev servers are up. On failure, `npm run report` opens a trace of each step.
 
 The integration suites reset `exfil_test` to a small fixture set each run (`backend/test/integration/fixtures.js`), so they never touch your dev data. They refuse any database not named `*_test`.
 

@@ -43,13 +43,13 @@ const childEnv = { ...process.env, DATABASE_URL: url };
 let prismaRef;
 let server;
 
-export async function setup() {
+export async function setup({ port = 0 } = {}) {
   execFileSync("npx", ["prisma", "migrate", "deploy"], { cwd: backendDir, env: childEnv, stdio: "ignore" });
   const { prisma } = await import("../../src/lib/prisma.js");
   prismaRef = prisma;
   await resetData();
   const { default: app } = await import("../../src/app.js");
-  await new Promise((resolve) => (server = app.listen(0, resolve)));
+  await new Promise((resolve) => (server = app.listen(port, resolve)));
   return { base: `http://127.0.0.1:${server.address().port}`, prisma };
 }
 
