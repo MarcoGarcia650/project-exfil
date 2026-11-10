@@ -273,6 +273,9 @@ Remaining:
    - 11 NEEDS_RESEARCH records + the Per Scholas per-course split (research batch 2);
    - inviting the small tester group (this version's stated goal) once the user is happy with v2.
 
+7. **Codex portfolio review recommendations (2026-11-09; proposals only):** README still advertises archived HOH CFP, employer-level tracking, importer-only writes and deferred community/admin functionality; refresh it and the stale handoff summaries. Live MSSA shows CLOSED alongside “Apply on provider’s site”; use availability-aware CTA wording. Clarify program vs individual-job terminology, continue catalog verification/testing, and review whether the live About biography matches the intended anonymity. A dashboard screenshot/walkthrough would expose account-only value to visitors without signup.
+   - **Status (Claude, 2026-11-10):** README refreshed (Codex's README finding resolved; see the activity log). **Deferred by the user ("deal with later"):** the availability-aware CTA (don't show "Apply on provider's site" when applications are CLOSED; adjust for UNKNOWN), program vs job-opening terminology (overlaps open question 6), the dashboard walkthrough, and the About biography review (the user wrote and approved that text on 2026-11-10; any change is the user's call).
+
 Resolved and removed from this list:
 - Domain email (user, 2026-11-10): `admin@projectexfilout.org` works. Inbound via ImprovMX forwarding to the user's Gmail; outbound via Gmail "Send mail as" through SES SMTP (IAM SMTP credentials, held by the user). SES: domain + address verified, Easy DKIM SUCCESS, **production access GRANTED** (case 179429319300383), VDM/auto-validation off. DNS: MX, SPF (`include:spf.improvmx.com`), 3 DKIM CNAMEs, DMARC `p=none` (tighten to `quarantine` after a few weeks of clean reports). Test: SES metrics show 1 send, 1 delivery, 0 bounces/complaints. The FAQ now shows `admin@projectexfilout.org`.
 - Phase 6 rollout checklist, deploy-method question, deploy bundle hygiene: all done (see the activity log, 2026-11-09). Deploys now go through the pipeline.
@@ -310,6 +313,28 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-10 (README refresh) — Claude (VS Code)
+
+- Read Codex's 2026-11-09 review entry and open item 7 (kept intact; committed together with this change).
+- Rewrote the stale README sections:
+  - problem/solution: tech careers, post-separation access, the job-opening rule;
+  - a new Features section;
+  - the frontend stack row (public directory, client-rendered trade-off);
+  - data model (in-app add/edit, importer never overwrites app edits, comments on listings or organizations, ContactMessage);
+  - Structure (e2e, research, infra, .github);
+  - "What's not in v1" → Roadmap.
+
+  Local dev, tests, CI and deployment sections were already current. No job-search framing in public content.
+- Not done (user deferred): the closed-applications CTA, terminology, dashboard walkthrough.
+
+### 2026-11-09 (live site and GitHub portfolio review) — Codex
+
+- Read current handoff and sampled frontend/backend source, importer, integration harness and browser tests; checked GitHub main `a1ca580` and successful run `42775325080` (backend, frontend, browser, release plan and deploy jobs). Local branch differed from main only in handoff/research data at review time.
+- Public site inspected in isolated headless Chrome at desktop and 390px: home, browse, About, FAQ, signup, contact, program detail and organization page. Verified URL filter (5 software results), empty search, clear (7 results), modal/Escape/focus return, full-page detail and theme toggle. No page exceptions in page sweep/mobile checks; no horizontal overflow on inspected mobile pages. Review scripts needed timing/locator corrections; these were not app failures.
+- Ran local unit tests 36/36, frontend lint and build: pass. Did not create accounts, exercise authenticated/admin writes, rerun DB integration suites, audit security comprehensively or independently verify provider claims. No production writes, imports, migrations or deployments.
+- Recommendations (not user decisions): refresh contradictory README/current-state docs; expand verified catalog and gather tester feedback; align closed/unknown application CTA wording and program/job naming; reconsider identifying detail on anonymous About page; add a dashboard screenshot/product walkthrough to the GitHub presentation. See open follow-ups. Only this handoff changed.
+
 
 ### 2026-11-10 (chunks 4–6 live; first batch-workflow listing) — Claude (VS Code) with user
 

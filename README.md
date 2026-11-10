@@ -4,22 +4,43 @@
 
 ## The problem
 
-Veterans and transitioning service members lack a clear, personalized action plan for the civilian job
-search — especially finding employers with *real* veteran hiring pipelines, not just generic "veteran
-friendly" marketing claims. The information that does exist is scattered across LinkedIn posts,
-individual company career pages, and word of mouth, so a transitioning veteran has to piece together
-which programs are actually real, who's eligible, and what the next step is.
+Plenty of employers say they're "veteran friendly", but following those links often leads nowhere useful:
+outdated programs, generic career pages, unclear eligibility, or initiatives that quietly ended. A veteran
+trying to move into tech has to piece together which programs are real, who can actually apply after
+separating, and what to do next, from scattered company pages, nonprofit sites, posts and word of mouth.
 
 ## The solution
 
-Project Exfil is a curated database of real veteran hiring programs — Amazon's military pipeline,
-Oracle's OVIP, Microsoft's MSSA, Hiring Our Heroes' Corporate Fellowship, and more — with accounts to
-save and track target employers, plus an auto-generated starting checklist for each one based on the
-program type.
+Project Exfil is a curated directory of **tech career programs open to veterans after separation** in
+software development, IT and support, cloud, cybersecurity, and data: training programs, certifications,
+fellowships, internships, apprenticeships, and direct-hire roles, including individual job openings that
+explicitly value military experience.
 
-**The core loop:** browse/filter the employer database → save employers you're pursuing → track status
-per employer (researching → applied → interviewing → offer/rejected) → work through the auto-suggested
-next steps for each.
+Every listing is checked against the provider's own official page, shows when it was last verified, and
+explains **how a veteran who has already separated can get in**. Programs open only to active-duty members
+(such as SkillBridge-only fellowships) aren't listed. Nothing goes public until an admin reviews it.
+
+**The core loop:** search and filter the directory → open a listing → save the ones you're pursuing → track
+your status and work through a starting checklist on your dashboard → share experiences and questions in
+each listing's and organization's discussion.
+
+## Features
+
+- **Public directory:** keyword search, multi-select filters (tech track, format, application status) kept
+  in the URL so any view can be shared, a card grid with a details modal, and a shareable page per listing
+  and per organization. Archived listings stay readable with the reason they were archived.
+- **Accounts:** usernames (the only public identity; emails are never shown), save/unsave, a dashboard with
+  per-program status and checklists, light and dark themes.
+- **Community:** threaded, plain-text discussions on every listing and organization page; reporting;
+  suggestions for new programs or corrections, which an admin verifies before anything changes.
+- **Contact:** signed-in users can message the admin and read replies on "My messages".
+- **Admin page:** a report queue (hide comments, suspend accounts), suggestion review with notes back to the
+  submitter, user lookup with one-time password-reset links, a contact inbox, and listing management: add a
+  listing, edit any listing, and a **Drafts to review** queue where each draft must pass a checklist before
+  **Approve & publish** (or is rejected with a private reason).
+- **Trust safeguards:** server-side validation, rate limits on login and posting, sessions that end on
+  password reset, admin roles checked on every request, and listings that are only ever public when
+  published or archived.
 
 ## Tech stack, and why
 
@@ -28,23 +49,35 @@ next steps for each.
 | Backend | Node/Express | Consistency with prior mini-projects; comfortable baseline to build fluency on. |
 | Data access | Prisma | Started with raw SQL to build that fluency directly, but once the deploy target grew to real AWS infra (RDS, Elastic Beanstalk, S3/CloudFront), that infrastructure work became the more interesting problem to spend time on — Prisma buys back the time/complexity budget that raw SQL would've spent on backend plumbing. |
 | Database | PostgreSQL on RDS | Free-tier eligible, and genuine hands-on experience with a managed production database (security groups, subnet groups, managed credentials) rather than a local-only setup. |
-| Frontend | React (Vite), not Next.js | The app is a logged-in dashboard, not content that benefits from SSR/SEO. Plain React keeps the client/API boundary legible, rather than stacking a second framework's conventions on top of Express fundamentals still being built. |
+| Frontend | React (Vite), not Next.js | Plain React keeps the client/API boundary legible. The trade-off: the public directory is client-rendered, so link previews are generic and search engines see less than a server-rendered site would show. |
 | Backend hosting | Elastic Beanstalk, **single-instance mode** | EB's *default* environment type provisions a load balancer — which is not covered by the AWS free tier and runs ~$16+/mo sitting idle. Single-instance mode skips the ALB entirely while still giving real EB deployment/config experience. |
 | Frontend hosting | S3 + CloudFront | Static hosting behind a CDN, effectively free at this scale. |
 | API HTTPS | A **second** CloudFront distribution in front of the EB backend | Single-instance EB has no load balancer, and therefore no built-in TLS termination — it only serves HTTP. Once the frontend is served over HTTPS via CloudFront, browsers block API calls to a plain-HTTP backend as mixed content. Fronting EB with its own CloudFront distribution gives it HTTPS for free, without paying for a load balancer just to get a certificate. |
 
 ## Data model
 
-- `Organization` → `Program`: one organization can run several programs, and each program is its own listing with a stable slug (`/programs/:slug`).
-- `Program.publishStatus`: `DRAFT` (imported, awaiting admin review), `PUBLISHED`, `ARCHIVED` (public at its URL with a reason, hidden from browse), `REJECTED` (failed review, never public). Only `PUBLISHED`/`ARCHIVED` are ever served publicly.
-- Listing content only enters the database through the importer (`research/programs-staging.json` → validator → `import-programs.js`), and only an admin's Approve & publish makes it public.
-- `SavedEmployer` + `ActionItem`: a user's tracked program, status and checklist.
-- `Comment` (threaded), `Report`, `Submission`: public discussion with reactive moderation, plus user suggestions reviewed by the admin.
+- `Organization` → `Program`: one organization can run several programs, and each program is its own listing
+  with a stable slug (`/programs/:slug`).
+- `Program.publishStatus`: `DRAFT` (awaiting admin review), `PUBLISHED`, `ARCHIVED` (public at its URL with a
+  reason, hidden from browse), `REJECTED` (failed review, never public). Only `PUBLISHED`/`ARCHIVED` are ever
+  served publicly; application availability (accepting, rolling, closed, unknown) is tracked separately.
+- Listing content arrives two ways: the research pipeline (`research/programs-staging.json` → validator →
+  `import-programs.js`, which creates drafts) and the admin page's add/edit form. A content fingerprint ties
+  each approval to exactly what was reviewed, and the importer never overwrites a listing an admin edited in
+  the app.
+- `SavedEmployer` + `ActionItem`: a user's saved program, status and checklist.
+- `Comment` (threaded; belongs to exactly one listing or organization), `Report`, `Submission`, and
+  `ContactMessage`: community discussion with reactive moderation, user suggestions, and messages to the admin.
 
 ## Structure
 
-- `backend/` — Express API, Prisma + PostgreSQL
-- `frontend/` — React (Vite)
+- `backend/`: Express API, Prisma + PostgreSQL, migrations, importer and admin scripts, unit and HTTP
+  integration tests
+- `frontend/`: React (Vite)
+- `e2e/`: Playwright browser tests
+- `research/`: the verified program data (`programs-staging.json`), its validator, and research notes
+- `infra/`: one-time AWS/GitHub setup for the deploy pipeline
+- `.github/`: CI/CD workflow and its helper scripts
 
 ## Local development
 
@@ -116,12 +149,13 @@ can assume (`infra/github-deploy/`). Database migrations are **not** run by the 
 the admin's IP, so additive migrations are applied before approving a deploy, and destructive ones after
 the code that no longer needs the old columns is live.
 
-## What's not in v1
+## Roadmap
 
-AI-powered resume/MOS translation, resume upload, community features, email notifications, an admin
-panel for managing employer data (seeded via script), OAuth, and a mobile app are all explicitly out of
-scope for v1 — see [vet_tool_project_brief.md](./vet_tool_project_brief.md) for the full original brief.
-Growing the employer database beyond the initial seed set is planned for v2, likely via scraping
-existing structured directories (e.g. the DoD SkillBridge program directory) rather than open-ended web
-scraping, with a human review step before anything goes live — the app's whole value is trustworthy
-curation, so unreviewed scraped data would undermine the actual differentiator.
+Not built yet, roughly in order:
+
+- **More verified listings**, added in reviewed research batches (several programs are already queued).
+- **Direct messages and notifications**, shipping together, including password-reset and reply emails.
+- **Clearer categories** for infrastructure and data-center roles, and for individual job openings versus
+  programs.
+
+See [vet_tool_project_brief.md](./vet_tool_project_brief.md) for the original v1 brief.
