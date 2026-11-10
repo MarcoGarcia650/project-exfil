@@ -255,13 +255,11 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Pipeline go-live (2026-11-09):** the user ran `gh auth refresh -s workflow` and `setup.sh`. CI passed on GitHub (run 42748572682, branch). `main` was pushed (374e8b4 → 7b15a7b); pipeline run 42749082528: all checks + release plan green; the user approved; **deploy failed at the AWS login step** ("Not authorized to perform sts:AssumeRoleWithWebIdentity"). Nothing deployed. Cause: this repo has GitHub's *immutable* OIDC subject (`repo:MarcoGarcia650@123526094/project-exfil@1328947560:environment:production`). Fixed in `trust-policy.json` (`4dec04f`). **Next: the user re-runs `sh infra/github-deploy/setup.sh` (updates the trust policy), then Claude pushes and the user approves the new run.** Original plan below for reference: Claude Code's safety check blocks Claude from creating IAM roles and from deploying to production directly, so:
-   1. **User:** `gh auth refresh -h github.com -s workflow` (browser). The current token lacks the `workflow` scope, and GitHub rejected the push of `.github/workflows/ci.yml`. **Nothing is on GitHub yet.**
-   2. **User:** `sh infra/github-deploy/setup.sh` (OIDC provider, role `exfil-github-deploy`, EB DeploymentPolicy=Immutable). Wait for EB Green.
-   3. Push `feature/programs-directory` → CI's first run. Fast-forward `main` → push → **Release plan** → user approves → the pipeline deploys the contract-ready backend + frontend.
-   4. Then the destructive contract migration: `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` (applies `20261110024000_contract_drop_legacy_employer`). Snapshot `vetpath-db-before-contract-2` (03:08 UTC; 0 unmapped saves, 2 saves) exists.
-   - GitHub `production` environment is already set up by Claude (required reviewer MarcoGarcia650, `main` only, `AWS_ROLE_ARN` variable), via `infra/github-deploy/github-env.sh`.
-   - **Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`** (EB would reopen port 80 to `0.0.0.0/0`). Both bundle scripts include it; `build-ci-bundle.sh` refuses to build without it.
+5. ~~Pipeline go-live~~ **Done (2026-11-09).** See the activity log. Remaining small follow-ups:
+   - bump `actions/checkout`/`setup-node` to versions on Node 24 (GitHub deprecation notice) and watch the `ubuntu-latest` → Ubuntu 26 change;
+   - optional branch protection on `main` (require CI; PRs);
+   - optional: an EB health alarm → email.
+   - **Deploy rules now:** every production deploy goes through the pipeline (push to `main` → approve in GitHub). Additive migrations are applied with `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` **before** approving; destructive ones **after** the code that no longer needs the old columns is live. Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`.
 6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
    1. RDS snapshot.
    2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
@@ -307,6 +305,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (pipeline live + contract done) — Claude (VS Code) with user
+
+- The user re-ran `setup.sh` (trust policy now uses the immutable subject). Claude pushed `main` (8c4472e); pipeline run **42750145030**: checks + release plan green → the user approved → **deploy succeeded**:
+  - OIDC login OK; CI-built bundle; EB **Immutable** deploy took 11 min (new instance `i-096dc62965db4d364`, old `i-029932c89159cd7cf` terminated); API smoke OK (no rollback); frontend synced + invalidated; site smoke OK.
+  - Verified on the new instance: `eb-engine.log` says "found node modules dependencies, skip installing dependencies"; swap enabled; the SG is still CloudFront-only (direct origin blocked); env vars incl. `TRUST_PROXY` carried over; cache headers (`index.html` no-cache, assets 1-year immutable); live check 12/12.
+- **Contract migration applied by the user** (`with-prod-db.sh npx prisma migrate deploy` → `20261110024000_contract_drop_legacy_employer`). Verified: `migrate status` up to date; `migrate diff` against `schema.prisma` exit 0 (no drift); 2 saves, 0 unmapped; programs unchanged; live check 12/12.
+- **Production now:** EB version `ci-8c4472e-4`; schema fully contracted; 6 PUBLISHED, 7 DRAFT, 1 REJECTED, 2 ARCHIVED; 2 users.
+- The expand → backfill → switch → contract migration is complete. Snapshots `vetpath-db-before-phase6`, `-before-contract`, `-before-contract-2` exist (manual; they cost storage; delete when no longer wanted).
 
 ### 2026-11-09 (first pipeline run) — Claude (VS Code)
 
