@@ -255,7 +255,13 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Contract deploy and pushing `main`: on hold (user, 2026-11-09).** When resumed: rebuild the zip from the branch HEAD (`make-deploy-zip.sh`; it now includes `.ebextensions`). **Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`**: EB would restore port 80 to `0.0.0.0/0`. Then deploy the backend, then `migrate deploy` (snapshot `vetpath-db-before-contract` exists). `main` is merged locally at `e9753f0`; fast-forward again before pushing.
+5. **Pipeline go-live: waiting on 2 user-run steps (2026-11-09).** Claude Code's safety check blocks Claude from creating IAM roles and from deploying to production directly, so:
+   1. **User:** `gh auth refresh -h github.com -s workflow` (browser). The current token lacks the `workflow` scope, and GitHub rejected the push of `.github/workflows/ci.yml`. **Nothing is on GitHub yet.**
+   2. **User:** `sh infra/github-deploy/setup.sh` (OIDC provider, role `exfil-github-deploy`, EB DeploymentPolicy=Immutable). Wait for EB Green.
+   3. Push `feature/programs-directory` → CI's first run. Fast-forward `main` → push → **Release plan** → user approves → the pipeline deploys the contract-ready backend + frontend.
+   4. Then the destructive contract migration: `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` (applies `20261110024000_contract_drop_legacy_employer`). Snapshot `vetpath-db-before-contract-2` (03:08 UTC; 0 unmapped saves, 2 saves) exists.
+   - GitHub `production` environment is already set up by Claude (required reviewer MarcoGarcia650, `main` only, `AWS_ROLE_ARN` variable), via `infra/github-deploy/github-env.sh`.
+   - **Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`** (EB would reopen port 80 to `0.0.0.0/0`). Both bundle scripts include it; `build-ci-bundle.sh` refuses to build without it.
 6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
    1. RDS snapshot.
    2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
@@ -301,6 +307,19 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (CD pipeline built; go-live pending user steps) — Claude (VS Code)
+
+- The user asked to push, deploy the contract, and build the pipeline.
+  - **Push:** rejected by GitHub (token lacks the `workflow` scope).
+  - **Contract deploy:** blocked by Claude Code's safety check; production is unchanged (live version `sg-cf-b1a1013`, old tables still present). Took a fresh snapshot `vetpath-db-before-contract-2` (pre-check: 0 unmapped saves).
+- Built CD in `.github/workflows/ci.yml`: a `release-plan` job (commits + migration warning in the run summary) and a `deploy` job on GitHub environment `production`.
+  - The deploy job uses OIDC to AWS and [build-ci-bundle.sh](backend/scripts/build-ci-bundle.sh) (Linux prod deps pre-installed, so EB skips `npm install`; 95 MB; refuses without the SG config or swap hook).
+  - It deploys to EB and waits via [.github/scripts/wait-eb.sh](.github/scripts/wait-eb.sh), runs the API smoke test ([smoke.sh](.github/scripts/smoke.sh)) with auto-rollback to the previous version, syncs the frontend (assets: 1-year immutable; `index.html`: no-cache), invalidates CloudFront, then runs the site smoke test.
+  - Checked locally: YAML parses; the smoke script passes against live; the bundle builds from a copy and the server runs from it.
+- [infra/github-deploy/](infra/github-deploy/): `trust-policy.json` (only `repo:MarcoGarcia650/project-exfil:environment:production`), `frontend-policy.json` (one bucket + one distribution), `setup.sh` (OIDC provider, role with AWS-managed `AdministratorAccess-AWSElasticBeanstalk` + the frontend policy, EB Immutable). **setup.sh was blocked for Claude ("Permission Grant"); the user must run it.** `github-env.sh` ran successfully and was verified.
+- Moved the production-DB helper into the repo: [with-prod-db.sh](backend/scripts/with-prod-db.sh) (the scratchpad copy was temporary).
+- Not verified yet: whether EB on AL2023 skips `npm install` when `node_modules` is in the bundle (check `eb-engine.log` on the first pipeline deploy); the first real CI/CD run.
 
 ### 2026-11-09 (local dev + tests in repo + CI) — Claude (VS Code)
 
