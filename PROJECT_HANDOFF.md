@@ -198,10 +198,10 @@ Remaining:
 
 4. **Untracked `.vscode/`** (appeared after reopening VS Code): user to say whether to commit it or add it to `.gitignore`. Left untouched.
 5. **Production `TRUST_PROXY` value (phase 6):** log the request headers on the real deployment to confirm the CloudFront → EB nginx hop count before setting it. Until then the per-IP limits may group all visitors under the proxy's IP; the per-email login limit still works.
-6. **`npm audit` (backend, prod deps): 8 existing advisories** (1 critical `proxy-addr`, 6 high incl. `body-parser`, `fast-uri`, Prisma's `deepmerge-ts`/`mysql2`; 1 moderate `qs`). All were present before phase 3, and all have non-breaking fixes. Not applied: it touches the Prisma toolchain and needs a retest. User to decide whether to run `npm audit fix` before phase 6.
-7. **Production rollout steps added by phase 3 (phase 6):** set `FRONTEND_URL` on EB; run `normalize-emails.js` dry run, then `--apply`, against RDS (after the snapshot). Existing users will see the username prompt.
+6. **Production rollout steps added by phase 3 (phase 6):** set `FRONTEND_URL` on EB; run `normalize-emails.js` dry run, then `--apply`, against RDS (after the snapshot). Existing users will see the username prompt.
 
 Resolved and removed from this list:
+- `npm audit` (Claude's phase 3 finding): user approved the fix (2026-11-09). Backend production deps and the frontend are now at 0 advisories. Prisma moved to 7.10.1 (CLI, client and adapter kept in step). 2 moderate dev-only advisories remain in `nodemon`'s dependency chain; fixing them needs a breaking `--force` upgrade, and they never ship.
 - Signup 500 on missing `branch` (Claude's phase 2 finding): fixed by phase 3 validation.
 - Codex's 4 doc findings: applied to the schema and plan docs.
 - Username details: proposed per the user's rules.
@@ -230,6 +230,13 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (dependency audit fixes) — Claude (VS Code)
+
+- User approved `npm audit fix`. Backend: 8 prod advisories → 0. Prisma CLI, `@prisma/client` and `@prisma/adapter-pg` aligned at 7.10.1, and the client was regenerated. Frontend: 2 high (Vite/launch-editor, source-map-js) → 0. Not fixed: 2 moderate dev-only advisories (nodemon chain; needs `--force`).
+- Checks run after updates: `npm test` 18/18, `prisma migrate status` up to date, importer dry run (13 UNCHANGED), HTTP smoke 39/39, browser 24/24 + 14/14, frontend build and lint clean.
+- Phase 6 note: the deploy must run `npm ci` so EB gets Prisma 7.10.1 and regenerates the client.
+- Open: `.vscode/` (explained to user, awaiting choice).
 
 ### 2026-11-09 (phase 3 complete, local) — Claude (VS Code)
 
