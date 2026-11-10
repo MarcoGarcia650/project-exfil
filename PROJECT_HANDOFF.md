@@ -47,6 +47,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Agreed (user, 2026-11-09) | **Design: mockups first.** Claude makes 2–3 visual directions (light default + dark) for the user to pick before implementing. | User chose the recommended option. |
 | Agreed (user, 2026-11-09) | **Design = Direction D**: B's filter sidebar + card grid (save toggle per card) + search in the navbar; clicking a card opens an A-style detail card as a **modal** over the grid (page dims/blurs; ✕, background click, Escape; "Open full page"). Light theme default with a navbar dark/light switch (dark = the current colors). Canvas: https://claude.ai/artifact/A6wxmK1z1FmNCtQQSkfEkm | User: "lets do D, i love it". |
 | Agreed (user, 2026-11-10); supersedes "no direct listing editing" | **Admins can edit listings in the app** (Edit listing on the public page, drafts, rejected listings, listing-update suggestions). PUBLISHED stays live and the edit counts as the review; DRAFT stays draft; ARCHIVED stays archived; REJECTED → DRAFT. URL slug + organization fixed; name editable. `editedInAppAt` is set, and the **importer skips app-edited slugs** whose staging content differs (`SKIP_EDITED_IN_APP`) unless `--overwrite-app-edits`. | User: admins must be able to fix listings (e.g. add Cloud to Amazon SDE Apprentice) without staging/import. |
+| Agreed (user, 2026-11-10) | **Individual job openings may be listed when the posting explicitly values military experience** (not only veteran-designated programs/roles), if the career pathway is tech-relevant. First case: AWS Engineering Maintenance Technician (data-center facilities). **AWS data-center roles are tagged Cloud**; no separate data-center track (user chose this over adding a 6th track). Solutions Architect is Cloud as well. Openings expire: set CLOSED or archive with a reason when they close. | User: "its technical enough… for aws data centers… quals… prefer mil experience". |
 
 ## Latest implementation state
 
@@ -308,6 +309,11 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-10 (chunks 4–6 live; first batch-workflow listing) — Claude (VS Code) with user
+
+- **Chunks 4–6 deployed** (run 42775325080 approved → success; EB `ci-a1ca580-24` Green). The user applied both migrations first (`migrate status` up to date, drift exit 0). Live check 12/12; org comments 200; favicon `?v=3` served.
+- **Batch-workflow trial:** the user sent the amazon.jobs posting 10538970 (Engineering Maintenance Technician, AWS data centers). Claude flagged the scope questions (not veteran-designated; facilities work); the user decided to include it, tagged Cloud (decision above). Claude added the `aws-engineering-maintenance-technician` record to `programs-staging.json` from the posting (official evidence; pay range, quals and schedule quoted); validator OK; prod dry run = `CREATE_DRAFT` ×1, `UNCHANGED` ×14. **Awaiting the user's `--apply`, then review/publish in Drafts to review.**
 
 ### 2026-11-10 (chunk 6: edit listings) — Claude (VS Code)
 

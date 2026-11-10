@@ -1688,6 +1688,69 @@
         }
       ],
       "notes": "Re-check amazon.jobs at the start of each internship recruiting season."
+    },
+    {
+      "id": "aws-engineering-maintenance-technician",
+      "organizationId": "org-amazon",
+      "programName": "Engineering Maintenance Technician – AWS Data Centers",
+      "description": "AWS data-center facilities role (Amazon Data Services, AWS Infrastructure Services) maintaining and troubleshooting the electrical and mechanical systems that keep data centers running: diesel generators, switchgear, UPSs and batteries, chillers, cooling towers, air handlers, pumps and motors, plus preventive maintenance, contractor oversight and root-cause analysis. Not a veteran-designated posting, but it lists military experience among its preferred qualifications.",
+      "techTracks": [
+        "CLOUD"
+      ],
+      "programFormat": "DIRECT_HIRE",
+      "skillbridge": {
+        "status": "NOT_STATED",
+        "basis": "Not mentioned in the posting.",
+        "sourceUrl": null
+      },
+      "eligibleAudiences": [
+        "VETERAN"
+      ],
+      "eligibilityNotes": "Open to all applicants; the posting's footer says veterans, military spouses and people with disabilities are encouraged to apply. Preferred qualifications include \"6+ months of professional or military experience\".",
+      "veteranAccess": {
+        "status": "VERIFIED",
+        "route": "Veterans apply directly on amazon.jobs like any applicant; the posting counts military experience toward its preferred qualifications (\"6+ months of professional or military experience\").",
+        "sourceUrl": "https://www.amazon.jobs/en/jobs/10538970/engineering-maintenance-technician"
+      },
+      "prerequisites": "Basic: 1+ years of electrical or mechanical experience, or 1+ years of data center or mission-critical facilities experience; high school diploma or equivalent; 1+ years with Microsoft Office; a flexible schedule including weekends, nights and holidays. Preferred: 2+ years of data center engineering, 3+ years in a relevant technical role or 6+ months of professional or military experience, an associate's or technical degree.",
+      "location": {
+        "remoteAvailability": "in_person",
+        "locations": [
+          "San Francisco, CA"
+        ],
+        "notes": "Location of posting 10538970; on-site data-center work."
+      },
+      "cost": "Not applicable (paid role)",
+      "compensation": "USD 37.83–66.10 per hour (San Francisco), per posting",
+      "duration": "Not applicable (permanent role)",
+      "applicationTiming": "Individual posting (job ID 10538970). Includes rotating on-call duty, shifts over 8 hours, and weekend, night and holiday work.",
+      "applicationStatus": "ACCEPTING",
+      "applicationStatusAsOf": "2026-11-10",
+      "officialSourceUrl": "https://www.amazon.jobs/en/jobs/10538970/engineering-maintenance-technician",
+      "applicationUrl": "https://www.amazon.jobs/en/jobs/10538970/engineering-maintenance-technician",
+      "outcomeNote": "A job opening, not a program; applying does not guarantee an offer.",
+      "verifiedOn": "2026-11-10",
+      "reviewStatus": "SOURCE_VERIFIED",
+      "evidence": [
+        {
+          "url": "https://www.amazon.jobs/en/jobs/10538970/engineering-maintenance-technician",
+          "kind": "official",
+          "retrievedOn": "2026-11-10",
+          "supports": [
+            "programName",
+            "description",
+            "eligibilityNotes",
+            "veteranAccess",
+            "prerequisites",
+            "location",
+            "applicationStatus",
+            "applicationTiming"
+          ],
+          "note": "Posting read 2026-11-10 (amazon.jobs). Pay range and schedule quoted from the posting."
+        }
+      ],
+      "conflicts": [],
+      "notes": "Added at the user's request (2026-11-10) as the first individual job opening that is not veteran-designated: included because the posting explicitly values military experience and AWS data-center work is a pathway toward cloud careers. Tagged CLOUD by user decision (no separate data-center track). Posting URLs expire: when it closes, set applicationStatus CLOSED or archive with a reason."
     }
   ],
   "existingSeedRecheck": [
