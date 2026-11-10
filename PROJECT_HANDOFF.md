@@ -322,6 +322,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - `/` gets `page page-home` (full-bleed sections); the navbar search is hidden on `/` only (the hero has its own).
 - Checks: frontend lint + build clean; screenshots desktop light/dark (signed in) and 390px phone, no horizontal scroll, no console errors; new [e2e/tests/home.spec.js](e2e/tests/home.spec.js); full Playwright suite 6/6 passing locally.
 - Next: user review, then merge to `main` and approve the pipeline deploy (frontend-only change, no migrations).
+- Palette exploration (user, 2026-11-10): green options mocked up at https://claude.ai/artifact/ASJGZXrVvqrTR9ngc8urpH (emerald #047857, forest #166534, olive drab #556b2f, pine #0f766e, light + dark). **Decision: keep the current purple**; greens kept for reference only. If revisited, note the "Accepting" status badge is green and would need another hue with emerald/forest.
 
 
 ### 2026-11-10 (README refresh) — Claude (VS Code)
