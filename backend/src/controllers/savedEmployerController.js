@@ -84,7 +84,7 @@ export async function updateSavedEmployerStatus(req, res) {
 // listing pages can render "Saved" without loading the whole dashboard.
 export async function listSavedProgramIds(req, res) {
   const rows = await prisma.savedEmployer.findMany({
-    where: { userId: req.user.userId, programId: { not: null } },
+    where: { userId: req.user.userId },
     select: { programId: true },
   });
   res.json(rows.map((r) => r.programId));

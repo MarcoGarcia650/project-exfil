@@ -33,9 +33,7 @@ export async function getDashboard(req, res) {
   const userId = req.user.userId;
 
   const rows = await prisma.savedEmployer.findMany({
-    // Rows still waiting on the legacy backfill (programId null) are skipped;
-    // migrate-legacy-employers.js must run before this code is deployed.
-    where: { userId, programId: { not: null } },
+    where: { userId },
     include: {
       program: { include: { organization: { select: { slug: true, name: true } } } },
       actionItems: { orderBy: { order: "asc" } },
@@ -43,7 +41,7 @@ export async function getDashboard(req, res) {
     orderBy: { savedAt: "desc" },
   });
 
-  const savedPrograms = rows.map(({ program, employerId, ...saved }) => ({
+  const savedPrograms = rows.map(({ program, ...saved }) => ({
     ...saved,
     program: dashboardView(program),
   }));

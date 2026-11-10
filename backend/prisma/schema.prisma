@@ -6,10 +6,9 @@
 //   Program 1─* Comment (threaded)     — public, timestamped discussion
 //   Comment 1─* Report, Program 1─* Submission — reactive moderation + user leads
 //
-// Migration status: this is the EXPAND step. `Employer` and
-// `SavedEmployer.employerId` are legacy and stay until the contract step,
-// after saved rows have been moved onto `Program` by
-// prisma/migrate-legacy-employers.js.
+// Migration status: expand → backfill → switch → contract is complete.
+// The legacy `Employer` table and `SavedEmployer.employerId` were dropped
+// in the contract migration (after every saved row pointed at a Program).
 
 generator client {
   provider = "prisma-client"
@@ -186,29 +185,7 @@ model Program {
 }
 
 // LEGACY — replaced by Organization/Program. Kept until the contract step.
-enum ProgramType {
-  INTERNSHIP_PIPELINE
-  DIRECT_HIRE
-  APPRENTICESHIP
-  FELLOWSHIP
-  OTHER
-}
 
-model Employer {
-  id                String          @id @default(cuid())
-  name              String          @unique
-  programName       String
-  programType       ProgramType
-  url               String
-  description       String
-  eligibilityNotes  String
-  industryTags      String[]
-  locations         String[]
-  applicationWindow String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  savedEmployers    SavedEmployer[]
-}
 
 // ───────────────────────── Tracking (per user) ─────────────────────────
 
@@ -220,16 +197,14 @@ enum Status {
   REJECTED
 }
 
-// A user's tracked listing. Name kept for now to avoid a table rename
-// mid-migration; it now points at a Program. `employerId` is legacy.
+// A user's tracked listing (one Program). The table keeps its original
+// name to avoid a rename; every row points at a Program.
 model SavedEmployer {
   id          String       @id @default(cuid())
   userId      String
   user        User         @relation(fields: [userId], references: [id])
-  programId   String? // required after the contract step
-  program     Program?     @relation(fields: [programId], references: [id])
-  employerId  String? // LEGACY
-  employer    Employer?    @relation(fields: [employerId], references: [id])
+  programId   String
+  program     Program      @relation(fields: [programId], references: [id])
   status      Status
   notes       String?
   savedAt     DateTime     @default(now())
@@ -238,7 +213,6 @@ model SavedEmployer {
 
   // One tracked row per user per listing.
   @@unique([userId, programId])
-  @@unique([userId, employerId])
 }
 
 model ActionItem {
