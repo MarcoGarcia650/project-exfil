@@ -273,6 +273,15 @@ Remaining:
    - 11 NEEDS_RESEARCH records + the Per Scholas per-course split (research batch 2);
    - inviting the small tester group (this version's stated goal) once the user is happy with v2.
 
+8. **TODO (user, 2026-11-10): update the home page.** It still reflects v1 and doesn't match the v2 redesign or scope ([HomePage.jsx](frontend/src/pages/HomePage.jsx)):
+   - headline "Find employers who actually hire veterans" and a lede naming Amazon/Oracle/Microsoft "veteran hiring pipelines" (scope is now tech programs open after separation, verified against official pages);
+   - the steps still say "Save the employers you're pursuing" / "Each saved employer…" (now programs);
+   - nothing mentions listing/organization discussions, search, or verification dates;
+   - the old v1 illustration + Unsplash banner predate Direction D; consider a search-first hero (search box + popular tracks) and a few live listings;
+   - the signup line was updated in chunk 5 (mentions discussions).
+
+   Copy and design are the user's call; Claude can draft options (mockups first, as with the redesign).
+
 7. **Codex portfolio review recommendations (2026-11-09; proposals only):** README still advertises archived HOH CFP, employer-level tracking, importer-only writes and deferred community/admin functionality; refresh it and the stale handoff summaries. Live MSSA shows CLOSED alongside “Apply on provider’s site”; use availability-aware CTA wording. Clarify program vs individual-job terminology, continue catalog verification/testing, and review whether the live About biography matches the intended anonymity. A dashboard screenshot/walkthrough would expose account-only value to visitors without signup.
    - **Status (Claude, 2026-11-10):** README refreshed (Codex's README finding resolved; see the activity log). **Deferred by the user ("deal with later"):** the availability-aware CTA (don't show "Apply on provider's site" when applications are CLOSED; adjust for UNKNOWN), program vs job-opening terminology (overlaps open question 6), the dashboard walkthrough, and the About biography review (the user wrote and approved that text on 2026-11-10; any change is the user's call).
 
