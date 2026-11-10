@@ -35,8 +35,32 @@ export function AboutPage() {
         <li>Ask questions and share experiences in each listing's discussion.</li>
       </ul>
 
-      <h2>Who runs it</h2>
-      <p>[Add a sentence about who runs Project Exfil and why, if you'd like.]</p>
+      <h2>Who built it</h2>
+      <p>
+        I’m a Marine Corps veteran and computer science student, soon-to-be graduate, working toward a career in
+        software engineering. In the Marine Corps, I was a 0621 Field Radio Operator—setting up, maintaining, and
+        troubleshooting the tactical radio systems Marines and Sailors depended on during operations. I was a Hollywood
+        Marine, stationed at Camp Pendleton, and deployed with the 11th Marine Expeditionary Unit. After military
+        service, I went back to school to pursue a different career where I felt I could grow without limit beyond
+        myself.
+      </p>
+      <p>
+        Project Exfil grew out of my own search for opportunities in tech. I kept finding employers promoting their
+        commitment to veterans, but following those links didn’t always lead anywhere useful. Some programs were
+        outdated. Others led to generic careers pages, unclear eligibility requirements, or initiatives that no longer
+        seemed active. After enough dead ends, it became hard to tell where the opportunity ended and the public
+        relations began.
+      </p>
+      <p>
+        I wanted something more practical: a curated collection of vetted programs, a way to understand who can apply,
+        and check when the information was last verified. A place where other veterans could share their experiences
+        and flag information that had changed.
+      </p>
+      <p>
+        That’s why I built Project Exfil. I’m still navigating this path myself, and the directory will keep needing
+        work as programs change. But my goal is simple and true—make the job search clearer, and help veterans find
+        their next mission.
+      </p>
 
       <p className="disclaimer">
         Project Exfil isn't affiliated with any organization listed. Always confirm details on the provider's official

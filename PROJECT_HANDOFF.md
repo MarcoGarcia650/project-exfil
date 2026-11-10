@@ -264,6 +264,7 @@ Remaining:
    - optional branch protection on `main` (require CI; PRs);
    - optional: an EB health alarm → email.
    - **Deploy rules now:** every production deploy goes through the pipeline (push to `main` → approve in GitHub). Additive migrations are applied with `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` **before** approving; destructive ones **after** the code that no longer needs the old columns is live. Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`.
+6. **REMINDER for the user: get a domain email address** (e.g. `admin@projectexfilout.org`; the domain is `.org`) and replace the **personal email currently shown on the public FAQ** ("I forgot my password" answer; `ADMIN_EMAIL` in [FaqPage.jsx](frontend/src/pages/FaqPage.jsx), marked TODO). The user chose the personal address for now (2026-11-10). Options: Route 53 + SES receiving, a forwarding service, or Google Workspace/Zoho mail on the domain.
 6. **Small follow-ups tracked (Claude, 2026-11-09), none blocking:**
    - action-item checkboxes update only after the server round trip (could flip immediately);
    - the admin submissions list shows the first 100 per status, with no pagination;
@@ -321,6 +322,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
   - Tests: new `contact.test.js` (23 checks) and `e2e/tests/pages.spec.js` (About/FAQ + the full send → reply → read loop). All green: integration 6/6 suites, e2e 5/5, lint and build.
   - **Deploy order for chunk 3:** apply the migration first (`sh backend/scripts/with-prod-db.sh npx prisma migrate deploy`; additive), then push `main` → approve.
 - Follow-up noted: on phones the logged-in navbar wraps to 3 rows; a collapsible menu would be tidier.
+- The user supplied the About "Who built it" text (inserted verbatim) and chose their personal email for the FAQ password-reset answer for now; the domain-email reminder is in open questions item 6.
 - Remaining v2: chunk 4, admin "Add listing" (form → DRAFT).
 
 ### 2026-11-09 (STOPPING POINT: chunk 2 redesign WIP) — Claude (VS Code)
