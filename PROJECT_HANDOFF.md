@@ -265,10 +265,10 @@ Remaining:
    6. `make-admin.js <your account>`; review and publish drafts in the admin page; smoke test.
    - Existing users will see the username prompt.
 7. **Deploy method (phase 6), user deciding:** the user asked whether to use the AWS console. The August deploy used the EB CLI (`eb deploy` from `backend/`) and the AWS CLI (S3 sync + CloudFront invalidation). Claude recommended a hybrid: the user does the console steps (snapshot, EB "Upload and deploy" of a clean zip, env vars, S3 upload + invalidation), and Claude runs the DB scripts one at a time with go-ahead.
-9. **Prevent a repeat of the 2026-11-09 deploy outage (user to decide):** add a 1 GB swap file via a `.platform/hooks/prebuild` script (free; Claude's recommendation), and/or raise the EB command timeout from 600s, and/or move to `t3.small` (about $15/month more). Background: the activity log entry "reject deploy + ~23 min outage".
 8. **Deploy bundle hygiene (done 2026-11-09, `275c0d7`):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
 
 Resolved and removed from this list:
+- Deploy-outage prevention (Claude's finding, 2026-11-09): the user chose the swap file. Deployed as `swap-b1a1013`; the log shows `swap: enabled /var/swapfile (1024 MB)` before `npm install` (10s).
 - `awaitingResearch` migration acknowledgement (Claude's phase 5 proposal): approved by the user, 2026-11-09.
 - `.vscode/` (Claude's finding): ignored via root `.gitignore` (user, 2026-11-09).
 - `npm audit` (Claude's phase 3 finding): user approved the fix (2026-11-09). Backend production deps and the frontend are now at 0 advisories. Prisma moved to 7.10.1 (CLI, client and adapter kept in step). 2 moderate dev-only advisories remain in `nodemon`'s dependency chain; fixing them needs a breaking `--force` upgrade, and they never ship.
@@ -300,6 +300,13 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (Oracle import + swap) — Claude (VS Code)
+
+- With the user's go-ahead: production `import-programs.js --apply` → `UPDATE_DRAFT oracle-ovip`. Re-run: 14 UNCHANGED. `awaitingResearch` is now empty. Oracle is a hidden DRAFT awaiting the user's review in the admin page.
+- With the user's go-ahead ("deploy it"): added `.platform/hooks/prebuild/01_swap.sh` (plus the confighooks copy; idempotent 1 GB `/var/swapfile`, persisted in fstab) and deployed EB version `swap-b1a1013` (45s, Green). The swap was confirmed in `eb-hooks.log`; the live check passed 12/12.
+- Production now: 5 PUBLISHED, 9 DRAFT (incl. Oracle), 2 ARCHIVED, 0 REJECTED.
+- Next: the user reviews the remaining drafts (incl. Oracle); a logged-in smoke test on production (needs a test account: ask first); `TRUST_PROXY` header check; invite testers; later the contract migration and merging `feature/programs-directory` into `main`.
 
 ### 2026-11-09 (reject deploy + ~23 min outage) — Claude (VS Code)
 
