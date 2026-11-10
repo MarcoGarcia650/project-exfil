@@ -253,25 +253,21 @@ Remaining:
 3. **Data review items (carried over):**
    - browser-review the 13 SOURCE_VERIFIED records in the admin page (phase 5/6);
    - Per Scholas split (fetch each course page, batch 2);
-   - Oracle OVIP official-page check.
 
 5. ~~Pipeline go-live~~ **Done (2026-11-09).** See the activity log. Remaining small follow-ups:
    - bump `actions/checkout`/`setup-node` to versions on Node 24 (GitHub deprecation notice) and watch the `ubuntu-latest` → Ubuntu 26 change;
    - optional branch protection on `main` (require CI; PRs);
    - optional: an EB health alarm → email.
    - **Deploy rules now:** every production deploy goes through the pipeline (push to `main` → approve in GitHub). Additive migrations are applied with `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` **before** approving; destructive ones **after** the code that no longer needs the old columns is live. Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`.
-6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
-   1. RDS snapshot.
-   2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
-   3. Import SOURCE_VERIFIED as DRAFT (dry run first), then the legacy backfill (sets Oracle's flag).
-   4. `normalize-emails.js` dry run, then `--apply`.
-   5. Set `FRONTEND_URL` on EB (and `TRUST_PROXY` only after checking headers); deploy with `npm ci` (Prisma 7.10.1).
-   6. `make-admin.js <your account>`; review and publish drafts in the admin page; smoke test.
-   - Existing users will see the username prompt.
-7. **Deploy method (phase 6), user deciding:** the user asked whether to use the AWS console. The August deploy used the EB CLI (`eb deploy` from `backend/`) and the AWS CLI (S3 sync + CloudFront invalidation). Claude recommended a hybrid: the user does the console steps (snapshot, EB "Upload and deploy" of a clean zip, env vars, S3 upload + invalidation), and Claude runs the DB scripts one at a time with go-ahead.
-8. **Deploy bundle hygiene (done 2026-11-09, `275c0d7`):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
+6. **Small follow-ups tracked (Claude, 2026-11-09), none blocking:**
+   - action-item checkboxes update only after the server round trip (could flip immediately);
+   - the admin submissions list shows the first 100 per status, with no pagination;
+   - 11 NEEDS_RESEARCH records + the Per Scholas per-course split (research batch 2);
+   - inviting the small tester group (this version's stated goal) once the user is happy with v2.
 
 Resolved and removed from this list:
+- Phase 6 rollout checklist, deploy-method question, deploy bundle hygiene: all done (see the activity log, 2026-11-09). Deploys now go through the pipeline.
+- Oracle OVIP official-page check: done (user read the page, 2026-11-09); imported as SOURCE_VERIFIED; awaiting the user's review in Drafts to review.
 - EB origin reachable directly (Claude's TRUST_PROXY finding): deployed as `sg-cf-b1a1013` (user go-ahead, 2026-11-09). The SG now allows only `pl-3b927c52` on port 80; direct requests to the elasticbeanstalk.com origin time out; CloudFront 200; live check 12/12; a faked XFF through CloudFront still doesn't change the rate-limit bucket.
 - Deploy-outage prevention (Claude's finding, 2026-11-09): the user chose the swap file. Deployed as `swap-b1a1013`; the log shows `swap: enabled /var/swapfile (1024 MB)` before `npm install` (10s).
 - `awaitingResearch` migration acknowledgement (Claude's phase 5 proposal): approved by the user, 2026-11-09.
