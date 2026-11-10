@@ -44,6 +44,16 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 ## Latest implementation state
 
 - **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **PRODUCTION (2026-11-09), phase 6 in progress. Hybrid deploy: the user did the console steps; the user ran the DB-writing commands (Claude Code's auto-mode blocks production writes from Claude), and Claude ran the dry runs and read-only checks.**
+  1. RDS manual snapshot `vetpath-db-before-phase6` (user, console). Confirmed `available`.
+  2. `prisma migrate deploy` applied `20261108230000_programs_directory_expand` and `20261110003637_program_awaiting_research` (user ran it). `migrate status`: up to date.
+  3. `import-programs.js --apply`: 13 CREATE_DRAFT (user ran it). Re-run dry run: 13 UNCHANGED.
+  4. `migrate-legacy-employers.js --apply` (user ran it): Amazon → amazon-technical-apprenticeship, Microsoft → microsoft-mssa, Oracle → oracle-ovip (DRAFT, `awaitingResearch`), HOH and VetsinTech → ARCHIVED. 1 real save moved; 0 unmapped.
+  5. EB: env property `FRONTEND_URL=https://projectexfilout.org` added; version `phase6-275c0d7` (zip from `backend/scripts/make-deploy-zip.sh`) deployed via console. Green. The previous version `app-260810_165616107221` remains for rollback.
+  6. Emails: 2 users, 0 mixed-case, so `normalize-emails.js` was not needed.
+  7. Frontend `dist/` uploaded to S3 `vetpath-frontend-600406561374` (old 2026-08 `assets/index-KkncmAd2.js`/`index-Ci9BJLK4.css` left in place, harmless); CloudFront `E13O5U324HB46D` invalidation `/*` completed.
+  - Read-only checks afterwards: API (`/programs` returns `[]`, draft 404, archived 200, `/employers` 404, validation) and live-site browser 10/10.
+  - Production state: 14 DRAFT, 2 ARCHIVED, 0 PUBLISHED. **Remaining:** make the user's account admin, review and publish drafts in `/admin`, a logged-in smoke test, `TRUST_PROXY` after a header check, invite testers, and later the contract migration.
 - **Phase 5 complete, LOCAL ONLY (2026-11-09, same branch). Admin page:**
   - one schema change, the `awaitingResearch` migration (see Decisions), applied to local Docker only;
   - `requireAdmin` (role read from the DB each request); [make-admin.js](backend/prisma/make-admin.js) (`npm run make-admin -- <email-or-username> [--revoke]`) is the only way to grant admin; granting also lifts any suspension;
@@ -281,6 +291,12 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 6: production deploy) — Claude (VS Code) with user
+
+- Deployed phases 1–5 to production (steps and checks under "Latest implementation state" → PRODUCTION). Every write step had the user's go-ahead; the user performed the console steps and ran the DB-writing commands.
+- Added `backend/.ebignore` and `backend/scripts/make-deploy-zip.sh` (no `.env` or `node_modules` in bundles).
+- Next: step 7, make the user's account admin, then review and publish drafts.
 
 ### 2026-11-09 (phase 5 complete, local) — Claude (VS Code)
 
