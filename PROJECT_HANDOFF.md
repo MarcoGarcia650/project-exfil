@@ -308,6 +308,14 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-10 (redesign live; domain email in progress) — Claude (VS Code) with user
+
+- **Chunk 2 (Direction D redesign) deployed:** pipeline 42764247483 approved by the user → success; EB `ci-5bce5b6-14` Green; live check (6 tiles, modal opens, Escape closes, dark toggle, no console errors).
+- **Domain email (user chose option 2: forwarding + send-as via SES):**
+  - Part 1: the user set up ImprovMX with alias `admin` → their Gmail, and added the DNS records themselves (Claude was blocked from DNS changes): MX `10 mx1.improvmx.com` / `20 mx2.improvmx.com`, TXT `v=spf1 include:spf.improvmx.com ~all` in Route 53 zone `Z0566093Q0XRW5U17QYO`. Verified via `dig` (Google DNS + Route 53 authoritative).
+  - Remaining: (2) SES domain identity with Easy DKIM, publishing records to Route 53 from the console; (3) request SES production access + create SMTP credentials (stored by the user, never in the repo); (4) Gmail "Send mail as" `admin@projectexfilout.org` via `email-smtp.us-east-1.amazonaws.com:587` (TLS); then a DMARC TXT `_dmarc` (`p=none` to start), test, and swap the FAQ email (open item 6).
+- Chunk 3 (contact, About, FAQ) still waits: run its migration on prod, then push `main` → approve.
+
 ### 2026-11-10 (chunk 2 to main; chunk 3 built) — Claude (VS Code)
 
 - Chunk 2 (Direction D redesign) final checks: unit 28/28, integration 5/5 suites, e2e 4/4, lint and build clean; no migrations. Pushed to `main` (5bce5b6) → pipeline run **42764247483**, waiting for the user's approval.
