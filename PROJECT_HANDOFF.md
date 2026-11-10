@@ -264,7 +264,6 @@ Remaining:
    - optional branch protection on `main` (require CI; PRs);
    - optional: an EB health alarm → email.
    - **Deploy rules now:** every production deploy goes through the pipeline (push to `main` → approve in GitHub). Additive migrations are applied with `sh backend/scripts/with-prod-db.sh npx prisma migrate deploy` **before** approving; destructive ones **after** the code that no longer needs the old columns is live. Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`.
-6. **REMINDER for the user: get a domain email address** (e.g. `admin@projectexfilout.org`; the domain is `.org`) and replace the **personal email currently shown on the public FAQ** ("I forgot my password" answer; `ADMIN_EMAIL` in [FaqPage.jsx](frontend/src/pages/FaqPage.jsx), marked TODO). The user chose the personal address for now (2026-11-10). Options: Route 53 + SES receiving, a forwarding service, or Google Workspace/Zoho mail on the domain.
 6. **Small follow-ups tracked (Claude, 2026-11-09), none blocking:**
    - action-item checkboxes update only after the server round trip (could flip immediately);
    - the admin submissions list shows the first 100 per status, with no pagination;
@@ -272,6 +271,7 @@ Remaining:
    - inviting the small tester group (this version's stated goal) once the user is happy with v2.
 
 Resolved and removed from this list:
+- Domain email (user, 2026-11-10): `admin@projectexfilout.org` works. Inbound via ImprovMX forwarding to the user's Gmail; outbound via Gmail "Send mail as" through SES SMTP (IAM SMTP credentials, held by the user). SES: domain + address verified, Easy DKIM SUCCESS, **production access GRANTED** (case 179429319300383), VDM/auto-validation off. DNS: MX, SPF (`include:spf.improvmx.com`), 3 DKIM CNAMEs, DMARC `p=none` (tighten to `quarantine` after a few weeks of clean reports). Test: SES metrics show 1 send, 1 delivery, 0 bounces/complaints. The FAQ now shows `admin@projectexfilout.org`.
 - Phase 6 rollout checklist, deploy-method question, deploy bundle hygiene: all done (see the activity log, 2026-11-09). Deploys now go through the pipeline.
 - Oracle OVIP official-page check: done (user read the page, 2026-11-09); imported as SOURCE_VERIFIED; awaiting the user's review in Drafts to review.
 - EB origin reachable directly (Claude's TRUST_PROXY finding): deployed as `sg-cf-b1a1013` (user go-ahead, 2026-11-09). The SG now allows only `pl-3b927c52` on port 80; direct requests to the elasticbeanstalk.com origin time out; CloudFront 200; live check 12/12; a faked XFF through CloudFront still doesn't change the rate-limit bucket.
@@ -314,6 +314,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - **Domain email (user chose option 2: forwarding + send-as via SES):**
   - Part 1: the user set up ImprovMX with alias `admin` → their Gmail, and added the DNS records themselves (Claude was blocked from DNS changes): MX `10 mx1.improvmx.com` / `20 mx2.improvmx.com`, TXT `v=spf1 include:spf.improvmx.com ~all` in Route 53 zone `Z0566093Q0XRW5U17QYO`. Verified via `dig` (Google DNS + Route 53 authoritative).
   - Remaining: (2) SES domain identity with Easy DKIM, publishing records to Route 53 from the console; (3) request SES production access + create SMTP credentials (stored by the user, never in the repo); (4) Gmail "Send mail as" `admin@projectexfilout.org` via `email-smtp.us-east-1.amazonaws.com:587` (TLS); then a DMARC TXT `_dmarc` (`p=none` to start), test, and swap the FAQ email (open item 6).
+- Domain email finished (see open questions → resolved). The FAQ was switched to `admin@projectexfilout.org`.
 - Chunk 3 (contact, About, FAQ) still waits: run its migration on prod, then push `main` → approve.
 
 ### 2026-11-10 (chunk 2 to main; chunk 3 built) — Claude (VS Code)

@@ -4,7 +4,7 @@ import { useDocumentTitle } from "../lib/useDocumentTitle.js";
 // Draft copy: edit freely.
 
 // Where locked-out users can reach the admin (the Contact form needs a login).
-const ADMIN_EMAIL = "marco.garcia.650.bus@gmail.com";
+const ADMIN_EMAIL = "admin@projectexfilout.org";
 const FAQS = [
   {
     q: "Who is Project Exfil for?",
@@ -48,9 +48,6 @@ const FAQS = [
   },
   {
     q: "I forgot my password. What do I do?",
-    // TODO(owner): replace this personal address with a domain address
-    // (e.g. admin@projectexfilout.org) once one is set up. Tracked in
-    // PROJECT_HANDOFF.md → open questions.
     a: <>Email the admin at <a href={`mailto:${ADMIN_EMAIL}`}>{ADMIN_EMAIL}</a> from the address on your account, and you'll get a one-time reset link. For your security, the link is only sent to an address confirmed to belong to the account owner.</>,
   },
   {
