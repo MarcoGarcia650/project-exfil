@@ -24,6 +24,7 @@ async function request(path, { method = "GET", body, token } = {}) {
     if (res.status === 401 && token) onUnauthorized?.();
     const err = new Error(data?.error || `Request failed with status ${res.status}`);
     err.status = res.status;
+    err.code = data?.code; // e.g. USERNAME_REQUIRED
     throw err;
   }
 

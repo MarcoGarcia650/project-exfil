@@ -12,6 +12,8 @@ import { SuggestPage } from "./pages/SuggestPage.jsx";
 import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage.jsx";
 import { ChooseUsernamePage } from "./pages/ChooseUsernamePage.jsx";
+import { ThreadPage } from "./pages/ThreadPage.jsx";
+import { MySubmissionsPage } from "./pages/MySubmissionsPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 
 function NavBar() {
@@ -79,6 +81,15 @@ export default function App() {
           <Route path="/suggest" element={<SuggestPage />} />
           <Route path="/employers" element={<LegacyEmployersRedirect />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/comments/:id" element={<ThreadPage />} />
+          <Route
+            path="/account/submissions"
+            element={
+              <ProtectedRoute>
+                <MySubmissionsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/account/username"
             element={

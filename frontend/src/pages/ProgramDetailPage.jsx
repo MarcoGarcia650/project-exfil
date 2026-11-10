@@ -8,6 +8,7 @@ import { EmployerBadge } from "../components/EmployerBadge.jsx";
 import { AvailabilityBadge } from "../components/AvailabilityBadge.jsx";
 import { SaveButton } from "../components/SaveButton.jsx";
 import { NotFoundPage } from "./NotFoundPage.jsx";
+import { CommentsSection } from "../components/CommentsSection.jsx";
 import { FORMAT_LABELS, TECH_TRACK_LABELS, REMOTE_LABELS, formatDate } from "../lib/programLabels.js";
 
 const NOT_STATED = "Not stated by provider";
@@ -32,7 +33,7 @@ export function ProgramDetailPage() {
       })
       .catch((err) => {
         // api.js throws Error(message); the 404 body says "Program not found"
-        if (/not found/i.test(err.message)) setStatus("notFound");
+        if (err.status === 404) setStatus("notFound");
         else {
           setError(err.message);
           setStatus("error");
@@ -121,8 +122,11 @@ export function ProgramDetailPage() {
       {saveError && <p className="error">{saveError}</p>}
 
       <p className="disclaimer">
-        Details can change. Confirm eligibility and dates on the provider's official page before applying.
+        Details can change. Confirm eligibility and dates on the provider's official page before applying.{" "}
+        <Link to={`/suggest?program=${program.slug}`}>Suggest an update</Link>
       </p>
+
+      <CommentsSection programSlug={program.slug} />
     </article>
   );
 }

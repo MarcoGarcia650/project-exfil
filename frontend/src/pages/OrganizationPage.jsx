@@ -27,7 +27,7 @@ export function OrganizationPage() {
         setStatus("ok");
       })
       .catch((err) => {
-        if (/not found/i.test(err.message)) setStatus("notFound");
+        if (err.status === 404) setStatus("notFound");
         else {
           setError(err.message);
           setStatus("error");

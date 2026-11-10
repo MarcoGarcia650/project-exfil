@@ -585,3 +585,145 @@ button:disabled {
   flex-shrink: 0;
   color: var(--accent);
 }
+
+/* ---- Phase 4: community ---- */
+
+.discussion {
+  margin-top: 36px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.comment-list,
+.comment-replies {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.comment {
+  margin-top: 12px;
+}
+
+/* Each reply level indents once; MAX_INDENT in CommentNode caps the depth. */
+.comment-replies {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+}
+
+.comment-body {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.comment-body.removed {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.comment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.comment-meta strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+/* Plain text with the author's line breaks kept; long words wrap. */
+.comment-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 6px 0 0;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.comment-actions .button-link {
+  font-size: 13px;
+  padding: 4px 2px;
+}
+
+.thread-link {
+  display: inline-block;
+  font-size: 14px;
+  margin: 8px 0 0 14px;
+}
+
+.composer,
+.report-form {
+  margin-top: 12px;
+}
+
+.composer textarea,
+.report-form textarea,
+.suggest-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.composer-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.composer-actions .field-hint {
+  margin-right: auto;
+}
+
+.composer-gate {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.button-secondary-btn {
+  margin-top: 12px;
+  background: transparent;
+  color: var(--accent);
+}
+
+.button-secondary-btn:hover:not(:disabled) {
+  color: #fff;
+}
+
+.suggest-page .suggest-form {
+  max-width: 560px;
+  margin: 16px 0 0;
+}
+
+.dashboard-links {
+  font-size: 14px;
+}
+
+.badge-sub-accepted {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+
+.badge-sub-rejected {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}

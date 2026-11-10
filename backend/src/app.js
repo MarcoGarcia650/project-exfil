@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import programRoutes from "./routes/programRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
+import submissionRoutes from "./routes/submissionRoutes.js";
 import savedEmployerRoutes from "./routes/savedEmployerRoutes.js";
 import actionItemRoutes from "./routes/actionItemRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
@@ -27,6 +29,8 @@ app.get("/health", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/programs", programRoutes);
 app.use("/organizations", organizationRoutes);
+app.use("/comments", commentRoutes);
+app.use("/submissions", submissionRoutes);
 app.use("/saved-employers", savedEmployerRoutes);
 app.use("/action-items", actionItemRoutes);
 app.use("/dashboard", dashboardRoutes);

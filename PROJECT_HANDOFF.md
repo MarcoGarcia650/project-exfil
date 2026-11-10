@@ -43,6 +43,28 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 ## Latest implementation state
 
 - **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Phase 4 complete, LOCAL ONLY (2026-11-09, same branch). Community (no schema change; tables came with the expand migration):**
+  - [commentController.js](backend/src/controllers/commentController.js):
+    - `GET /programs/:slug/comments?cursor=` (public): top-level oldest-first, 20 per page, keyset cursor on `(createdAt, id)`, each with 3 reply levels (20 per level, plus `replyCount`);
+    - `GET /comments/:id/thread?cursor=` (public): a view rooted at one comment with its replies paged;
+    - `POST /programs/:slug/comments` (auth, active, username required → 403 `USERNAME_REQUIRED`; 1–2,000 chars; parent must exist, be on the same program and not be hidden; 5 per 10 min, counted in the DB);
+    - `POST /comments/:id/reports` (1–500 chars; not your own; not hidden; one per user per comment; 30/day);
+    - DRAFT listings 404 for all of these; ARCHIVED listings stay open. Hidden comments come back as a placeholder with no body or author, their replies stay visible, and `hiddenReason` is never sent.
+  - [submissionController.js](backend/src/controllers/submissionController.js): `POST /submissions` (LISTING_UPDATE needs a public listing; NEW_LISTING_LEAD must not have one; body 1–5,000; optional http(s) source URL; 10/day; no username needed) and `GET /submissions/mine`. Submissions never touch listings.
+  - Limits and validators: [communityRules.js](backend/src/lib/communityRules.js); DB-counted limits: [postingLimit.js](backend/src/lib/postingLimit.js).
+  - Frontend:
+    - [CommentsSection.jsx](frontend/src/components/CommentsSection.jsx) on every program page: plain-text bodies with `pre-wrap`, local-time timestamps, Reply/Report inline, indent capped at 3 with "Continue thread", "Load more comments";
+    - gates for logged-out, no-username (returns to the listing after choosing) and suspended users;
+    - [ThreadPage.jsx](frontend/src/pages/ThreadPage.jsx) at `/comments/:id`;
+    - the real [SuggestPage.jsx](frontend/src/pages/SuggestPage.jsx) (`/suggest`, `/suggest?program=slug` via "Suggest an update" on listings) replaces the placeholder;
+    - [MySubmissionsPage.jsx](frontend/src/pages/MySubmissionsPage.jsx) at `/account/submissions` (status and admin note), linked from the dashboard.
+- **Verified locally (Phase 4, 2026-11-09):**
+  - `npm test` 23/23 (5 new);
+  - HTTP smoke 58/58: read 404s, every posting rule, depth 3 + thread view, rate limits 429, hidden placeholder and reason not leaked, report rules, pagination of 22 SQL-inserted comments with no overlap, submission rules, own-only list, listing untouched;
+  - browser 17/17: logged-out read, removed placeholder, continue thread, post, HTML shown as text, reply nesting, report, suggest update → my submissions, new lead, load more, username gate → return;
+  - regressions: smoke 39/39, browser 24/24 and 14/14;
+  - phone and dark screenshots; build and lint clean.
+  - Not checked: screen readers, very long threads for performance.
 - **Phase 3 complete, LOCAL ONLY (2026-11-09, same branch). Account hardening (no schema change; the expand migration already had the fields):**
   - [accountRules.js](backend/src/lib/accountRules.js): username rules from the schema doc (3–20 `[A-Za-z0-9_]`, starts with a letter, reserved list, case-insensitive via `usernameKey`), password 8 chars to 72 bytes (bcrypt limit), loose email check, signup body parsing (branch enum, targetField ≤100, optional date). Bad input now returns 400 instead of a 500;
   - emails stored lowercase; login and duplicate checks match case-insensitively so older mixed-case rows still work. [normalize-emails.js](backend/prisma/normalize-emails.js) (dry run default; refuses if two accounts differ only by case) lowercases existing rows. Local dry run: 9 users, 0 need changes;
@@ -196,11 +218,11 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-4. **Untracked `.vscode/`** (appeared after reopening VS Code): user to say whether to commit it or add it to `.gitignore`. Left untouched.
 5. **Production `TRUST_PROXY` value (phase 6):** log the request headers on the real deployment to confirm the CloudFront → EB nginx hop count before setting it. Until then the per-IP limits may group all visitors under the proxy's IP; the per-email login limit still works.
 6. **Production rollout steps added by phase 3 (phase 6):** set `FRONTEND_URL` on EB; run `normalize-emails.js` dry run, then `--apply`, against RDS (after the snapshot). Existing users will see the username prompt.
 
 Resolved and removed from this list:
+- `.vscode/` (Claude's finding): ignored via root `.gitignore` (user, 2026-11-09).
 - `npm audit` (Claude's phase 3 finding): user approved the fix (2026-11-09). Backend production deps and the frontend are now at 0 advisories. Prisma moved to 7.10.1 (CLI, client and adapter kept in step). 2 moderate dev-only advisories remain in `nodemon`'s dependency chain; fixing them needs a breaking `--force` upgrade, and they never ship.
 - Signup 500 on missing `branch` (Claude's phase 2 finding): fixed by phase 3 validation.
 - Codex's 4 doc findings: applied to the schema and plan docs.
@@ -230,6 +252,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 4 complete, local) — Claude (VS Code)
+
+- Built community features (details under "Latest implementation state"): threaded comments, reports, submissions, thread view, suggestion form, and the my-submissions page.
+- Added `.vscode/` to the root `.gitignore` (user approved).
+- Checks run: unit 23/23, HTTP 58/58, browser 17/17, plus phase 2/3 regressions.
+- Local test data: `P4*`/`E4*` users (`p4-*`, `e2e-p4*@example.com`); comments on vetswhocode-accelerator and hoh-corporate-fellowship, including 22 `page-*` rows inserted by SQL and one hidden by SQL; reports; submissions. All local only.
+- No production DB, migration, import or deploy work.
+- Next: phase 5 (admin page: role + requireAdmin, first-admin script, reports queue, submissions review, user lookup/suspend/reset link, Drafts to review → Approve & publish).
 
 ### 2026-11-09 (dependency audit fixes) — Claude (VS Code)
 

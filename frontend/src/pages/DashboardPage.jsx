@@ -59,6 +59,9 @@ export function DashboardPage() {
           </span>
         </p>
       )}
+      <p className="dashboard-links">
+        <Link to="/account/submissions">My submissions</Link>
+      </p>
       <p className="summary">
         {data.summary.totalSaved} saved programs &middot; {data.summary.completedActionItems}/
         {data.summary.totalActionItems} action items complete

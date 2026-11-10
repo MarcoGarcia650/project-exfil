@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { api } from "../lib/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useDocumentTitle } from "../lib/useDocumentTitle.js";
@@ -11,10 +11,14 @@ export function ChooseUsernamePage() {
   useDocumentTitle("Choose a username");
   const { token, user, refreshUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Return to where the prompt came from (e.g. a discussion), else the dashboard.
+  const from = location.state?.from;
+  const next = from ? `${from.pathname}${from.search ?? ""}` : "/dashboard";
   const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
 
-  if (user?.username) return <Navigate to="/dashboard" replace />;
+  if (user?.username) return <Navigate to={next} replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -22,7 +26,7 @@ export function ChooseUsernamePage() {
     try {
       await api.post("/auth/username", { username }, token);
       await refreshUser();
-      navigate("/dashboard", { replace: true });
+      navigate(next, { replace: true });
     } catch (err) {
       setError(err.message);
     }
