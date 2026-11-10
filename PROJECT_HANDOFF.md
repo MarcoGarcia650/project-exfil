@@ -41,6 +41,10 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Agreed (user, 2026-11-08) | (Claude writes the importer, per the working mode.) Importer loads SOURCE_VERIFIED records as DRAFT (also in production); review and publish happen in the admin page via Approve & publish (status-only). Dry run by default, upserts by slug, never deletes. Supersedes "imports only APPROVED". | See the plan doc. Marco to write it, per the teaching approach. |
 | Agreed (user, 2026-11-09) | Additive migration `20261110003637_program_awaiting_research`: `Program.awaitingResearch` (default false), backfilled true for the legacy `oracle-ovip` DRAFT. Admin Approve & publish refuses flagged rows; the importer clears the flag whenever it writes SOURCE_VERIFIED content. | Found in phase 5: the legacy Oracle draft (NEEDS_RESEARCH) was indistinguishable from verified drafts, so it could have been published by mistake. Applied to local Docker only. |
 | Agreed (user, 2026-11-09) | **Reject in Drafts to review** = new hidden `REJECTED` status (not ARCHIVED, which would make unreviewed content public at its URL). The admin-only reason is stored in `rejectionReason`. A "Rejected" admin tab offers "Return to drafts". The importer keeps REJECTED when content is unchanged and returns it to DRAFT when content changes. It never archives or publishes a rejected row. | User request after reviewing drafts in production; the user chose the hidden state over archive. Migration `20261110014820_program_rejected_status` (additive). |
+| Agreed (user, 2026-11-09) | **v2 wrap-up list** (user): browse search; contact admin (navbar, non-admins); admin "Add listing"; unsave; custom favicon; light mode default + navbar dark/light switch (keep current dark colors), modelled on Indeed/Handshake **patterns** (not their branding); home page reachable when logged in; About page; FAQ page. Order: (1) quick wins, (2) design foundation, (3) About/FAQ/contact, (4) add listing. | User message 2026-11-09; supersedes "redesign deferred" for this version. |
+| Agreed (user, 2026-11-09) | **Contact admin = form + admin inbox:** logged-in users send a message from a navbar "Contact" link; the admin page gets a Messages tab; the admin replies with a note the user sees on "My messages" (like submissions). No DMs/email needed; one additive migration. | User chose the recommended option. |
+| Agreed (user, 2026-11-09) | **Admin "Add listing" creates a DRAFT** (same required fields as the validator) that goes through Drafts to review → checklist → Approve & publish. Imports never overwrite it. No listing editing in this version. | User chose the recommended option. |
+| Agreed (user, 2026-11-09) | **Design: mockups first.** Claude makes 2–3 visual directions (light default + dark) for the user to pick before implementing. | User chose the recommended option. |
 
 ## Latest implementation state
 
@@ -301,6 +305,10 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (v2 wrap-up planning) — Claude (VS Code)
+
+- Checked the user's list against the code: unsave is missing (no DELETE route); the favicon is Vite's default; `/` redirects logged-in users to `/programs`; the theme follows the OS only; there's no search, contact, About/FAQ or admin add-listing. The user's decisions are recorded in the decisions table. Starting with the design mockups, then chunk 1.
 
 ### 2026-11-09 (pipeline live + contract done) — Claude (VS Code) with user
 
