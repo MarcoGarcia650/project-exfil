@@ -45,7 +45,7 @@ export function AboutPage() {
         myself.
       </p>
       <p>
-        Project Exfil grew out of my own search for opportunities in tech. I kept finding employers promoting their
+        Project Exfil grew out of frustration with my own search for opportunities in tech. I kept finding employers promoting their
         commitment to veterans, but following those links didn’t always lead anywhere useful. Some programs were
         outdated. Others led to generic careers pages, unclear eligibility requirements, or initiatives that no longer
         seemed active. After enough dead ends, it became hard to tell where the opportunity ended and the public
