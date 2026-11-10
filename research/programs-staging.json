@@ -1750,7 +1750,7 @@
         }
       ],
       "conflicts": [],
-      "notes": "Added at the user's request (2026-11-10) as the first individual job opening that is not veteran-designated: included because the posting explicitly values military experience and AWS data-center work is a pathway toward cloud careers. Tagged CLOUD by user decision (no separate data-center track). Posting URLs expire: when it closes, set applicationStatus CLOSED or archive with a reason."
+      "notes": "Added at the user's request (2026-11-10) as the first individual job opening that is not veteran-designated: included because the posting explicitly values military experience and AWS data-center work is a pathway toward cloud careers. Tagged CLOUD as a TEMPORARY choice (user, 2026-11-10); categorization of data-center/infrastructure roles to be revisited — see PROJECT_HANDOFF.md open questions. Posting URLs expire: when it closes, set applicationStatus CLOSED or archive with a reason."
     }
   ],
   "existingSeedRecheck": [
