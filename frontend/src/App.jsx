@@ -14,10 +14,11 @@ import { ResetPasswordPage } from "./pages/ResetPasswordPage.jsx";
 import { ChooseUsernamePage } from "./pages/ChooseUsernamePage.jsx";
 import { ThreadPage } from "./pages/ThreadPage.jsx";
 import { MySubmissionsPage } from "./pages/MySubmissionsPage.jsx";
+import { AdminPage } from "./pages/admin/AdminPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 
 function NavBar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
 
   return (
     <nav className="navbar">
@@ -30,6 +31,7 @@ function NavBar() {
         {isAuthenticated ? (
           <>
             <Link to="/dashboard">Dashboard</Link>
+            {user?.role === "ADMIN" && <Link to="/admin">Admin</Link>}
             <button onClick={logout} className="navbar-logout">
               <LogOut size={16} />
               Log out
@@ -82,6 +84,14 @@ export default function App() {
           <Route path="/employers" element={<LegacyEmployersRedirect />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/comments/:id" element={<ThreadPage />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/account/submissions"
             element={

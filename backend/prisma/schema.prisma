@@ -151,6 +151,12 @@ model Program {
 
   verifiedOn DateTime // shown on the listing
 
+  // True for a DRAFT whose content did NOT come from a SOURCE_VERIFIED
+  // staging record (the legacy backfill's oracle-ovip). The admin page
+  // lists it but refuses Approve & publish. The importer clears it whenever
+  // it writes verified content.
+  awaitingResearch Boolean @default(false)
+
   publishStatus PublishStatus @default(DRAFT)
   archivedAt    DateTime?
   archiveReason String? // user-facing; required when ARCHIVED (enforced by importer)

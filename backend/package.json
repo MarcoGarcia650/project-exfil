@@ -10,7 +10,8 @@
     "import:programs": "node prisma/import-programs.js",
     "migrate:legacy": "node prisma/migrate-legacy-employers.js",
     "reset-link": "node prisma/reset-link.js",
-    "normalize:emails": "node prisma/normalize-emails.js"
+    "normalize:emails": "node prisma/normalize-emails.js",
+    "make-admin": "node prisma/make-admin.js"
   },
   "keywords": [],
   "author": "",

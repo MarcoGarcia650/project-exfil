@@ -52,3 +52,13 @@ export function requireActiveAccount(req, res, next) {
   }
   next();
 }
+
+// For admin routes, after requireAuth. The role comes from the DB row
+// requireAuth just loaded, so granting or revoking admin takes effect on
+// the next request. Admin rights are granted only by prisma/make-admin.js.
+export function requireAdmin(req, res, next) {
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ error: "Admins only" });
+  }
+  next();
+}

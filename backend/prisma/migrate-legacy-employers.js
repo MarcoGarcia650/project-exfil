@@ -97,6 +97,8 @@ function legacyProgramData(employer, spec) {
     verifiedOn: LEGACY_VERIFIED_ON,
     contentHash: contentHashFor(content),
     publishStatus: spec.publishStatus,
+    // A legacy DRAFT is built from old seed data, not verified research.
+    awaitingResearch: spec.publishStatus === "DRAFT",
     ...(spec.publishStatus === "ARCHIVED" && { archivedAt: new Date(), archiveReason: archiveReasonFor(employer.name) }),
   };
 }

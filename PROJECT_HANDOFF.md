@@ -39,10 +39,29 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Proposed (Claude) | Replace `ProgramType` with `ProgramFormat` (TRAINING, CERTIFICATION_TRAINING, FELLOWSHIP, INTERNSHIP, APPRENTICESHIP, DIRECT_HIRE) | The current enum has no training value; MSSA is mis-seeded as FELLOWSHIP. |
 | Proposed (Claude) | Required `veteranAccessRoute` column; null = unknown; evidence stays in git, not Postgres | Enforces the inclusion rule while keeping the schema small. |
 | Agreed (user, 2026-11-08) | (Claude writes the importer, per the working mode.) Importer loads SOURCE_VERIFIED records as DRAFT (also in production); review and publish happen in the admin page via Approve & publish (status-only). Dry run by default, upserts by slug, never deletes. Supersedes "imports only APPROVED". | See the plan doc. Marco to write it, per the teaching approach. |
+| Proposed (Claude, 2026-11-09) — **needs user acknowledgement** | Additive migration `20261110003637_program_awaiting_research`: `Program.awaitingResearch` (default false), backfilled true for the legacy `oracle-ovip` DRAFT. Admin Approve & publish refuses flagged rows; the importer clears the flag whenever it writes SOURCE_VERIFIED content. | Found in phase 5: the legacy Oracle draft (NEEDS_RESEARCH) was indistinguishable from verified drafts, so it could have been published by mistake. Applied to local Docker only. |
 
 ## Latest implementation state
 
 - **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Phase 5 complete, LOCAL ONLY (2026-11-09, same branch). Admin page:**
+  - one schema change, the `awaitingResearch` migration (see Decisions), applied to local Docker only;
+  - `requireAdmin` (role read from the DB each request); [make-admin.js](backend/prisma/make-admin.js) (`npm run make-admin -- <email-or-username> [--revoke]`) is the only way to grant admin; granting also lifts any suspension;
+  - [adminController.js](backend/src/controllers/adminController.js) under `/admin` (all routes require an admin):
+    - summary counts;
+    - reports grouped by comment → hide with an admin-only reason (resolves reports ACTIONED) or dismiss (DISMISSED);
+    - submissions by status → accept/reject once with a note shown to the submitter (status only; never edits a listing);
+    - user search by username prefix or email (admin-only) → suspend/unsuspend (admins can't be suspended) and reset link (records the issuing admin);
+    - drafts with full content and `contentHash` → Approve & publish needs the same hash (409 if content changed since loading), refuses `awaitingResearch` rows and non-drafts, and records reviewer, time and reviewed hash.
+  - Frontend: [pages/admin/](frontend/src/pages/admin/) at `/admin?tab=` (Reports, Submissions, Users, Drafts to review). The Admin nav link shows only for admins; others are redirected. Drafts show every field, the official link and the plan's 6-item checklist; Approve stays disabled until all are ticked. The Oracle draft shows "Awaiting research" with no button.
+  - Fixes found by phase-5 screenshots: the navbar wraps on phones (logged-in links overflowed); long URLs wrap in detail lists.
+- **Verified locally (Phase 5, 2026-11-09):**
+  - `npm test` 25/25 (2 new importer tests for the flag);
+  - admin HTTP 50/50: 401/403, make-admin grant/idempotent/unknown/revoke taking effect immediately, report grouping, hide/dismiss and statuses, submission review and the submitter seeing the note, user search, suspend effects, admin not suspendable, admin-issued reset link works, drafts: Oracle refused, stale hash 409, publish → public → importer still UNCHANGED;
+  - browser 17/17;
+  - all earlier suites rerun: 39/39, 58/58 (one brittle total-count check fixed to compare with the DB), 24/24, 14/14, 17/17;
+  - admin page at 390px has no horizontal scroll; build and lint clean.
+  - Test publishes were reverted to DRAFT by SQL, and test admins revoked: local DB has 0 admins and 1 PUBLISHED listing.
 - **Phase 4 complete, LOCAL ONLY (2026-11-09, same branch). Community (no schema change; tables came with the expand migration):**
   - [commentController.js](backend/src/controllers/commentController.js):
     - `GET /programs/:slug/comments?cursor=` (public): top-level oldest-first, 20 per page, keyset cursor on `(createdAt, id)`, each with 3 reply levels (20 per level, plus `replyCount`);
@@ -219,7 +238,15 @@ Remaining:
    - Oracle OVIP official-page check.
 
 5. **Production `TRUST_PROXY` value (phase 6):** log the request headers on the real deployment to confirm the CloudFront → EB nginx hop count before setting it. Until then the per-IP limits may group all visitors under the proxy's IP; the per-email login limit still works.
-6. **Production rollout steps added by phase 3 (phase 6):** set `FRONTEND_URL` on EB; run `normalize-emails.js` dry run, then `--apply`, against RDS (after the snapshot). Existing users will see the username prompt.
+6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
+   1. RDS snapshot.
+   2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
+   3. Import SOURCE_VERIFIED as DRAFT (dry run first), then the legacy backfill (sets Oracle's flag).
+   4. `normalize-emails.js` dry run, then `--apply`.
+   5. Set `FRONTEND_URL` on EB (and `TRUST_PROXY` only after checking headers); deploy with `npm ci` (Prisma 7.10.1).
+   6. `make-admin.js <your account>`; review and publish drafts in the admin page; smoke test.
+   - Existing users will see the username prompt.
+7. **User acknowledgement needed:** the `awaitingResearch` migration (Decisions table). It's additive and reversible (drop the column), but it is a schema change after the schema was approved.
 
 Resolved and removed from this list:
 - `.vscode/` (Claude's finding): ignored via root `.gitignore` (user, 2026-11-09).
@@ -252,6 +279,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 5 complete, local) — Claude (VS Code)
+
+- Built the admin page (details under "Latest implementation state").
+- **Schema:** added and applied (local Docker only) migration `20261110003637_program_awaiting_research`, so the legacy Oracle NEEDS_RESEARCH draft can't be published by mistake. Recorded as a proposal awaiting user acknowledgement.
+- Checks run: unit 25/25, admin HTTP 50/50, admin browser 17/17, all earlier suites green; phone-width fixes for the navbar and long URLs.
+- Local test data: `P5*`/`E5*`/`Shot5_*` users (none admin now), hidden comments, reviewed submissions, used reset tokens. Test publishes were reverted.
+- No production DB, migration, import or deploy work.
+- Next: phase 6 (production + testers). Every production step needs the user's explicit go-ahead; see the rollout checklist in open questions.
 
 ### 2026-11-09 (phase 4 complete, local) — Claude (VS Code)
 

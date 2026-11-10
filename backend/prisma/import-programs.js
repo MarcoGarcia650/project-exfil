@@ -79,7 +79,8 @@ export function planFor(rec, existing) {
   const contentHash = contentHashFor(content);
   const verifiedOn = new Date(rec.verifiedOn);
   const { organizationSlug, ...fields } = content; // organization is connected separately
-  const base = { ...fields, contentHash, verifiedOn };
+  // awaitingResearch: false — every write here is SOURCE_VERIFIED content.
+  const base = { ...fields, contentHash, verifiedOn, awaitingResearch: false };
 
   if (!existing) {
     if (rec.archiveReason) {
@@ -88,7 +89,9 @@ export function planFor(rec, existing) {
     return { action: "CREATE_DRAFT", data: { ...base, publishStatus: "DRAFT" } };
   }
 
-  const changed = existing.contentHash !== contentHash;
+  // A row still awaiting research (legacy backfill) counts as changed, so
+  // verified content always replaces it and clears the flag.
+  const changed = existing.contentHash !== contentHash || existing.awaitingResearch === true;
   const newerVerified = verifiedOn > existing.verifiedOn ? verifiedOn : existing.verifiedOn;
 
   if (rec.restore && existing.publishStatus === "ARCHIVED") {

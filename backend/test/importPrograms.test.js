@@ -84,3 +84,16 @@ test("an older verifiedOn never overwrites a newer one", () => {
   const p = planFor(rec({ verifiedOn: "2026-11-08", cost: "changed" }), existing);
   assert.equal(p.data.verifiedOn.toISOString().slice(0, 10), "2027-01-01");
 });
+
+test("a legacy draft awaiting research is replaced by verified content, clearing the flag", () => {
+  // Same content hash as staging, but the row came from the legacy backfill.
+  const existing = rowFrom(rec(), "DRAFT", { awaitingResearch: true });
+  const p = planFor(rec(), existing);
+  assert.equal(p.action, "UPDATE_DRAFT");
+  assert.equal(p.data.awaitingResearch, false);
+  assert.equal(p.data.publishStatus, undefined); // stays DRAFT; only Approve & publish publishes
+});
+
+test("every content write marks the row as verified research", () => {
+  assert.equal(planFor(rec(), null).data.awaitingResearch, false);
+});

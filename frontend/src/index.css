@@ -89,8 +89,24 @@ a {
 
 .navbar-links {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 20px;
   align-items: center;
+}
+
+/* Phones: brand on its own row, links wrap below instead of overflowing. */
+@media (max-width: 520px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .navbar-links {
+    justify-content: flex-start;
+    gap: 8px 16px;
+  }
 }
 
 .navbar-logout {
@@ -532,6 +548,12 @@ button:disabled {
 
 .detail-list dd {
   margin: 2px 0 0;
+  overflow-wrap: anywhere; /* long URLs */
+}
+
+.admin-item a,
+.program-meta a {
+  overflow-wrap: anywhere;
 }
 
 .detail-actions {
@@ -726,4 +748,125 @@ button:disabled {
 .badge-sub-rejected {
   background: var(--warn-bg);
   color: var(--warn-text);
+}
+
+/* ---- Phase 5: admin ---- */
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.admin-tab {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 8px 12px;
+}
+
+.admin-tab:hover:not(:disabled) {
+  background: var(--bg-muted);
+  border-color: transparent;
+  color: var(--text);
+}
+
+.admin-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.admin-count {
+  display: inline-block;
+  margin-left: 6px;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 12px;
+}
+
+.admin-item h2 {
+  margin-top: 0;
+}
+
+.admin-quote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--border);
+  background: var(--bg);
+}
+
+.admin-subhead {
+  font-size: 14px;
+  margin: 12px 0 4px;
+}
+
+.admin-reports {
+  margin: 0 0 12px;
+  padding-left: 18px;
+}
+
+.admin-inline-badge {
+  margin-left: 8px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.admin-actions input,
+.filters input[type="search"],
+.reset-link-box input {
+  flex: 1 1 220px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.reset-link-box input {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+
+.button-danger {
+  background: var(--error);
+  border-color: var(--error);
+}
+
+.button-danger:hover:not(:disabled) {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
+.checklist {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0;
+}
+
+.checklist label {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.checklist input {
+  margin-top: 3px;
 }
