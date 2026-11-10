@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserRound } from "lucide-react";
 import { isPublicStatus } from "../lib/publishStatus.js";
+import { UNSAVE_CONFIRM } from "../components/SaveButton.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
@@ -28,6 +29,16 @@ export function DashboardPage() {
   async function handleStatusChange(savedEmployerId, status) {
     try {
       await api.patch(`/saved-employers/${savedEmployerId}`, { status }, token);
+      loadDashboard();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleRemove(programId) {
+    if (!window.confirm(UNSAVE_CONFIRM)) return;
+    try {
+      await api.delete(`/saved-employers/program/${programId}`, token);
       loadDashboard();
     } catch (err) {
       setError(err.message);
@@ -104,6 +115,7 @@ export function DashboardPage() {
               </p>
             )}
 
+            <div className="saved-card-controls">
             <label className="status-label">
               Status
               <select value={se.status} onChange={(e) => handleStatusChange(se.id, e.target.value)}>
@@ -114,6 +126,10 @@ export function DashboardPage() {
                 ))}
               </select>
             </label>
+            <button type="button" className="button-link" onClick={() => handleRemove(se.program.id)}>
+              Remove
+            </button>
+            </div>
 
             <ul className="action-items">
               {se.actionItems.map((item) => (

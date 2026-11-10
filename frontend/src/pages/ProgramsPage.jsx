@@ -21,11 +21,17 @@ export function ProgramsPage() {
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { savedIds, save, error: saveError } = useSavedProgramIds();
+  const { savedIds, save, unsave, error: saveError } = useSavedProgramIds();
 
-  const active = Object.fromEntries(
-    FILTERS.map(({ name, options }) => [name, options[searchParams.get(name)] ? searchParams.get(name) : ""])
-  );
+  const q = (searchParams.get("q") ?? "").slice(0, 100);
+  const [draft, setDraft] = useState(q);
+  useEffect(() => setDraft(q), [q]);
+  const active = {
+    ...(q.trim() && { q: q.trim() }),
+    ...Object.fromEntries(
+      FILTERS.map(({ name, options }) => [name, options[searchParams.get(name)] ? searchParams.get(name) : ""])
+    ),
+  };
   const query = new URLSearchParams(Object.entries(active).filter(([, v]) => v)).toString();
   const hasFilters = query !== "";
 
@@ -50,6 +56,14 @@ export function ProgramsPage() {
     setSearchParams({}, { replace: true });
   }
 
+  function handleSearch(e) {
+    e.preventDefault();
+    const next = new URLSearchParams(searchParams);
+    if (draft.trim()) next.set("q", draft.trim());
+    else next.delete("q");
+    setSearchParams(next);
+  }
+
   return (
     <div>
       <h1>Browse programs</h1>
@@ -57,6 +71,21 @@ export function ProgramsPage() {
         Tech career programs open to veterans after separation, each checked against the provider's
         official page.
       </p>
+
+      <form className="search-bar" role="search" onSubmit={handleSearch}>
+        <label className="visually-hidden" htmlFor="program-search">
+          Search programs
+        </label>
+        <input
+          id="program-search"
+          type="search"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Program, skill, or organization"
+          maxLength={100}
+        />
+        <button type="submit">Search</button>
+      </form>
 
       <div className="filters">
         {FILTERS.map(({ name, all, options }) => (
@@ -88,8 +117,8 @@ export function ProgramsPage() {
 
       {!loading && !error && programs.length === 0 && (
         <div className="empty-state">
-          <h2>No programs match these filters</h2>
-          <p>Try removing a filter, or tell us about a program we're missing.</p>
+          <h2>{q.trim() ? `No programs match “${q.trim()}”` : "No programs match these filters"}</h2>
+          <p>Try another search or remove a filter, or tell us about a program we're missing.</p>
           <div className="empty-state-actions">
             {hasFilters && <button onClick={clearFilters}>Clear filters</button>}
             <Link to="/suggest">Suggest a program</Link>
@@ -99,7 +128,7 @@ export function ProgramsPage() {
 
       <ul className="employer-list">
         {programs.map((program) => (
-          <ProgramCard key={program.id} program={program} saved={savedIds.has(program.id)} onSave={save} />
+          <ProgramCard key={program.id} program={program} saved={savedIds.has(program.id)} onSave={save} onUnsave={unsave} />
         ))}
       </ul>
     </div>

@@ -31,6 +31,21 @@ test("public directory and saving", async ({ page }) => {
     await expect(page.locator(".employer-card")).toHaveCount(pub.filter((p) => p.applicationAvailability === first.applicationAvailability).length);
   });
 
+  await test.step("keyword search lives in the URL", async () => {
+    await page.goto("/programs");
+    await page.getByLabel("Search programs").fill("vets who");
+    await page.getByRole("button", { name: "Search" }).click();
+    await page.waitForURL(/q=vets\+who|q=vets%20who/);
+    await expect(page.locator(".employer-card")).toHaveCount(1);
+    await expect(page.locator(".employer-card")).toContainText("Vets Who Code");
+    await page.getByLabel("Search programs").fill("zzz-nothing");
+    await page.getByRole("button", { name: "Search" }).click();
+    await expect(page.getByText("No programs match “zzz-nothing”")).toBeVisible();
+    await page.locator(".empty-state").getByRole("button", { name: "Clear filters" }).click();
+    await expect(page.getByLabel("Search programs")).toHaveValue("");
+    await expect(page.locator(".employer-card")).toHaveCount(pub.length);
+  });
+
   await test.step("legacy /employers redirect keeps query", async () => {
     await page.goto("/employers?format=TRAINING");
     await page.waitForURL(/\/programs\?format=TRAINING/);
@@ -77,6 +92,20 @@ test("public directory and saving", async ({ page }) => {
     await expect(page.locator(".save-button", { hasText: "Saved" })).toBeVisible();
     await page.goto("/dashboard");
     await expect(page.locator(`.saved-card a[href="/programs/${first.slug}"]`)).toHaveCount(1);
+  });
+
+  await test.step("unsave from the listing and from the dashboard; home stays reachable", async () => {
+    page.on("dialog", (d) => d.accept());
+    await page.goto(`/programs/${first.slug}`);
+    await page.locator(".save-button", { hasText: "Saved" }).click();
+    await expect(page.locator(".save-button", { hasText: /^Save$/ })).toBeVisible();
+    await page.locator(".save-button").click();
+    await expect(page.locator(".save-button", { hasText: "Saved" })).toBeVisible();
+    await page.goto("/dashboard");
+    await page.locator(".saved-card").getByRole("button", { name: "Remove" }).click();
+    await expect(page.locator(".saved-card")).toHaveCount(0);
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: "Go to your dashboard" })).toBeVisible();
   });
 
   expect(errors).toEqual([]);

@@ -874,3 +874,51 @@ button:disabled {
 .admin-reject {
   margin-top: 8px;
 }
+
+/* ---- v2 chunk 1: search, unsave ---- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search-bar input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.save-button.is-saved {
+  background: transparent;
+  color: var(--accent);
+}
+
+.save-button.is-saved:hover:not(:disabled) {
+  color: #fff;
+}
+
+.saved-card-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}

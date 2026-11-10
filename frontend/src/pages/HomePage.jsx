@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 import { Search, BookmarkCheck, ListChecks } from "lucide-react";
 import { PathIllustration } from "../components/PathIllustration.jsx";
 
 export function HomePage() {
+  const { isAuthenticated } = useAuth();
   return (
     <div className="home">
       <PathIllustration />
@@ -19,7 +21,11 @@ export function HomePage() {
         <Link to="/programs" className="button-primary">
           Browse programs
         </Link>
-        <Link to="/signup">Create a free account to save and track programs</Link>
+        {isAuthenticated ? (
+          <Link to="/dashboard">Go to your dashboard</Link>
+        ) : (
+          <Link to="/signup">Create a free account to save and track programs</Link>
+        )}
       </div>
 
       <div className="home-banner" role="presentation" aria-hidden="true" />

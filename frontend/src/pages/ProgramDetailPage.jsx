@@ -20,7 +20,7 @@ export function ProgramDetailPage() {
   const [program, setProgram] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ok | notFound | error
   const [error, setError] = useState(null);
-  const { savedIds, save, error: saveError } = useSavedProgramIds();
+  const { savedIds, save, unsave, error: saveError } = useSavedProgramIds();
   useDocumentTitle(program?.name);
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export function ProgramDetailPage() {
         <a href={program.officialSourceUrl} target="_blank" rel="noreferrer" className="program-link">
           Official program page <ExternalLink size={14} />
         </a>
-        <SaveButton program={program} saved={savedIds.has(program.id)} onSave={save} />
+        <SaveButton program={program} saved={savedIds.has(program.id)} onSave={save} onUnsave={unsave} />
       </div>
       {saveError && <p className="error">{saveError}</p>}
 

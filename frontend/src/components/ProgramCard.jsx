@@ -6,7 +6,7 @@ import { FORMAT_LABELS, TECH_TRACK_LABELS, formatDate } from "../lib/programLabe
 
 // One listing in a result list (browse and organization pages).
 // `showOrg` is off on an organization's own page, where it's redundant.
-export function ProgramCard({ program, saved, onSave, showOrg = true }) {
+export function ProgramCard({ program, saved, onSave, onUnsave, showOrg = true }) {
   return (
     <li className="employer-card">
       <div className="employer-card-header">
@@ -39,7 +39,7 @@ export function ProgramCard({ program, saved, onSave, showOrg = true }) {
       </div>
       <div className="card-footer">
         <span className="program-meta">Last verified {formatDate(program.verifiedOn)}</span>
-        <SaveButton program={program} saved={saved} onSave={onSave} />
+        <SaveButton program={program} saved={saved} onSave={onSave} onUnsave={onUnsave} />
       </div>
     </li>
   );

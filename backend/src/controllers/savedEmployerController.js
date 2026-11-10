@@ -89,3 +89,21 @@ export async function listSavedProgramIds(req, res) {
   });
   res.json(rows.map((r) => r.programId));
 }
+
+// DELETE /saved-employers/program/:programId
+// Auth + active account. Unsaves a program for the current user, deleting
+// its status and checklist (action items) with it. Works whatever the
+// listing's state (a user can always drop an archived or hidden listing).
+export async function deleteSavedProgram(req, res) {
+  const saved = await prisma.savedEmployer.findUnique({
+    where: { userId_programId: { userId: req.user.userId, programId: req.params.programId } },
+    select: { id: true },
+  });
+  if (!saved) return res.status(404).json({ error: "This program isn't in your saved list" });
+
+  await prisma.$transaction([
+    prisma.actionItem.deleteMany({ where: { savedEmployerId: saved.id } }),
+    prisma.savedEmployer.delete({ where: { id: saved.id } }),
+  ]);
+  res.status(204).end();
+}

@@ -33,13 +33,18 @@ export const PUBLIC_SELECT = {
   organization: { select: { slug: true, name: true, websiteUrl: true } },
 };
 
-// GET /programs?techTrack=CLOUD&format=TRAINING&availability=ACCEPTING
+// GET /programs?q=cloud&techTrack=CLOUD&format=TRAINING&availability=ACCEPTING
 // Public. Browse shows PUBLISHED only: DRAFTs are never public, and
 // ARCHIVED listings are reachable by URL but hidden from browse.
 // Unknown filter values are ignored rather than erroring, so a stale
 // shared link still shows results.
+// Keyword search: case-insensitive match on program name, organization name
+// or description. Capped length; blank means no search.
+const SEARCH_MAX = 100;
+
 export async function listPrograms(req, res) {
   const { techTrack, format, availability } = req.query;
+  const q = typeof req.query.q === "string" ? req.query.q.trim().slice(0, SEARCH_MAX) : "";
 
   const programs = await prisma.program.findMany({
     where: {
@@ -47,6 +52,13 @@ export async function listPrograms(req, res) {
       ...(TECH_TRACKS.includes(techTrack) && { techTracks: { has: techTrack } }),
       ...(FORMATS.includes(format) && { format }),
       ...(AVAILABILITY.includes(availability) && { applicationAvailability: availability }),
+      ...(q && {
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+          { organization: { name: { contains: q, mode: "insensitive" } } },
+        ],
+      }),
     },
     select: PUBLIC_SELECT,
     orderBy: [{ organization: { name: "asc" } }, { name: "asc" }],

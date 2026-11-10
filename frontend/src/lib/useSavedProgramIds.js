@@ -39,5 +39,24 @@ export function useSavedProgramIds() {
     [token]
   );
 
-  return { savedIds, save, error };
+  // Unsaving deletes the user's status and checklist for that program, so
+  // callers confirm first.
+  const unsave = useCallback(
+    async (programId) => {
+      setError(null);
+      try {
+        await api.delete(`/saved-employers/program/${programId}`, token);
+        setSavedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(programId);
+          return next;
+        });
+      } catch (err) {
+        setError(err.message);
+      }
+    },
+    [token]
+  );
+
+  return { savedIds, save, unsave, error };
 }

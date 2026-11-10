@@ -306,6 +306,21 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 
 ## Activity log
 
+### 2026-11-09 (v2 chunk 1 + design mockups) — Claude (VS Code)
+
+- **Design mockups** for the user to choose from: https://claude.ai/artifact/A6wxmK1z1FmNCtQQSkfEkm (private to the user), browse screen only, light default with a working dark/light switch:
+  - A: search bar + list/detail split (Indeed-style);
+  - B: filter sidebar + card grid with save toggles (Handshake-style);
+  - C: search-first hero + slide-out detail drawer.
+
+  Real listing data; patterns only, no third-party branding. **Awaiting the user's pick.**
+- **Chunk 1 (no migration):**
+  - keyword search: `GET /programs?q=` matches program name, organization or description (case-insensitive, max 100 chars; drafts never match); search box on browse, kept in the URL;
+  - **unsave**: `DELETE /saved-employers/program/:programId` deletes the save + its action items (confirm prompt in the UI); Save button toggles; dashboard "Remove";
+  - `/` shows the home page when logged in (CTA "Go to your dashboard");
+  - custom favicon (`frontend/public/favicon.svg`, compass on #6d28d9) + `apple-touch-icon.png` (180px, rendered with Playwright) + theme-color/description meta.
+- Checks: unit 28/28; integration 5/5 suites (programs 24 → 38 checks: search + unsave); e2e 4/4 (directory spec: search, unsave both ways, home when logged in); lint and build clean.
+
 ### 2026-11-09 (v2 wrap-up planning) — Claude (VS Code)
 
 - Checked the user's list against the code: unsave is missing (no DELETE route); the favicon is Vite's default; `/` redirects logged-in users to `/programs`; the theme follows the OS only; there's no search, contact, About/FAQ or admin add-listing. The user's decisions are recorded in the decisions table. Starting with the design mockups, then chunk 1.

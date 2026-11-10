@@ -16,6 +16,16 @@ test("public directory", async (t) => {
   check("filter no match", (await call("GET", "/programs?availability=CLOSED")).data.length === 0);
   check("unknown filter ignored", (await call("GET", "/programs?techTrack=BOGUS")).data.length === 1);
 
+  // keyword search (name, organization, description; case-insensitive)
+  const search = async (q) => (await call("GET", `/programs?q=${encodeURIComponent(q)}`)).data.map((p) => p.slug);
+  check("search by program name", (await search("accelerator")).join() === "vetswhocode-accelerator");
+  check("search by organization, any case", (await search("VETS WHO")).join() === "vetswhocode-accelerator");
+  check("search by description", (await search("fixture description")).length === 1);
+  check("search no match", (await search("zzz-nothing")).length === 0);
+  check("search never returns drafts", (await search("microsoft")).length === 0);
+  check("blank search = all", (await search("   ")).length === 1);
+  check("search combines with filters", (await call("GET", "/programs?q=vets&availability=CLOSED")).data.length === 0);
+
   check("published page 200", (await call("GET", "/programs/vetswhocode-accelerator")).status === 200);
   check("draft page 404", (await call("GET", "/programs/microsoft-mssa")).status === 404);
   check("missing page 404", (await call("GET", "/programs/nope")).status === 404);
@@ -47,5 +57,14 @@ test("public directory", async (t) => {
   check("toggle action item", (await call("PATCH", `/action-items/${se.actionItems[0].id}`, { completed: true }, u.token)).status === 200);
   const other = await signup(call, "other");
   check("can't update someone else's save", (await call("PATCH", `/saved-employers/${se.id}`, { status: "OFFER" }, other.token)).status === 404);
+
+  // unsave
+  check("unsave needs auth", (await call("DELETE", `/saved-employers/program/${pid}`)).status === 401);
+  check("someone else can't unsave it", (await call("DELETE", `/saved-employers/program/${pid}`, null, other.token)).status === 404);
+  check("unsave 204", (await call("DELETE", `/saved-employers/program/${pid}`, null, u.token)).status === 204);
+  check("unsaved: ids empty", JSON.stringify((await call("GET", "/saved-employers/program-ids", null, u.token)).data) === "[]");
+  check("unsaved: dashboard empty", (await call("GET", "/dashboard", null, u.token)).data.savedPrograms.length === 0);
+  check("unsave again 404", (await call("DELETE", `/saved-employers/program/${pid}`, null, u.token)).status === 404);
+  check("can save again after unsaving", (await call("POST", "/saved-employers", { programId: pid }, u.token)).status === 201);
   check.done(assert);
 });

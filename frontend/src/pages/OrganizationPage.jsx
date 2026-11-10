@@ -15,7 +15,7 @@ export function OrganizationPage() {
   const [org, setOrg] = useState(null);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState(null);
-  const { savedIds, save, error: saveError } = useSavedProgramIds();
+  const { savedIds, save, unsave, error: saveError } = useSavedProgramIds();
   useDocumentTitle(org?.name);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export function OrganizationPage() {
       {org.programs.length === 0 && <p className="muted">No active programs right now.</p>}
       <ul className="employer-list">
         {org.programs.map((p) => (
-          <ProgramCard key={p.id} program={p} saved={savedIds.has(p.id)} onSave={save} showOrg={false} />
+          <ProgramCard key={p.id} program={p} saved={savedIds.has(p.id)} onSave={save} onUnsave={unsave} showOrg={false} />
         ))}
       </ul>
 

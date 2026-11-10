@@ -64,7 +64,6 @@ function LegacyEmployersRedirect() {
 }
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
 
   return (
     <>
@@ -73,7 +72,7 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to="/programs" replace /> : <HomePage />}
+            element={<HomePage />}
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
