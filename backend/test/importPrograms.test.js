@@ -118,3 +118,20 @@ test("REJECTED is never archived (or published) by staging", () => {
   assert.notEqual(p.data?.publishStatus, "ARCHIVED");
   assert.notEqual(p.data?.publishStatus, "PUBLISHED");
 });
+
+test("an in-app edit is not overwritten by different staging content", () => {
+  const existing = rowFrom(rec(), "PUBLISHED", { editedInAppAt: new Date(), contentHash: "app-edited-hash" });
+  assert.equal(planFor(rec(), existing).action, "SKIP_EDITED_IN_APP");
+});
+
+test("--overwrite-app-edits lets staging win (and back to review if published)", () => {
+  const existing = rowFrom(rec(), "PUBLISHED", { editedInAppAt: new Date(), contentHash: "app-edited-hash" });
+  const p = planFor(rec(), existing, { overwriteAppEdits: true });
+  assert.equal(p.action, "UPDATE_AND_UNPUBLISH");
+  assert.equal(p.data.editedInAppAt, null);
+});
+
+test("an in-app edited row whose content matches staging is just UNCHANGED", () => {
+  const existing = rowFrom(rec(), "PUBLISHED", { editedInAppAt: new Date() });
+  assert.equal(planFor(rec(), existing).action, "UNCHANGED");
+});

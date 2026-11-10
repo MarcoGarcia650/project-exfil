@@ -1546,3 +1546,26 @@ button.nav-link:hover:not(:disabled) {
 .listing-form > button {
   align-self: flex-start;
 }
+
+/* ---------- admin: edit listing ---------- */
+
+.breadcrumb-row,
+.admin-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.breadcrumb-row .breadcrumb {
+  margin: 0;
+}
+
+.breadcrumb-row {
+  margin-bottom: 14px;
+}
+
+.admin-item-head h2 {
+  margin: 0;
+}

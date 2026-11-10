@@ -21,9 +21,14 @@ function Submission({ s, onDone }) {
         {s.submitter.username ?? "(no username)"} ({s.submitter.email})
       </p>
       {s.program && (
-        <p>
-          For{" "}
-          {!isPublicStatus(s.program.publishStatus) ? s.program.name : <Link to={`/programs/${s.program.slug}`}>{s.program.name}</Link>}
+        <p className="admin-item-head">
+          <span>
+            For{" "}
+            {!isPublicStatus(s.program.publishStatus) ? s.program.name : <Link to={`/programs/${s.program.slug}`}>{s.program.name}</Link>}
+          </span>
+          <Link to={`/admin/listings/${s.program.id}/edit`} className="button-secondary">
+            Edit listing
+          </Link>
         </p>
       )}
       <blockquote className="comment-text admin-quote">{s.body}</blockquote>
@@ -48,7 +53,10 @@ function Submission({ s, onDone }) {
             <button disabled={busy} onClick={() => decide("ACCEPTED")}>Accept</button>
             <button className="button-secondary-btn" disabled={busy} onClick={() => decide("REJECTED")}>Reject</button>
           </div>
-          <p className="field-hint">Accepting only records the decision. Change the listing via staging → validate → import.</p>
+          <p className="field-hint">
+            Accepting or rejecting records the decision; your note appears on the submitter's My submissions page. To
+            change the listing, use Edit listing.
+          </p>
         </>
       ) : (
         s.adminNote && <p className="program-meta">Note: {s.adminNote}</p>

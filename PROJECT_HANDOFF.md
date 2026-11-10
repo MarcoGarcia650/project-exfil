@@ -46,6 +46,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Agreed (user, 2026-11-09) | **Admin "Add listing" creates a DRAFT** (same required fields as the validator) that goes through Drafts to review → checklist → Approve & publish. Imports never overwrite it. No listing editing in this version. | User chose the recommended option. |
 | Agreed (user, 2026-11-09) | **Design: mockups first.** Claude makes 2–3 visual directions (light default + dark) for the user to pick before implementing. | User chose the recommended option. |
 | Agreed (user, 2026-11-09) | **Design = Direction D**: B's filter sidebar + card grid (save toggle per card) + search in the navbar; clicking a card opens an A-style detail card as a **modal** over the grid (page dims/blurs; ✕, background click, Escape; "Open full page"). Light theme default with a navbar dark/light switch (dark = the current colors). Canvas: https://claude.ai/artifact/A6wxmK1z1FmNCtQQSkfEkm | User: "lets do D, i love it". |
+| Agreed (user, 2026-11-10); supersedes "no direct listing editing" | **Admins can edit listings in the app** (Edit listing on the public page, drafts, rejected listings, listing-update suggestions). PUBLISHED stays live and the edit counts as the review; DRAFT stays draft; ARCHIVED stays archived; REJECTED → DRAFT. URL slug + organization fixed; name editable. `editedInAppAt` is set, and the **importer skips app-edited slugs** whose staging content differs (`SKIP_EDITED_IN_APP`) unless `--overwrite-app-edits`. | User: admins must be able to fix listings (e.g. add Cloud to Amazon SDE Apprentice) without staging/import. |
 
 ## Latest implementation state
 
@@ -307,6 +308,17 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-10 (chunk 6: edit listings) — Claude (VS Code)
+
+- User request + decision recorded above.
+  - Migration `20261110071857_program_edited_in_app` (adds `Program.editedInAppAt`; additive). **Applied locally only.**
+  - `GET/PUT /admin/listings/:id`; the importer's `SKIP_EDITED_IN_APP` rule + `--overwrite-app-edits` flag (3 new unit tests).
+  - Shared `ListingForm` (add + edit; helpers in `listingFormState.js`); `/admin/listings/:id/edit` page.
+  - Edit buttons: public listing page (admins), Drafts, Rejected ("Fix & return to drafts"), listing-update submissions. The admin submissions hint now explains the note goes to the submitter's My submissions.
+- The user's "note did nothing" was checked on prod (read-only): the note was saved on the accepted submission. It shows on the submitter's My submissions (no notifications yet, by design). The Amazon SDE Apprentice listing is tagged SOFTWARE_DEV only in staging; the user can add Cloud via Edit once deployed (the importer will then keep the app copy).
+- Tests: unit 36/36, integration 9/9, e2e 5/5 (admin spec edits a live listing), lint and build clean.
+- **Release queue:** chunk 3 awaiting approval (run 42772008391). Then apply the prod migrations `20261110070704_organization_comments` and `20261110071857_program_edited_in_app` (both additive), push `main` (chunks 4 + 5 + 6), and approve.
 
 ### 2026-11-10 (chunk 5: icon B + organization discussions) — Claude (VS Code)
 

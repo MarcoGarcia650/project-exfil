@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import { formatDateTime } from "../../lib/formatTime.js";
 import { useAdminList, useAdminAction } from "./useAdminApi.js";
@@ -18,8 +19,11 @@ function RejectedItem({ r, onDone }) {
       </p>
       {error && <p className="error">{error}</p>}
       <div className="admin-actions">
+        <Link to={`/admin/listings/${r.id}/edit`} className="button-secondary">
+          Fix &amp; return to drafts
+        </Link>
         <button className="button-secondary-btn" disabled={busy} onClick={async () => (await run(`/admin/rejected/${r.id}/restore`)) && onDone()}>
-          Return to drafts
+          Return to drafts unchanged
         </button>
       </div>
     </li>

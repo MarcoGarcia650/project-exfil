@@ -14,6 +14,7 @@ import { ChooseUsernamePage } from "./pages/ChooseUsernamePage.jsx";
 import { ThreadPage } from "./pages/ThreadPage.jsx";
 import { MySubmissionsPage } from "./pages/MySubmissionsPage.jsx";
 import { AdminPage } from "./pages/admin/AdminPage.jsx";
+import { EditListingPage } from "./pages/admin/EditListingPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
 import { FaqPage } from "./pages/FaqPage.jsx";
@@ -42,11 +43,11 @@ function LegacyEmployersRedirect() {
 }
 
 // Browse and admin use the full width; reading pages keep a narrow column.
-const WIDE_ROUTES = ["/programs", "/admin"];
+const isWide = (path) => path === "/programs" || path === "/admin";
 
 export default function App() {
   const { pathname } = useLocation();
-  const wide = WIDE_ROUTES.includes(pathname);
+  const wide = isWide(pathname);
 
   return (
     <>
@@ -80,6 +81,14 @@ export default function App() {
             }
           />
           <Route path="/comments/:id" element={<ThreadPage />} />
+          <Route
+            path="/admin/listings/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditListingPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

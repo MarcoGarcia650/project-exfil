@@ -27,11 +27,12 @@ export function useAdminAction() {
   const [error, setError] = useState(null);
 
   const run = useCallback(
-    async (path, body = {}) => {
+    async (path, body = {}, method = "POST") => {
       setBusy(true);
       setError(null);
       try {
-        return (await api.post(path, body, token)) ?? true;
+        const result = method === "PUT" ? await api.put(path, body, token) : await api.post(path, body, token);
+        return result ?? true;
       } catch (err) {
         setError(err.message);
         return null;

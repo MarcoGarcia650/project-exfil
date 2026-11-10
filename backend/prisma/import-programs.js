@@ -3,6 +3,7 @@
 //   node prisma/import-programs.js            # dry run (default): prints what WOULD happen
 //   node prisma/import-programs.js --apply    # performs exactly what the dry run prints
 //   node prisma/import-programs.js --file=path/to/staging.json
+//   node prisma/import-programs.js --apply --overwrite-app-edits   # staging wins over admin-page edits
 //
 // This script is the ONLY way listing content gets written. It never
 // publishes anything — new listings arrive as DRAFT and only the admin
@@ -19,6 +20,9 @@
 //   REJECTED, content unchanged         → stays REJECTED (the fix hasn't landed)
 //   REJECTED, content changed           → DRAFT for re-review, rejection cleared
 //   NEEDS_RESEARCH record already in DB → flagged only, never changed
+//   edited in the admin page, content differs → skipped and reported
+//                                         (--overwrite-app-edits: staging wins
+//                                          and the in-app edit flag is cleared)
 //
 // Nothing is ever deleted.
 
@@ -33,6 +37,7 @@ import { contentHashFor } from "./lib/programContent.js";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const APPLY = args.includes("--apply");
+const OVERWRITE_APP_EDITS = args.includes("--overwrite-app-edits");
 const file =
   args.find((a) => a.startsWith("--file="))?.split("=")[1] ??
   path.resolve(here, "../../research/programs-staging.json");
@@ -77,13 +82,14 @@ const CLEARED_REJECTION = { rejectedAt: null, rejectionReason: null };
 
 // Decide what to do with one SOURCE_VERIFIED staging record, given the
 // current DB row (or null). Returns { action, data } — pure, no DB access.
-export function planFor(rec, existing) {
+export function planFor(rec, existing, { overwriteAppEdits = false } = {}) {
   const content = contentFrom(rec);
   const contentHash = contentHashFor(content);
   const verifiedOn = new Date(rec.verifiedOn);
   const { organizationSlug, ...fields } = content; // organization is connected separately
   // awaitingResearch: false — every write here is SOURCE_VERIFIED content.
-  const base = { ...fields, contentHash, verifiedOn, awaitingResearch: false };
+  // editedInAppAt: null — once staging content is written, staging owns it.
+  const base = { ...fields, contentHash, verifiedOn, awaitingResearch: false, editedInAppAt: null };
 
   if (!existing) {
     if (rec.archiveReason) {
@@ -95,6 +101,12 @@ export function planFor(rec, existing) {
   // A row still awaiting research (legacy backfill) counts as changed, so
   // verified content always replaces it and clears the flag.
   const changed = existing.contentHash !== contentHash || existing.awaitingResearch === true;
+
+  // Edited in the admin page: the app copy wins over staging, so a stale
+  // research file can't silently undo an admin's fix (or unpublish it).
+  if (existing.editedInAppAt && changed && !overwriteAppEdits) {
+    return { action: "SKIP_EDITED_IN_APP", data: null };
+  }
   const newerVerified = verifiedOn > existing.verifiedOn ? verifiedOn : existing.verifiedOn;
 
   // A rejected draft only comes back once its content actually changes;
@@ -151,7 +163,10 @@ async function main() {
   // 2. Plan every record against the current DB state.
   const existingRows = await prisma.program.findMany();
   const bySlug = new Map(existingRows.map((r) => [r.slug, r]));
-  const plans = importable.map((rec) => ({ rec, ...planFor(rec, bySlug.get(rec.id) ?? null) }));
+  const plans = importable.map((rec) => ({
+    rec,
+    ...planFor(rec, bySlug.get(rec.id) ?? null, { overwriteAppEdits: OVERWRITE_APP_EDITS }),
+  }));
 
   const flagged = notImportable.filter((p) => bySlug.has(p.id));
   const stagingSlugs = new Set(staging.programs.map((p) => p.id));
@@ -159,7 +174,10 @@ async function main() {
 
   // 3. Report.
   console.log(`\n${APPLY ? "APPLYING" : "DRY RUN"} — ${file}\n`);
-  for (const p of plans) console.log(`${p.action.padEnd(22)} ${p.rec.id}`);
+  for (const p of plans) {
+    const why = p.action === "SKIP_EDITED_IN_APP" ? " (edited in the admin page; staging differs — app copy kept. Update staging to match, or use --overwrite-app-edits)" : "";
+    console.log(`${p.action.padEnd(22)} ${p.rec.id}${why}`);
+  }
   for (const p of flagged) console.log(`${"FLAG_NOT_VERIFIED".padEnd(22)} ${p.id} (${p.reviewStatus} in staging, row exists in DB — left unchanged; admin decision)`);
   for (const r of orphaned) console.log(`${"NOT_IN_STAGING".padEnd(22)} ${r.slug} (${r.publishStatus}) — left unchanged`);
   const tally = plans.reduce((t, p) => ({ ...t, [p.action]: (t[p.action] ?? 0) + 1 }), {});
@@ -173,7 +191,7 @@ async function main() {
   // 4. Apply in one transaction — all or nothing.
   await prisma.$transaction(async (tx) => {
     for (const p of plans) {
-      if (p.action === "UNCHANGED") continue;
+      if (p.action === "UNCHANGED" || p.action === "SKIP_EDITED_IN_APP") continue;
       const org = orgsById.get(p.rec.organizationId);
       const orgSlug = orgSlugFrom(org.id);
       const organization = await tx.organization.upsert({

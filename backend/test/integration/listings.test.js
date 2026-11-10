@@ -49,3 +49,41 @@ test("admin add listing", async (t) => {
   check("existing org slug as new org 409", (await add(listing({ organizationSlug: undefined, newOrganization: { name: "Acme Vets" }, name: "Other" }))).status === 409);
   check.done(assert);
 });
+
+test("admin edit listing", async (t) => {
+  const check = checker(t);
+  const Adm = await signup(call, "eadm"), U = await signup(call, "eu");
+  script("prisma/make-admin.js", Adm.username);
+  const pubId = await one(`select id from "Program" where slug='vetswhocode-accelerator'`);
+  const get = (id, tok = Adm.token) => call("GET", `/admin/listings/${id}`, null, tok);
+  const put = (id, body, tok = Adm.token) => call("PUT", `/admin/listings/${id}`, body, tok);
+  const cur = (await get(pubId)).data;
+  const editable = {
+    name: cur.name, description: cur.description, format: cur.format, techTracks: cur.techTracks,
+    veteranAccessRoute: cur.veteranAccessRoute, officialSourceUrl: cur.officialSourceUrl,
+    applicationUrl: cur.applicationUrl, applicationAvailability: cur.applicationAvailability,
+    verifiedOn: cur.verifiedOn.slice(0, 10), confirmVeteranRoute: true,
+  };
+
+  check("non-admin get 403", (await get(pubId, U.token)).status === 403);
+  check("non-admin put 403", (await put(pubId, editable, U.token)).status === 403);
+  check("missing 404", (await get("nope")).status === 404);
+  check("still needs confirmation", (await put(pubId, { ...editable, techTracks: ["SOFTWARE_DEV", "CLOUD"], confirmVeteranRoute: false })).status === 400);
+
+  const r = await put(pubId, { ...editable, techTracks: ["SOFTWARE_DEV", "CLOUD"] });
+  check("edit published → stays PUBLISHED", r.status === 200 && r.data.changed && r.data.publishStatus === "PUBLISHED", r);
+  check("re-saving the same content → changed:false", (await put(pubId, { ...editable, techTracks: ["SOFTWARE_DEV", "CLOUD"] })).data?.changed === false);
+  const live = (await call("GET", "/programs/vetswhocode-accelerator")).data;
+  check("public page shows the edit", live.techTracks.join() === "SOFTWARE_DEV,CLOUD");
+  check("review + app-edit recorded", (await one(`select ("reviewedContentHash"="contentHash" and "reviewedById"='${Adm.id}' and "editedInAppAt" is not null)::text from "Program" where id='${pubId}'`)) === "true");
+  check("slug and org can't change", (await put(pubId, { ...editable, slug: "hijack", organizationSlug: "hoh", name: cur.name })).status === 200 && (await one(`select slug||'/'||(select slug from "Organization" o where o.id="organizationId") from "Program" where id='${pubId}'`)) === "vetswhocode-accelerator/vetswhocode");
+
+  // rejected → back to draft
+  const fort = (await call("GET", "/admin/drafts", null, Adm.token)).data.find((d) => d.slug === "fortinet-veterans");
+  await call("POST", `/admin/drafts/${fort.id}/reject`, { reason: "wrong", contentHash: fort.contentHash }, Adm.token);
+  const fCur = (await get(fort.id)).data;
+  const fix = await put(fort.id, { name: fCur.name, description: "Fixed description.", format: fCur.format, techTracks: fCur.techTracks, veteranAccessRoute: fCur.veteranAccessRoute, officialSourceUrl: fCur.officialSourceUrl, verifiedOn: fCur.verifiedOn.slice(0, 10), confirmVeteranRoute: true });
+  check("edit rejected → DRAFT again", fix.data?.publishStatus === "DRAFT");
+  check("rejection cleared", (await one(`select coalesce("rejectionReason",'none') from "Program" where id='${fort.id}'`)) === "none");
+  check.done(assert);
+});

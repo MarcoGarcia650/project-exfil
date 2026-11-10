@@ -115,5 +115,20 @@ test("admin page", async ({ page, browser }) => {
     expect((await api("GET", `/programs/e2e-data-track-${n}`)).status).toBe(404);
   });
 
+  await test.step("edit a live listing from its page; stays live with the change", async () => {
+    await page.goto("/programs/vetswhocode-accelerator");
+    await page.getByRole("link", { name: "Edit listing" }).click();
+    await page.waitForURL(/\/admin\/listings\/.+\/edit$/);
+    await expect(page.getByText("This listing is live.")).toBeVisible();
+    const form = page.locator(".listing-form");
+    const cloud = form.getByLabel("Cloud");
+    if (!(await cloud.isChecked())) await cloud.check();
+    await form.getByLabel(/I read the official page/).check();
+    await form.getByRole("button", { name: "Save changes" }).click();
+    await expect(page.getByRole("heading", { name: /Listing updated|No changes to save/ })).toBeVisible();
+    await page.getByRole("link", { name: "View listing" }).click();
+    await expect(page.locator(".program-summary .tag", { hasText: "Cloud" })).toBeVisible();
+  });
+
   expect(errors).toEqual([]);
 });

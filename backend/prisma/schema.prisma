@@ -163,6 +163,11 @@ model Program {
   archivedAt    DateTime?
   archiveReason String? // user-facing; required when ARCHIVED (enforced by importer)
 
+  // Set when an admin edits the listing in the admin page. The importer
+  // then skips this slug (the app copy wins) unless run with
+  // --overwrite-app-edits. Admin-only.
+  editedInAppAt DateTime?
+
   // Set when the admin rejects a DRAFT. Admin-only; never sent publicly.
   rejectedAt      DateTime?
   rejectionReason String?

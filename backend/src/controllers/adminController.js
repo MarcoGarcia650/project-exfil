@@ -105,7 +105,7 @@ export async function listSubmissions(req, res) {
     select: {
       id: true, kind: true, body: true, sourceUrl: true, status: true, adminNote: true,
       createdAt: true, reviewedAt: true,
-      program: { select: { slug: true, name: true, publishStatus: true } },
+      program: { select: { id: true, slug: true, name: true, publishStatus: true } },
       submitter: { select: { id: true, username: true, email: true } },
     },
   });
@@ -379,6 +379,68 @@ export async function createListing(req, res) {
     if (err.code === "P2002") {
       return res.status(409).json({ error: "This organization already has a listing with that name" });
     }
+    throw err;
+  }
+}
+
+// ---------- Edit listing ----------
+
+// GET /admin/listings/:id — the listing's editable fields, any status.
+export async function getListing(req, res) {
+  const program = await prisma.program.findUnique({
+    where: { id: req.params.id },
+    select: { ...PUBLIC_SELECT, contentHash: true, editedInAppAt: true, rejectionReason: true },
+  });
+  if (!program) return res.status(404).json({ error: "Program not found" });
+  res.json(program);
+}
+
+// PUT /admin/listings/:id — edit a listing in the app. Same rules as Add
+// listing; the URL slug and organization stay fixed (shared links).
+//   PUBLISHED → stays live; the admin's edit counts as the review
+//   DRAFT     → stays a draft (still needs Approve & publish)
+//   ARCHIVED  → stays archived
+//   REJECTED  → back to DRAFT, rejection cleared
+// Marks editedInAppAt so the importer won't overwrite it with staging.
+export async function updateListing(req, res) {
+  const current = await prisma.program.findUnique({
+    where: { id: req.params.id },
+    select: { id: true, slug: true, publishStatus: true, contentHash: true, organization: { select: { slug: true } } },
+  });
+  if (!current) return res.status(404).json({ error: "Program not found" });
+
+  const { error, data, warnings } = parseListingInput({
+    ...req.body,
+    organizationSlug: current.organization.slug,
+    slug: current.slug,
+  });
+  if (error) return res.status(400).json({ error });
+
+  const { organization, slug, ...fields } = data;
+  const contentHash = contentHashFor({ organizationSlug: current.organization.slug, ...fields });
+  if (contentHash === current.contentHash) {
+    // Only verifiedOn may differ; content is identical.
+    await prisma.program.update({ where: { id: current.id }, data: { verifiedOn: fields.verifiedOn } });
+    return res.json({ ok: true, changed: false, publishStatus: current.publishStatus, warnings });
+  }
+
+  const now = new Date();
+  const statusData =
+    current.publishStatus === "PUBLISHED"
+      ? { reviewedById: req.user.userId, reviewedAt: now, reviewedContentHash: contentHash }
+      : current.publishStatus === "REJECTED"
+        ? { publishStatus: "DRAFT", rejectedAt: null, rejectionReason: null }
+        : {};
+
+  try {
+    const updated = await prisma.program.update({
+      where: { id: current.id },
+      data: { ...fields, contentHash, editedInAppAt: now, awaitingResearch: false, ...statusData },
+      select: { publishStatus: true },
+    });
+    res.json({ ok: true, changed: true, publishStatus: updated.publishStatus, warnings });
+  } catch (err) {
+    if (err.code === "P2002") return res.status(409).json({ error: "This organization already has a listing with that name" });
     throw err;
   }
 }

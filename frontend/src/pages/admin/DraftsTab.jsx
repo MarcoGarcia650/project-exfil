@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import { formatDate, FORMAT_LABELS, TECH_TRACK_LABELS, AVAILABILITY_LABELS, REMOTE_LABELS } from "../../lib/programLabels.js";
 import { useAdminList, useAdminAction } from "./useAdminApi.js";
@@ -75,7 +76,12 @@ function Draft({ d, onDone }) {
 
   return (
     <li className="employer-card admin-item">
-      <h2>{d.name}</h2>
+      <div className="admin-item-head">
+        <h2>{d.name}</h2>
+        <Link to={`/admin/listings/${d.id}/edit`} className="button-secondary">
+          Edit
+        </Link>
+      </div>
       <p>
         <a href={d.officialSourceUrl} target="_blank" rel="noreferrer noopener" className="program-link">
           Open the official page in your browser <ExternalLink size={14} />

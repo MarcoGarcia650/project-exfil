@@ -7,11 +7,13 @@ import { useDocumentTitle } from "../lib/useDocumentTitle.js";
 import { NotFoundPage } from "./NotFoundPage.jsx";
 import { CommentsSection } from "../components/CommentsSection.jsx";
 import { ProgramSummary } from "../components/ProgramSummary.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 // Shareable listing page at /programs/:slug. Public. The API returns 404
 // for DRAFTs and missing slugs alike; ARCHIVED listings render with a banner.
 export function ProgramDetailPage() {
   const { slug } = useParams();
+  const { user } = useAuth();
   const [program, setProgram] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ok | notFound | error
   const [error, setError] = useState(null);
@@ -44,9 +46,16 @@ export function ProgramDetailPage() {
 
   return (
     <article className="program-detail">
-      <p className="breadcrumb">
-        <Link to="/programs">Programs</Link> / <Link to={`/organizations/${program.organization.slug}`}>{program.organization.name}</Link>
-      </p>
+      <div className="breadcrumb-row">
+        <p className="breadcrumb">
+          <Link to="/programs">Programs</Link> / <Link to={`/organizations/${program.organization.slug}`}>{program.organization.name}</Link>
+        </p>
+        {user?.role === "ADMIN" && (
+          <Link to={`/admin/listings/${program.id}/edit`} className="button-secondary">
+            Edit listing
+          </Link>
+        )}
+      </div>
 
       {archived && (
         <div className="archived-banner" role="note">
