@@ -18,11 +18,42 @@ const show = (v) => (v === null || v === undefined || v === "" ? <span className
 function Draft({ d, onDone }) {
   const { run, busy, error } = useAdminAction();
   const [checked, setChecked] = useState(() => CHECKLIST.map(() => false));
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState("");
   const allChecked = checked.every(Boolean);
 
   async function publish() {
     if (await run(`/admin/drafts/${d.id}/publish`, { contentHash: d.contentHash })) onDone();
   }
+
+  async function reject() {
+    if (await run(`/admin/drafts/${d.id}/reject`, { contentHash: d.contentHash, reason })) onDone();
+  }
+
+  // Available on every draft, including ones awaiting research.
+  const rejectControls = rejecting ? (
+    <div className="admin-actions">
+      <input
+        type="text"
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        maxLength={1000}
+        autoFocus
+        placeholder="What's wrong? (admin-only)"
+        aria-label="Reason for rejecting"
+      />
+      <button className="button-danger" disabled={busy || !reason.trim()} onClick={reject}>
+        Reject draft
+      </button>
+      <button type="button" className="button-link" onClick={() => setRejecting(false)}>
+        Cancel
+      </button>
+    </div>
+  ) : (
+    <button type="button" className="button-secondary-btn" onClick={() => setRejecting(true)}>
+      Reject…
+    </button>
+  );
 
   const fields = [
     ["Organization", d.organization.name],
@@ -60,10 +91,14 @@ function Draft({ d, onDone }) {
       </dl>
 
       {d.awaitingResearch ? (
-        <p className="listing-notice">
+        <>
+          <p className="listing-notice">
           Awaiting research: this draft came from old seed data, not verified research. It can't be published from
           here. Verify it in staging, re-import, then review it again.
-        </p>
+          </p>
+          {error && <p className="error">{error}</p>}
+          {rejectControls}
+        </>
       ) : (
         <>
           <fieldset className="checklist">
@@ -86,8 +121,10 @@ function Draft({ d, onDone }) {
             </button>
             {!allChecked && <span className="field-hint">Tick every item to publish.</span>}
           </div>
+          <div className="admin-reject">{rejectControls}</div>
           <p className="field-hint">
-            Something wrong? Don't publish. Fix it in staging, validate and re-import; the draft updates in place.
+            Something wrong? Reject it (hidden, out of this queue). Fixing it in staging and re-importing brings it back
+            here for review.
           </p>
         </>
       )}

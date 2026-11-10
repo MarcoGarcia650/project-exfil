@@ -3,6 +3,7 @@ import { requireAuth, requireAdmin } from "../middleware/requireAuth.js";
 import {
   summary, listOpenReports, hideComment, dismissReports, listSubmissions, reviewSubmission,
   searchUsers, setSuspended, issueResetLink, listDrafts, publishDraft,
+  rejectDraft, listRejected, restoreRejected,
 } from "../controllers/adminController.js";
 
 const router = Router();
@@ -22,5 +23,8 @@ router.post("/users/:id/unsuspend", setSuspended);
 router.post("/users/:id/reset-link", issueResetLink);
 router.get("/drafts", listDrafts);
 router.post("/drafts/:id/publish", publishDraft);
+router.post("/drafts/:id/reject", rejectDraft);
+router.get("/rejected", listRejected);
+router.post("/rejected/:id/restore", restoreRejected);
 
 export default router;

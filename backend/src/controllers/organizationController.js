@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { PUBLIC_SELECT } from "./programController.js";
+import { PUBLIC_STATUSES } from "../lib/publishStatus.js";
 
 // GET /organizations/:slug — public.
 // Lists the organization's PUBLISHED programs, plus its ARCHIVED ones
@@ -14,7 +15,7 @@ export async function getOrganization(req, res) {
       name: true,
       websiteUrl: true,
       programs: {
-        where: { publishStatus: { in: ["PUBLISHED", "ARCHIVED"] } },
+        where: { publishStatus: { in: PUBLIC_STATUSES } },
         select: PUBLIC_SELECT,
         orderBy: { name: "asc" },
       },

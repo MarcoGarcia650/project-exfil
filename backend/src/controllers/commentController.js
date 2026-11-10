@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { isPublicStatus } from "../lib/publishStatus.js";
 import { checkPostingLimit } from "../lib/postingLimit.js";
 import {
   parseCommentBody, parseReportReason, COMMENTS_PAGE_SIZE, THREAD_DEPTH,
@@ -37,13 +38,13 @@ function serialize(c) {
 }
 
 // Comments live on public listings only: PUBLISHED, or ARCHIVED (which
-// stay open for discussion). DRAFT looks the same as missing.
+// stay open for discussion). DRAFT/REJECTED look the same as missing.
 async function findPublicProgram(slug) {
   const program = await prisma.program.findUnique({
     where: { slug },
     select: { id: true, slug: true, name: true, publishStatus: true },
   });
-  return program && program.publishStatus !== "DRAFT" ? program : null;
+  return program && isPublicStatus(program.publishStatus) ? program : null;
 }
 
 // Fetches one page (+1 to detect more) and builds { items, nextCursor }.
@@ -83,7 +84,7 @@ export async function getThread(req, res) {
     where: { id: req.params.id },
     include: { ...nodeInclude(0), program: { select: { slug: true, name: true, publishStatus: true } } },
   });
-  if (!root || root.program.publishStatus === "DRAFT") {
+  if (!root || !isPublicStatus(root.program.publishStatus)) {
     return res.status(404).json({ error: "Comment not found" });
   }
 
@@ -144,7 +145,7 @@ export async function reportComment(req, res) {
     where: { id: req.params.id },
     select: { authorId: true, hiddenAt: true, program: { select: { publishStatus: true } } },
   });
-  if (!comment || comment.program.publishStatus === "DRAFT") {
+  if (!comment || !isPublicStatus(comment.program.publishStatus)) {
     return res.status(404).json({ error: "Comment not found" });
   }
   if (comment.authorId === req.user.userId) {

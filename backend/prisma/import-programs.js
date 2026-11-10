@@ -16,6 +16,8 @@
 //   content changed, ARCHIVED           → update, stays ARCHIVED (never republished)
 //   archiveReason set in staging        → ARCHIVED (with archivedAt + reason)
 //   restore: true in staging, ARCHIVED  → DRAFT, archive + review cleared
+//   REJECTED, content unchanged         → stays REJECTED (the fix hasn't landed)
+//   REJECTED, content changed           → DRAFT for re-review, rejection cleared
 //   NEEDS_RESEARCH record already in DB → flagged only, never changed
 //
 // Nothing is ever deleted.
@@ -71,6 +73,7 @@ function contentFrom(rec) {
 }
 
 const CLEARED_REVIEW = { reviewedById: null, reviewedAt: null, reviewedContentHash: null };
+const CLEARED_REJECTION = { rejectedAt: null, rejectionReason: null };
 
 // Decide what to do with one SOURCE_VERIFIED staging record, given the
 // current DB row (or null). Returns { action, data } — pure, no DB access.
@@ -94,6 +97,17 @@ export function planFor(rec, existing) {
   const changed = existing.contentHash !== contentHash || existing.awaitingResearch === true;
   const newerVerified = verifiedOn > existing.verifiedOn ? verifiedOn : existing.verifiedOn;
 
+  // A rejected draft only comes back once its content actually changes;
+  // it never goes straight to ARCHIVED (that would make unreviewed content
+  // public at its URL).
+  if (existing.publishStatus === "REJECTED") {
+    if (changed) {
+      return { action: "RESUBMIT_REJECTED", data: { ...base, verifiedOn: newerVerified, publishStatus: "DRAFT", ...CLEARED_REJECTION, ...CLEARED_REVIEW } };
+    }
+    return newerVerified > existing.verifiedOn
+      ? { action: "BUMP_VERIFIED_ON", data: { verifiedOn: newerVerified } }
+      : { action: "UNCHANGED", data: null };
+  }
   if (rec.restore && existing.publishStatus === "ARCHIVED") {
     return { action: "RESTORE_TO_DRAFT", data: { ...base, verifiedOn: newerVerified, publishStatus: "DRAFT", archivedAt: null, archiveReason: null, ...CLEARED_REVIEW } };
   }

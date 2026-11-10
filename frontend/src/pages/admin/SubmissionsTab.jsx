@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDateTime } from "../../lib/formatTime.js";
 import { useAdminList, useAdminAction } from "./useAdminApi.js";
+import { isPublicStatus } from "../../lib/publishStatus.js";
 
 const STATUSES = ["PENDING", "ACCEPTED", "REJECTED"];
 
@@ -22,7 +23,7 @@ function Submission({ s, onDone }) {
       {s.program && (
         <p>
           For{" "}
-          {s.program.publishStatus === "DRAFT" ? s.program.name : <Link to={`/programs/${s.program.slug}`}>{s.program.name}</Link>}
+          {!isPublicStatus(s.program.publishStatus) ? s.program.name : <Link to={`/programs/${s.program.slug}`}>{s.program.name}</Link>}
         </p>
       )}
       <blockquote className="comment-text admin-quote">{s.body}</blockquote>

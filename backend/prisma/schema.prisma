@@ -112,6 +112,7 @@ enum PublishStatus {
   DRAFT // imported, awaiting review in the admin page — never public
   PUBLISHED
   ARCHIVED // readable at its URL with archiveReason; hidden from browse
+  REJECTED // failed admin review — never public; a re-import with changed content returns it to DRAFT
 }
 
 // Can someone APPLY right now? (the provider's state, as of verifiedOn)
@@ -160,6 +161,10 @@ model Program {
   publishStatus PublishStatus @default(DRAFT)
   archivedAt    DateTime?
   archiveReason String? // user-facing; required when ARCHIVED (enforced by importer)
+
+  // Set when the admin rejects a DRAFT. Admin-only; never sent publicly.
+  rejectedAt      DateTime?
+  rejectionReason String?
 
   // Review metadata describes exactly what was reviewed: a PUBLISHED row
   // always has reviewedContentHash == contentHash. A content change sends

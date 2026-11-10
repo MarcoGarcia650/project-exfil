@@ -1,9 +1,11 @@
 import { prisma } from "../lib/prisma.js";
+import { isPublicStatus } from "../lib/publishStatus.js";
 
 // What a user sees about each saved listing, by its current status:
 //   PUBLISHED → the listing summary
 //   ARCHIVED  → the summary plus "Archived" and the reason (user decision)
 //   DRAFT     → name, organization and "Under review" only — draft content
+//   REJECTED  → name and organization only (failed review; never shown)
 //               is never shown, even to someone who saved it earlier
 function dashboardView(program) {
   const base = {
@@ -13,7 +15,7 @@ function dashboardView(program) {
     publishStatus: program.publishStatus,
     organization: program.organization,
   };
-  if (program.publishStatus === "DRAFT") return base;
+  if (!isPublicStatus(program.publishStatus)) return base;
   return {
     ...base,
     format: program.format,

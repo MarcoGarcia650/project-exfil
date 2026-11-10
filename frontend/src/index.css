@@ -870,3 +870,7 @@ button:disabled {
 .checklist input {
   margin-top: 3px;
 }
+
+.admin-reject {
+  margin-top: 8px;
+}

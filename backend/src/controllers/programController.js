@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { isPublicStatus } from "../lib/publishStatus.js";
 
 const TECH_TRACKS = ["SOFTWARE_DEV", "IT_SUPPORT", "CLOUD", "CYBERSECURITY", "DATA"];
 const FORMATS = ["TRAINING", "CERTIFICATION_TRAINING", "FELLOWSHIP", "INTERNSHIP", "APPRENTICESHIP", "DIRECT_HIRE"];
@@ -55,14 +56,14 @@ export async function listPrograms(req, res) {
 }
 
 // GET /programs/:slug — public. PUBLISHED and ARCHIVED are viewable;
-// a DRAFT returns the same 404 as a missing slug, so drafts don't leak.
+// DRAFT and REJECTED return the same 404 as a missing slug, so they don't leak.
 export async function getProgram(req, res) {
   const program = await prisma.program.findUnique({
     where: { slug: req.params.slug },
     select: PUBLIC_SELECT,
   });
 
-  if (!program || program.publishStatus === "DRAFT") {
+  if (!program || !isPublicStatus(program.publishStatus)) {
     return res.status(404).json({ error: "Program not found" });
   }
   res.json(program);

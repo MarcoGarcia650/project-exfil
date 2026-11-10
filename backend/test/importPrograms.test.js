@@ -97,3 +97,24 @@ test("a legacy draft awaiting research is replaced by verified content, clearing
 test("every content write marks the row as verified research", () => {
   assert.equal(planFor(rec(), null).data.awaitingResearch, false);
 });
+
+test("REJECTED with unchanged content stays rejected", () => {
+  const existing = rowFrom(rec(), "REJECTED", { rejectedAt: new Date(), rejectionReason: "cost wrong" });
+  assert.equal(planFor(rec(), existing).action, "UNCHANGED");
+});
+
+test("REJECTED with fixed content returns to DRAFT and clears the rejection", () => {
+  const existing = rowFrom(rec(), "REJECTED", { rejectedAt: new Date(), rejectionReason: "cost wrong" });
+  const p = planFor(rec({ cost: "Free" }), existing);
+  assert.equal(p.action, "RESUBMIT_REJECTED");
+  assert.equal(p.data.publishStatus, "DRAFT");
+  assert.equal(p.data.rejectedAt, null);
+  assert.equal(p.data.rejectionReason, null);
+});
+
+test("REJECTED is never archived (or published) by staging", () => {
+  const existing = rowFrom(rec(), "REJECTED");
+  const p = planFor(rec({ archiveReason: "ended" }), existing);
+  assert.notEqual(p.data?.publishStatus, "ARCHIVED");
+  assert.notEqual(p.data?.publishStatus, "PUBLISHED");
+});

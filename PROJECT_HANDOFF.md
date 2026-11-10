@@ -40,10 +40,18 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Proposed (Claude) | Required `veteranAccessRoute` column; null = unknown; evidence stays in git, not Postgres | Enforces the inclusion rule while keeping the schema small. |
 | Agreed (user, 2026-11-08) | (Claude writes the importer, per the working mode.) Importer loads SOURCE_VERIFIED records as DRAFT (also in production); review and publish happen in the admin page via Approve & publish (status-only). Dry run by default, upserts by slug, never deletes. Supersedes "imports only APPROVED". | See the plan doc. Marco to write it, per the teaching approach. |
 | Agreed (user, 2026-11-09) | Additive migration `20261110003637_program_awaiting_research`: `Program.awaitingResearch` (default false), backfilled true for the legacy `oracle-ovip` DRAFT. Admin Approve & publish refuses flagged rows; the importer clears the flag whenever it writes SOURCE_VERIFIED content. | Found in phase 5: the legacy Oracle draft (NEEDS_RESEARCH) was indistinguishable from verified drafts, so it could have been published by mistake. Applied to local Docker only. |
+| Agreed (user, 2026-11-09) | **Reject in Drafts to review** = new hidden `REJECTED` status (not ARCHIVED, which would make unreviewed content public at its URL). The admin-only reason is stored in `rejectionReason`. A "Rejected" admin tab offers "Return to drafts". The importer keeps REJECTED when content is unchanged and returns it to DRAFT when content changes. It never archives or publishes a rejected row. | User request after reviewing drafts in production; the user chose the hidden state over archive. Migration `20261110014820_program_rejected_status` (additive). |
 
 ## Latest implementation state
 
 - **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Reject drafts (2026-11-09), LOCAL, built after the first production deploy:**
+  - migration `20261110014820_program_rejected_status` (enum value + 2 nullable columns);
+  - public visibility is now an allow-list ([publishStatus.js](backend/src/lib/publishStatus.js): PUBLISHED, ARCHIVED) in every public controller, replacing `=== "DRAFT"` deny-checks;
+  - `POST /admin/drafts/:id/reject` (reason + contentHash; works on awaiting-research drafts), `GET /admin/rejected`, `POST /admin/rejected/:id/restore`;
+  - UI: "Reject…" on every draft (not gated by the checklist), a [RejectedTab.jsx](frontend/src/pages/admin/RejectedTab.jsx), and the dashboard says "isn't available right now" for a rejected saved listing.
+  - Checks: unit 28/28 (3 new importer tests), reject HTTP 24/24 (hidden on every public endpoint, reason never public, importer keeps it, restore, dashboard minimal), browser 7/7; all earlier suites green after clearing piled-up local test comments (over 20 top-level comments pushed new ones to page 2, which the app handles correctly).
+  - **Not yet in production.**
 - **PRODUCTION (2026-11-09), phase 6 in progress. Hybrid deploy: the user did the console steps; the user ran the DB-writing commands (Claude Code's auto-mode blocks production writes from Claude), and Claude ran the dry runs and read-only checks.**
   1. RDS manual snapshot `vetpath-db-before-phase6` (user, console). Confirmed `available`.
   2. `prisma migrate deploy` applied `20261108230000_programs_directory_expand` and `20261110003637_program_awaiting_research` (user ran it). `migrate status`: up to date.
@@ -53,7 +61,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
   6. Emails: 2 users, 0 mixed-case, so `normalize-emails.js` was not needed.
   7. Frontend `dist/` uploaded to S3 `vetpath-frontend-600406561374` (old 2026-08 `assets/index-KkncmAd2.js`/`index-Ci9BJLK4.css` left in place, harmless); CloudFront `E13O5U324HB46D` invalidation `/*` completed.
   - Read-only checks afterwards: API (`/programs` returns `[]`, draft 404, archived 200, `/employers` 404, validation) and live-site browser 10/10.
-  - Production state: 14 DRAFT, 2 ARCHIVED, 0 PUBLISHED. **Remaining:** make the user's account admin, review and publish drafts in `/admin`, a logged-in smoke test, `TRUST_PROXY` after a header check, invite testers, and later the contract migration.
+  - After the user's admin review: 5 PUBLISHED (amazon-sde-apprentice-military-veterans, amazon-sde-military-veterans, codeplatoon-fullstack, ivmf-o2o, microsoft-mssa), 9 DRAFT (including Oracle), 2 ARCHIVED. The user's account is ADMIN, granted by the user running make-admin. **Remaining:** deploy the reject feature (migration → backend zip → frontend), verify Oracle (the user pastes the official page text; Claude updates staging; the user runs the import), make the user's account admin, review and publish drafts in `/admin`, a logged-in smoke test, `TRUST_PROXY` after a header check, invite testers, and later the contract migration.
 - **Phase 5 complete, LOCAL ONLY (2026-11-09, same branch). Admin page:**
   - one schema change, the `awaitingResearch` migration (see Decisions), applied to local Docker only;
   - `requireAdmin` (role read from the DB each request); [make-admin.js](backend/prisma/make-admin.js) (`npm run make-admin -- <email-or-username> [--revoke]`) is the only way to grant admin; granting also lifts any suspension;
@@ -291,6 +299,11 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (reject drafts) — Claude (VS Code)
+
+- The user became admin and published 5 listings in production. They asked for a reject action (built as a hidden REJECTED status; user decision) and asked how to clear Oracle (it needs the official page read in a browser, then a staging update and re-import).
+- Built and tested reject locally (details under "Latest implementation state"). Not deployed yet.
 
 ### 2026-11-09 (phase 6: production deploy) — Claude (VS Code) with user
 

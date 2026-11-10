@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { isPublicStatus } from "../lib/publishStatus.js";
 import { actionItemTemplates } from "../lib/actionItemTemplates.js";
 
 // Note on naming: the table is still `SavedEmployer` (renamed at the
@@ -17,7 +18,7 @@ export async function createSavedEmployer(req, res) {
   const program = await prisma.program.findUnique({ where: { id: programId } });
   // Only live listings can be newly saved. Drafts are invisible (same 404 as
   // missing); archived listings stay on existing dashboards but can't be added.
-  if (!program || program.publishStatus === "DRAFT") {
+  if (!program || !isPublicStatus(program.publishStatus)) {
     return res.status(404).json({ error: "Program not found" });
   }
   if (program.publishStatus === "ARCHIVED") {

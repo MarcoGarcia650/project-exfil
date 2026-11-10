@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserRound } from "lucide-react";
+import { isPublicStatus } from "../lib/publishStatus.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
@@ -74,8 +75,8 @@ export function DashboardPage() {
               <EmployerBadge name={se.program.organization.name} />
               <div>
                 <h2>
-                  {/* Drafts have no public page (it 404s), so only link the others. */}
-                  {se.program.publishStatus === "DRAFT" ? (
+                  {/* Non-public listings (draft, rejected) have no page; only link public ones. */}
+                  {!isPublicStatus(se.program.publishStatus) ? (
                     se.program.name
                   ) : (
                     <Link to={`/programs/${se.program.slug}`} className="card-title-link">
@@ -91,6 +92,9 @@ export function DashboardPage() {
                 archived listings always carry a user-facing reason. */}
             {se.program.publishStatus === "DRAFT" && (
               <p className="listing-notice">Under review: this listing is being re-verified.</p>
+            )}
+            {se.program.publishStatus === "REJECTED" && (
+              <p className="listing-notice">This listing isn't available right now.</p>
             )}
             {se.program.publishStatus === "ARCHIVED" && (
               <p className="listing-notice">

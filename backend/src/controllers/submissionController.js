@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { isPublicStatus } from "../lib/publishStatus.js";
 import { checkPostingLimit } from "../lib/postingLimit.js";
 import { parseSubmissionBody, parseSourceUrl } from "../lib/communityRules.js";
 
@@ -23,7 +24,7 @@ export async function createSubmission(req, res) {
     const program = programSlug
       ? await prisma.program.findUnique({ where: { slug: String(programSlug) }, select: { id: true, publishStatus: true } })
       : null;
-    if (!program || program.publishStatus === "DRAFT") {
+    if (!program || !isPublicStatus(program.publishStatus)) {
       return res.status(400).json({ error: "A listing update needs a listing to update" });
     }
     programId = program.id;
@@ -53,11 +54,11 @@ export async function listMySubmissions(req, res) {
       program: { select: { slug: true, name: true, publishStatus: true } },
     },
   });
-  // A listing that has since gone back to DRAFT keeps its name but loses its link.
+  // A listing that is no longer public keeps its name but loses its link.
   res.json(
     rows.map(({ program, ...s }) => ({
       ...s,
-      program: program && { name: program.name, slug: program.publishStatus === "DRAFT" ? null : program.slug },
+      program: program && { name: program.name, slug: isPublicStatus(program.publishStatus) ? program.slug : null },
     }))
   );
 }

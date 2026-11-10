@@ -18,12 +18,13 @@ function trimmedText(value, max, what, { required }) {
 
 // GET /admin/summary — counts for the admin tabs.
 export async function summary(req, res) {
-  const [openReports, pendingSubmissions, drafts] = await Promise.all([
+  const [openReports, pendingSubmissions, drafts, rejected] = await Promise.all([
     prisma.comment.count({ where: { reports: { some: { status: "OPEN" } } } }),
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.program.count({ where: { publishStatus: "DRAFT" } }),
+    prisma.program.count({ where: { publishStatus: "REJECTED" } }),
   ]);
-  res.json({ openReports, pendingSubmissions, drafts });
+  res.json({ openReports, pendingSubmissions, drafts, rejected });
 }
 
 // ---------- Reports ----------
@@ -232,4 +233,58 @@ export async function publishDraft(req, res) {
     return res.status(409).json({ error: "This draft isn't from verified research yet. Verify it in staging and re-import first." });
   }
   return res.status(409).json({ error: "This listing changed since you loaded it. Reload and review it again." });
+}
+
+const REJECT_REASON_MAX = 1000;
+
+// POST /admin/drafts/:id/reject — Body: { reason, contentHash }
+// Moves a DRAFT to REJECTED: hidden everywhere (like a missing listing),
+// out of the review queue, reason admin-only. Works for awaiting-research
+// drafts too. To bring it back, fix staging and re-import (changed content
+// returns it to DRAFT), or use "return to drafts" below.
+export async function rejectDraft(req, res) {
+  const reason = trimmedText(req.body?.reason, REJECT_REASON_MAX, "Reason", { required: true });
+  if (reason.error) return res.status(400).json({ error: reason.error });
+  const { contentHash } = req.body ?? {};
+  if (typeof contentHash !== "string" || !contentHash) {
+    return res.status(400).json({ error: "contentHash is required" });
+  }
+
+  const { count } = await prisma.program.updateMany({
+    where: { id: req.params.id, publishStatus: "DRAFT", contentHash },
+    data: { publishStatus: "REJECTED", rejectedAt: new Date(), rejectionReason: reason.value },
+  });
+  if (count === 1) return res.json({ ok: true });
+
+  const row = await prisma.program.findUnique({ where: { id: req.params.id }, select: { publishStatus: true } });
+  if (!row) return res.status(404).json({ error: "Program not found" });
+  if (row.publishStatus !== "DRAFT") return res.status(409).json({ error: `Already ${row.publishStatus.toLowerCase()}` });
+  return res.status(409).json({ error: "This listing changed since you loaded it. Reload and review it again." });
+}
+
+// GET /admin/rejected — rejected drafts, newest rejection first.
+export async function listRejected(req, res) {
+  const rows = await prisma.program.findMany({
+    where: { publishStatus: "REJECTED" },
+    orderBy: { rejectedAt: "desc" },
+    select: {
+      id: true, slug: true, name: true, officialSourceUrl: true, rejectedAt: true, rejectionReason: true,
+      organization: { select: { name: true } },
+    },
+  });
+  res.json(rows);
+}
+
+// POST /admin/rejected/:id/restore — undo a reject: back to DRAFT (still
+// hidden) so it can be reviewed again. Status only; content is unchanged.
+export async function restoreRejected(req, res) {
+  const { count } = await prisma.program.updateMany({
+    where: { id: req.params.id, publishStatus: "REJECTED" },
+    data: { publishStatus: "DRAFT", rejectedAt: null, rejectionReason: null },
+  });
+  if (count === 0) {
+    const exists = await prisma.program.count({ where: { id: req.params.id } });
+    return res.status(exists ? 409 : 404).json({ error: exists ? "Not rejected" : "Program not found" });
+  }
+  res.json({ ok: true });
 }
