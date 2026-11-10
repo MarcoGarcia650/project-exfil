@@ -51,7 +51,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
   - `POST /admin/drafts/:id/reject` (reason + contentHash; works on awaiting-research drafts), `GET /admin/rejected`, `POST /admin/rejected/:id/restore`;
   - UI: "Reject…" on every draft (not gated by the checklist), a [RejectedTab.jsx](frontend/src/pages/admin/RejectedTab.jsx), and the dashboard says "isn't available right now" for a rejected saved listing.
   - Checks: unit 28/28 (3 new importer tests), reject HTTP 24/24 (hidden on every public endpoint, reason never public, importer keeps it, restore, dashboard minimal), browser 7/7; all earlier suites green after clearing piled-up local test comments (over 20 top-level comments pushed new ones to page 2, which the app handles correctly).
-  - **Not yet in production.**
+  - **In production (2026-11-09):** Claude deployed it at the user's request: migration applied; EB version `reject-a38aebe`; frontend synced to S3 plus invalidation. Live check 12/12.
 - **PRODUCTION (2026-11-09), phase 6 in progress. Hybrid deploy: the user did the console steps; the user ran the DB-writing commands (Claude Code's auto-mode blocks production writes from Claude), and Claude ran the dry runs and read-only checks.**
   1. RDS manual snapshot `vetpath-db-before-phase6` (user, console). Confirmed `available`.
   2. `prisma migrate deploy` applied `20261108230000_programs_directory_expand` and `20261110003637_program_awaiting_research` (user ran it). `migrate status`: up to date.
@@ -265,7 +265,8 @@ Remaining:
    6. `make-admin.js <your account>`; review and publish drafts in the admin page; smoke test.
    - Existing users will see the username prompt.
 7. **Deploy method (phase 6), user deciding:** the user asked whether to use the AWS console. The August deploy used the EB CLI (`eb deploy` from `backend/`) and the AWS CLI (S3 sync + CloudFront invalidation). Claude recommended a hybrid: the user does the console steps (snapshot, EB "Upload and deploy" of a clean zip, env vars, S3 upload + invalidation), and Claude runs the DB scripts one at a time with go-ahead.
-8. **Deploy bundle hygiene (fix before phase 6):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
+9. **Prevent a repeat of the 2026-11-09 deploy outage (user to decide):** add a 1 GB swap file via a `.platform/hooks/prebuild` script (free; Claude's recommendation), and/or raise the EB command timeout from 600s, and/or move to `t3.small` (about $15/month more). Background: the activity log entry "reject deploy + ~23 min outage".
+8. **Deploy bundle hygiene (done 2026-11-09, `275c0d7`):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
 
 Resolved and removed from this list:
 - `awaitingResearch` migration acknowledgement (Claude's phase 5 proposal): approved by the user, 2026-11-09.
@@ -299,6 +300,16 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (reject deploy + ~23 min outage) — Claude (VS Code)
+
+- The user asked Claude to deploy the reject feature itself. The migration `20261110014820_program_rejected_status` applied. The EB version was uploaded from the tested zip via the AWS CLI.
+- **Outage 01:53–02:16 UTC (~23 min):** on the `t3.micro` (about 1 GB RAM, no swap), `npm --omit=dev install` stalled for **17 minutes**. The same step took about 12s at 01:23 and again at 02:15. EB's 10-minute command timeout aborted the deploy, the instance stopped answering EB, and the API returned 504.
+  - The user approved an EC2 reboot (`i-029932c89159cd7cf`), which Claude ran.
+  - After the reboot the instance had the new code on disk but EB still recorded the old version, so Claude redeployed `reject-a38aebe` (30s, Green) to make them match.
+  - Logs: `eb-engine.log` shows "added 241 packages … in 17m". Most likely cause: memory pressure.
+- Oracle: staging updated from the official page as read in the user's browser (`51d28f9`). The production dry run shows only `UPDATE_DRAFT oracle-ovip`, awaiting the user's go-ahead to apply.
+- Open: add swap on the instance (or a larger instance) and/or raise the EB command timeout, so a stalled install can't take the site down again.
 
 ### 2026-11-09 (reject drafts) — Claude (VS Code)
 
