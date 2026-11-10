@@ -313,7 +313,8 @@ Update this file at meaningful checkpoints, before handing off, and before endin
   - B: filter sidebar + card grid with save toggles (Handshake-style);
   - C: search-first hero + slide-out detail drawer.
 
-  Real listing data; patterns only, no third-party branding. **Awaiting the user's pick.**
+  Real listing data; patterns only, no third-party branding.
+- The user liked A and B and asked for B with an A-style detail card. Added **D** to the canvas: B's filter sidebar + cards (save toggles); clicking a card opens an A-style detail panel (apply, save, veteran route, details, link to the full page, close). While open, cards stack in one column beside it; closed, they spread into a grid. **Awaiting the user's confirmation of D.**
 - **Chunk 1 (no migration):**
   - keyword search: `GET /programs?q=` matches program name, organization or description (case-insensitive, max 100 chars; drafts never match); search box on browse, kept in the URL;
   - **unsave**: `DELETE /saved-employers/program/:programId` deletes the save + its action items (confirm prompt in the UI); Save button toggles; dashboard "Remove";
