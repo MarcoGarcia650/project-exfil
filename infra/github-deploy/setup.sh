@@ -1,6 +1,10 @@
 #!/bin/sh
 # One-time AWS setup for the GitHub Actions deploy pipeline. Idempotent.
 #
+# The trust policy uses GitHub's immutable OIDC subject format
+# (repo:<owner>@<owner-id>/<repo>@<repo-id>:environment:production), which
+# this repo has enabled; the plain repo:<owner>/<repo>:… form is rejected.
+#
 # Creates:
 #   - the GitHub OIDC identity provider (so GitHub can log in to AWS
 #     without stored keys)
@@ -44,10 +48,16 @@ aws iam put-role-policy --role-name "$ROLE" --policy-name exfil-frontend-deploy 
   --policy-document file://frontend-policy.json
 echo "Role $ROLE: policies attached"
 
-aws elasticbeanstalk update-environment --region us-east-1 --environment-name vetpath-env \
-  --option-settings Namespace=aws:elasticbeanstalk:command,OptionName=DeploymentPolicy,Value=Immutable \
-  >/dev/null
-echo "EB vetpath-env: DeploymentPolicy=Immutable (environment updating; wait for Ready/Green)"
+current=$(aws elasticbeanstalk describe-configuration-settings --region us-east-1 --application-name vetpath \
+  --environment-name vetpath-env --query "ConfigurationSettings[0].OptionSettings[?OptionName=='DeploymentPolicy'].Value" --output text)
+if [ "$current" = "Immutable" ]; then
+  echo "EB vetpath-env: DeploymentPolicy already Immutable"
+else
+  aws elasticbeanstalk update-environment --region us-east-1 --environment-name vetpath-env \
+    --option-settings Namespace=aws:elasticbeanstalk:command,OptionName=DeploymentPolicy,Value=Immutable \
+    >/dev/null
+  echo "EB vetpath-env: DeploymentPolicy=Immutable (environment updating; wait for Ready/Green)"
+fi
 
 echo
 echo "Role ARN: $(aws iam get-role --role-name "$ROLE" --query Role.Arn --output text)"
