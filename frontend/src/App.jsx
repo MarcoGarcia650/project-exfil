@@ -47,7 +47,7 @@ const isWide = (path) => path === "/programs" || path === "/admin";
 
 export default function App() {
   const { pathname } = useLocation();
-  const wide = isWide(pathname);
+  const pageClass = pathname === "/" ? "page page-home" : isWide(pathname) ? "page page-wide" : "page";
 
   return (
     <>
@@ -55,7 +55,7 @@ export default function App() {
         Skip to content
       </a>
       <NavBar />
-      <main id="main" className={wide ? "page page-wide" : "page"}>
+      <main id="main" className={pageClass}>
         <Routes>
           <Route
             path="/"

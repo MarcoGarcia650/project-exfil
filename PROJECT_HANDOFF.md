@@ -273,19 +273,11 @@ Remaining:
    - 11 NEEDS_RESEARCH records + the Per Scholas per-course split (research batch 2);
    - inviting the small tester group (this version's stated goal) once the user is happy with v2.
 
-8. **TODO (user, 2026-11-10): update the home page.** It still reflects v1 and doesn't match the v2 redesign or scope ([HomePage.jsx](frontend/src/pages/HomePage.jsx)):
-   - headline "Find employers who actually hire veterans" and a lede naming Amazon/Oracle/Microsoft "veteran hiring pipelines" (scope is now tech programs open after separation, verified against official pages);
-   - the steps still say "Save the employers you're pursuing" / "Each saved employer…" (now programs);
-   - nothing mentions listing/organization discussions, search, or verification dates;
-   - the old v1 illustration + Unsplash banner predate Direction D; consider a search-first hero (search box + popular tracks) and a few live listings;
-   - the signup line was updated in chunk 5 (mentions discussions).
-
-   Copy and design are the user's call; Claude can draft options (mockups first, as with the redesign).
-
 7. **Codex portfolio review recommendations (2026-11-09; proposals only):** README still advertises archived HOH CFP, employer-level tracking, importer-only writes and deferred community/admin functionality; refresh it and the stale handoff summaries. Live MSSA shows CLOSED alongside “Apply on provider’s site”; use availability-aware CTA wording. Clarify program vs individual-job terminology, continue catalog verification/testing, and review whether the live About biography matches the intended anonymity. A dashboard screenshot/walkthrough would expose account-only value to visitors without signup.
    - **Status (Claude, 2026-11-10):** README refreshed (Codex's README finding resolved; see the activity log). **Deferred by the user ("deal with later"):** the availability-aware CTA (don't show "Apply on provider's site" when applications are CLOSED; adjust for UNKNOWN), program vs job-opening terminology (overlaps open question 6), the dashboard walkthrough, and the About biography review (the user wrote and approved that text on 2026-11-10; any change is the user's call).
 
 Resolved and removed from this list:
+- Home page update (open item 8, user 2026-11-10): redesigned and built 2026-11-11 from mockup E (see the activity log); awaiting merge/deploy.
 - Domain email (user, 2026-11-10): `admin@projectexfilout.org` works. Inbound via ImprovMX forwarding to the user's Gmail; outbound via Gmail "Send mail as" through SES SMTP (IAM SMTP credentials, held by the user). SES: domain + address verified, Easy DKIM SUCCESS, **production access GRANTED** (case 179429319300383), VDM/auto-validation off. DNS: MX, SPF (`include:spf.improvmx.com`), 3 DKIM CNAMEs, DMARC `p=none` (tighten to `quarantine` after a few weeks of clean reports). Test: SES metrics show 1 send, 1 delivery, 0 bounces/complaints. The FAQ now shows `admin@projectexfilout.org`.
 - Phase 6 rollout checklist, deploy-method question, deploy bundle hygiene: all done (see the activity log, 2026-11-09). Deploys now go through the pipeline.
 - Oracle OVIP official-page check: done (user read the page, 2026-11-09); imported as SOURCE_VERIFIED; awaiting the user's review in Drafts to review.
@@ -322,6 +314,15 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-11 (home page redesign, local) — Claude (VS Code) with user
+- Mockups: design canvas https://claude.ai/artifact/GUf6rtwNsWeKHrBeGHV9oD (A search-first, B trust-led, C track launcher, **E = chosen**: A's layout + B's slogan + a photo). User asked that copy not claim every listing has a discussion (discussions exist only once someone starts one).
+- Built [HomePage.jsx](frontend/src/pages/HomePage.jsx): headline "'Veteran friendly' isn't a plan. A way in is.", hero search (→ `/programs?q=`), track shortcuts (→ `/programs?techTrack=`), "Recently verified" (3 newest `verifiedOn` from `GET /programs`, real `ProgramTile`s with save), steps (search/filter, save/track, "Ask and share": start a discussion or add to one already going), signed-out sign-up callout vs signed-in "Go to your dashboard".
+- Photo: public-domain U.S. Air Force photo (Kadena career summit, Feb 2026, A1C Francisco Huerta; Wikimedia Commons, ID 260205-F-BX574-1055), resized to 1200px in [frontend/src/assets/home-career-summit.jpg](frontend/src/assets/home-career-summit.jpg) (bundled/hashed, no hotlink); credit shown as a caption. Old Unsplash hotlinked banner and `PathIllustration.jsx` removed.
+- `/` gets `page page-home` (full-bleed sections); the navbar search is hidden on `/` only (the hero has its own).
+- Checks: frontend lint + build clean; screenshots desktop light/dark (signed in) and 390px phone, no horizontal scroll, no console errors; new [e2e/tests/home.spec.js](e2e/tests/home.spec.js); full Playwright suite 6/6 passing locally.
+- Next: user review, then merge to `main` and approve the pipeline deploy (frontend-only change, no migrations).
+
 
 ### 2026-11-10 (README refresh) — Claude (VS Code)
 

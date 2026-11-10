@@ -46,6 +46,7 @@ function HeaderSearch() {
 
 export function NavBar() {
   const { isAuthenticated, logout, user } = useAuth();
+  const { pathname } = useLocation();
   const navClass = ({ isActive }) => (isActive ? "nav-link active" : "nav-link");
 
   return (
@@ -54,7 +55,8 @@ export function NavBar() {
         <ExfilMark size={26} />
         Project Exfil
       </Link>
-      <HeaderSearch />
+      {/* The home page has its own, larger search box. */}
+      {pathname !== "/" && <HeaderSearch />}
       <nav className="navbar-links" aria-label="Main">
         <NavLink to="/programs" className={navClass}>
           Browse
