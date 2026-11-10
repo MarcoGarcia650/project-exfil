@@ -318,7 +318,7 @@ Update this file at meaningful checkpoints, before handing off, and before endin
   - Edit buttons: public listing page (admins), Drafts, Rejected ("Fix & return to drafts"), listing-update submissions. The admin submissions hint now explains the note goes to the submitter's My submissions.
 - The user's "note did nothing" was checked on prod (read-only): the note was saved on the accepted submission. It shows on the submitter's My submissions (no notifications yet, by design). The Amazon SDE Apprentice listing is tagged SOFTWARE_DEV only in staging; the user can add Cloud via Edit once deployed (the importer will then keep the app copy).
 - Tests: unit 36/36, integration 9/9, e2e 5/5 (admin spec edits a live listing), lint and build clean.
-- **Release queue:** chunk 3 awaiting approval (run 42772008391). Then apply the prod migrations `20261110070704_organization_comments` and `20261110071857_program_edited_in_app` (both additive), push `main` (chunks 4 + 5 + 6), and approve.
+- **Release queue:** chunk 3 **deployed** (run 42772008391 success; EB `ci-a3561ba-19` Green; `/contact/mine` 401 as expected). Next: apply the prod migrations `20261110070704_organization_comments` and `20261110071857_program_edited_in_app` (both additive), push `main` (chunks 4 + 5 + 6), and approve.
 
 ### 2026-11-10 (chunk 5: icon B + organization discussions) — Claude (VS Code)
 
