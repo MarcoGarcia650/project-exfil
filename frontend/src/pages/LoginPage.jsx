@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Return to the page that sent the visitor here (e.g. "Log in to save").
+  const from = location.state?.from;
+  const next = from ? `${from.pathname}${from.search ?? ""}` : "/programs";
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
 
@@ -17,7 +21,7 @@ export function LoginPage() {
     setError(null);
     try {
       await login(form.email, form.password);
-      navigate("/employers");
+      navigate(next, { replace: true });
     } catch (err) {
       setError(err.message);
     }
@@ -37,7 +41,7 @@ export function LoginPage() {
       </label>
       <button type="submit">Log in</button>
       <p>
-        Need an account? <Link to="/signup">Sign up</Link>
+        Need an account? <Link to="/signup" state={location.state}>Sign up</Link>
       </p>
     </form>
   );

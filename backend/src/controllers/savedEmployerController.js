@@ -77,3 +77,14 @@ export async function updateSavedEmployerStatus(req, res) {
 
   res.json(updated);
 }
+
+// GET /saved-employers/program-ids
+// Auth required. Just the program ids this user has saved, so browse and
+// listing pages can render "Saved" without loading the whole dashboard.
+export async function listSavedProgramIds(req, res) {
+  const rows = await prisma.savedEmployer.findMany({
+    where: { userId: req.user.userId, programId: { not: null } },
+    select: { programId: true },
+  });
+  res.json(rows.map((r) => r.programId));
+}

@@ -42,20 +42,29 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 
 ## Latest implementation state
 
-- **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` is stale; don't work there.** It's kept until the user confirms deletion. If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Repo location changed (2026-11-09): `~/projects/VetTool`.** It moved out of iCloud-synced `~/Documents`, where offloaded `node_modules`/`.git` files made Node and Prisma hang. The copy was verified byte-identical (checksum rsync, 359 files) with `git fsck` clean, and dependencies were reinstalled. **The old copy at `~/Documents/InterviewPrep/MainProjects/VetTool` has been deleted by the user (confirmed absent 2026-11-09).** If Node/Prisma hangs again, check `find . -flags +dataless` first.
+- **Phase 2 complete, LOCAL ONLY (2026-11-09, same branch). Public directory:**
+  - backend: `GET /organizations/:slug` ([organizationController.js](backend/src/controllers/organizationController.js)): PUBLISHED programs plus ARCHIVED ones listed separately; DRAFTs never appear; an org with nothing public returns 404. `GET /saved-employers/program-ids` (auth) returns the user's saved program ids for Save-button state;
+  - frontend: public `/programs` browse (no login) with techTrack/format/availability filters in the URL; unknown values ignored; empty state with Clear filters and a "Suggest a program" link;
+  - [ProgramDetailPage.jsx](frontend/src/pages/ProgramDetailPage.jsx) at `/programs/:slug`: availability badge, last verified, veteran access route, "Not stated by provider" for nulls, archived banner with reason, Apply/official links;
+  - [OrganizationPage.jsx](frontend/src/pages/OrganizationPage.jsx) at `/organizations/:slug`; not-found page for drafts, missing slugs and unknown routes;
+  - `/employers` redirects to `/programs` keeping its query. Logged-out "Log in to save" returns to the same page after login/signup. A 409 "already saved" is treated as saved;
+  - `/suggest` is a **placeholder** page until submissions ship in phase 4;
+  - dashboard: program names link to their pages (not DRAFTs); the doubled "Archived. Archived Nov 2026…" label is fixed (reason shown alone); notice colours now themed for dark mode;
+  - home: primary CTA is "Browse programs" (public); step copy updated to the actual filters.
+- **Verified locally (Phase 2, 2026-11-09):** backend smoke 14/14 (org 200/404 cases, no review-metadata or org-id leak, program-ids auth and contents, dashboard 200, filter); `npm test` 10/10; headless Chrome end-to-end 24/24 (logged-out browse, URL filters, empty state, clear, legacy redirect, detail, archived, draft 404, org pages, login-to-save return, saved state, dashboard link, only expected 404s, no console errors); screenshots at 390px (no horizontal scroll) and in dark mode; `vite build` OK; `oxlint` only the pre-existing AuthContext warning. Not checked: real mobile devices, screen readers.
 - **Phase 1 complete, LOCAL ONLY (branch `feature/programs-directory`):**
   - expand migration `20261108230000_programs_directory_expand` (additive), applied to local Docker only;
   - [import-programs.js](backend/prisma/import-programs.js): validator-gated, dry run by default, transition table, 10 passing `node:test` cases (`npm test`);
   - [migrate-legacy-employers.js](backend/prisma/migrate-legacy-employers.js): the backfill;
   - backend `/programs` (PUBLISHED-only browse with techTrack/format/availability filters; DRAFT → 404; ARCHIVED viewable with reason); `/employers` removed; program-based saves and dashboard (DRAFT shows name/org/"Under review" only; ARCHIVED shows reason); format-based action-item templates;
-  - minimal frontend switch: browse and dashboard use programs. The route is still `/employers` and browse is still behind login; both change in phase 2.
+  - minimal frontend switch: browse and dashboard use programs (route rename and public browse done in phase 2).
 - **Verified locally (2026-11-09):**
   - 26/26 HTTP smoke checks: public reads, no review-metadata leak, filters, draft 404s, archived detail, save rules (401/404/409/400), and legacy dashboard intact;
   - headless-browser end-to-end 8/8: signup → browse → filter → save → dashboard; legacy user sees 2 archived reasons and 3 "Under review"; no console errors;
   - `vite build` succeeds.
 - **Local-only test data:** users `legacy-test@example.com` (5 migrated saves; local password set for testing) plus a few `smoke-*`/`e2e-*@example.com` signups. `vetswhocode-accelerator` was set PUBLISHED via SQL as a stand-in for the unbuilt admin Approve & publish.
 - **Not done:** the contract step (drop `Employer`, require `programId`), which comes after production is verified. Production is untouched.
-- **Polish note for phase 2:** archive reasons begin with "Archived Nov 2026:", so the dashboard reads "Archived. Archived Nov 2026…". Fix the label or the reason text in the design pass.
 - **Batch 1:** 25 in-scope programs: 13 `SOURCE_VERIFIED` and 12 `NEEDS_RESEARCH`, 0 `APPROVED`. 10 records excluded, 6 of them as active-duty-only. Archive reasons for seed rows are drafted in `existingSeedRecheck`.
   - Source-verified: Microsoft MSSA, Amazon Technical Apprenticeships, Amazon SDE – Military Veterans, Amazon SDE Apprentice – Military Veterans (both from amazon.jobs search results), Salesforce Military, Per Scholas military learners, NPower Path2Tech Cloud, NPower Path2Tech Cybersecurity, NPower Networking & Sysadmin, Code Platoon AI + Fullstack, Fortinet Veterans Program, IVMF Onward to Opportunity, Vets Who Code.
   - Needs research: Amazon SDE Intern – Military Veteran (seasonal; no live posting on 2026-11-08), Oracle OVIP, MSSA Cleared Talent Accelerator, HOH Data Centers Pathway, HOH Salesforce Fellowship, Code Platoon Cloud/DevOps, VetsinTech VIT Academy, ServiceNow RiseUp, SkillStorm, LaunchCode, SANS VetSuccess, BreakLine.
@@ -130,7 +139,7 @@ Details and models: [research/SCHEMA_PROPOSAL.md](research/SCHEMA_PROPOSAL.md) (
 - **Backend runs behind CloudFront** on single-instance Elastic Beanstalk. IP-based rate limiting needs `trust proxy`; an in-memory limiter store is fine with one instance.
 - **Suspension and roles must be checked from the DB on each request,** not baked into the 7-day JWT.
 
-## Proposed phased implementation plan (Claude; awaiting user approval; nothing started)
+## Phased implementation plan (approved by user 2026-11-08; phases 1–2 done locally)
 
 Each phase ends working on the local Docker DB. Production happens only in phase 6.
 
@@ -165,7 +174,7 @@ Data answers (user, 2026-11-08), applied to `programs-staging.json`; validator p
 
 Remaining:
 
-0. ~~iCloud offloading~~: **resolved (user chose to move the repo, 2026-11-09).** The user approved deleting the old `~/Documents` copy (2026-11-09). Claude Code's safety check blocks deleting the active workspace folder, so **the user deletes it manually** after closing that VS Code window, then reopens VS Code at `~/projects/VetTool`. Verified before the attempt: the old copy has no unique commits, stashes or files.
+0. ~~iCloud offloading~~: **resolved.** The repo moved to `~/projects/VetTool` and the user deleted the old copy (confirmed absent 2026-11-09).
 
 1. ~~Schema approval~~: **approved (user, 2026-11-08).** Phase 1 starting on the local Docker DB only. Production steps (phase 6) still need explicit user go-ahead.
 2. ~~When and where to review listings~~: **decided (user, 2026-11-08)**. Records are reviewed in the admin page's "Drafts to review" list:
@@ -177,6 +186,9 @@ Remaining:
    - browser-review the 13 SOURCE_VERIFIED records in the admin page (phase 5/6);
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
+
+4. **Untracked `.vscode/`** (appeared after reopening VS Code): user to say whether to commit it or add it to `.gitignore`. Left untouched.
+5. **Signup crashes with a 500 when `branch` is missing** (seen during phase 2 smoke tests). This is the known no-validation finding; it's fixed in phase 3, not now.
 
 Resolved and removed from this list:
 - Codex's 4 doc findings: applied to the schema and plan docs.
@@ -206,6 +218,14 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (phase 2 complete, local) — Claude (VS Code)
+
+- Built the public directory (details under "Latest implementation state"): org endpoint, saved-ids endpoint, public browse with URL filters, program and organization pages, empty/not-found states, `/employers` redirect, return-after-login, dashboard archived-label fix.
+- Checks run: backend smoke 14/14, `npm test` 10/10, headless Chrome end-to-end 24/24, phone/dark screenshots, `vite build`.
+- Local test data added: one `smoke-p2-*@example.com` user, which saved the one PUBLISHED program.
+- No production DB, migration, import or deploy work.
+- Next: phase 3 (account hardening). Open: `.vscode/` handling.
 
 ### 2026-11-09 (phase 1 complete, local) — Claude (VS Code)
 

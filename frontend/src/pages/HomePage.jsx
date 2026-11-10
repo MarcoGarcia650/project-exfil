@@ -16,10 +16,10 @@ export function HomePage() {
       </p>
 
       <div className="home-cta">
-        <Link to="/signup">
-          <button>Get started</button>
+        <Link to="/programs" className="button-primary">
+          Browse programs
         </Link>
-        <Link to="/login">Already have an account? Log in</Link>
+        <Link to="/signup">Create a free account to save and track programs</Link>
       </div>
 
       <div className="home-banner" role="presentation" aria-hidden="true" />
@@ -28,7 +28,7 @@ export function HomePage() {
         <div className="home-step">
           <Search className="home-step-icon" size={28} strokeWidth={1.75} />
           <h2>Browse &amp; filter</h2>
-          <p>Search real programs by industry, program type, and location.</p>
+          <p>Filter real programs by tech track, format, and application status.</p>
         </div>
         <div className="home-step">
           <BookmarkCheck className="home-step-icon" size={28} strokeWidth={1.75} />

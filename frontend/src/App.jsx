@@ -1,11 +1,15 @@
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { Compass, LogOut } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { SignupPage } from "./pages/SignupPage.jsx";
-import { EmployersPage } from "./pages/EmployersPage.jsx";
+import { ProgramsPage } from "./pages/ProgramsPage.jsx";
+import { ProgramDetailPage } from "./pages/ProgramDetailPage.jsx";
+import { OrganizationPage } from "./pages/OrganizationPage.jsx";
+import { SuggestPage } from "./pages/SuggestPage.jsx";
+import { NotFoundPage } from "./pages/NotFoundPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
 
 function NavBar() {
@@ -18,9 +22,9 @@ function NavBar() {
         Project Exfil
       </Link>
       <div className="navbar-links">
+        <Link to="/programs">Browse</Link>
         {isAuthenticated ? (
           <>
-            <Link to="/employers">Browse</Link>
             <Link to="/dashboard">Dashboard</Link>
             <button onClick={logout} className="navbar-logout">
               <LogOut size={16} />
@@ -46,6 +50,13 @@ function Footer() {
   );
 }
 
+// /employers was the pre-programs browse URL; keep old links (and their
+// filters) working.
+function LegacyEmployersRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/programs${search}`} replace />;
+}
+
 export default function App() {
   const { isAuthenticated } = useAuth();
 
@@ -56,18 +67,15 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={isAuthenticated ? <Navigate to="/employers" replace /> : <HomePage />}
+            element={isAuthenticated ? <Navigate to="/programs" replace /> : <HomePage />}
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/employers"
-            element={
-              <ProtectedRoute>
-                <EmployersPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/programs" element={<ProgramsPage />} />
+          <Route path="/programs/:slug" element={<ProgramDetailPage />} />
+          <Route path="/organizations/:slug" element={<OrganizationPage />} />
+          <Route path="/suggest" element={<SuggestPage />} />
+          <Route path="/employers" element={<LegacyEmployersRedirect />} />
           <Route
             path="/dashboard"
             element={
@@ -76,6 +84,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />

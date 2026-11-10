@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { api } from "../lib/api.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
@@ -57,7 +58,16 @@ export function DashboardPage() {
             <div className="employer-card-header">
               <EmployerBadge name={se.program.organization.name} />
               <div>
-                <h2>{se.program.name}</h2>
+                <h2>
+                  {/* Drafts have no public page (it 404s), so only link the others. */}
+                  {se.program.publishStatus === "DRAFT" ? (
+                    se.program.name
+                  ) : (
+                    <Link to={`/programs/${se.program.slug}`} className="card-title-link">
+                      {se.program.name}
+                    </Link>
+                  )}
+                </h2>
                 <p className="program-name">{se.program.organization.name}</p>
               </div>
             </div>
@@ -69,7 +79,9 @@ export function DashboardPage() {
             )}
             {se.program.publishStatus === "ARCHIVED" && (
               <p className="listing-notice">
-                <strong>Archived.</strong> {se.program.archiveReason}
+                {/* Reasons are written as full sentences ("Archived Nov 2026: …"),
+                    so a separate "Archived." label would repeat them. */}
+                {se.program.archiveReason || "This listing is no longer active."}
               </p>
             )}
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const BRANCHES = ["ARMY", "NAVY", "AIR_FORCE", "MARINES", "COAST_GUARD", "SPACE_FORCE", "MILITARY_SPOUSE"];
@@ -7,6 +7,10 @@ const BRANCHES = ["ARMY", "NAVY", "AIR_FORCE", "MARINES", "COAST_GUARD", "SPACE_
 export function SignupPage() {
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Return to the page that sent the visitor here (e.g. "Log in to save").
+  const from = location.state?.from;
+  const next = from ? `${from.pathname}${from.search ?? ""}` : "/programs";
   const [form, setForm] = useState({ email: "", password: "", branch: BRANCHES[0], targetField: "" });
   const [error, setError] = useState(null);
 
@@ -19,7 +23,7 @@ export function SignupPage() {
     setError(null);
     try {
       await signup(form);
-      navigate("/employers");
+      navigate(next, { replace: true });
     } catch (err) {
       setError(err.message);
     }
@@ -53,7 +57,7 @@ export function SignupPage() {
       </label>
       <button type="submit">Create account</button>
       <p>
-        Already have an account? <Link to="/login">Log in</Link>
+        Already have an account? <Link to="/login" state={location.state}>Log in</Link>
       </p>
     </form>
   );

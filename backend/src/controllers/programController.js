@@ -6,7 +6,7 @@ const AVAILABILITY = ["ACCEPTING", "ROLLING", "CLOSED", "UNKNOWN"];
 
 // Fields safe to show publicly. Review metadata (reviewer, hashes) and
 // archive internals stay server-side.
-const PUBLIC_SELECT = {
+export const PUBLIC_SELECT = {
   id: true,
   slug: true,
   name: true,
