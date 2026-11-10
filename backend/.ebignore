@@ -1,0 +1,13 @@
+# Used by `eb deploy` INSTEAD of .gitignore. Keep src/generated (gitignored,
+# but needed at runtime). Never ship local secrets or macOS node_modules.
+.env
+.env.*
+!.env.example
+node_modules/
+test/
+deploy/
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+*.log
+.DS_Store
