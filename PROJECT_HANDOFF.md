@@ -255,7 +255,7 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Pipeline go-live: waiting on 2 user-run steps (2026-11-09).** Claude Code's safety check blocks Claude from creating IAM roles and from deploying to production directly, so:
+5. **Pipeline go-live (2026-11-09):** the user ran `gh auth refresh -s workflow` and `setup.sh`. CI passed on GitHub (run 42748572682, branch). `main` was pushed (374e8b4 → 7b15a7b); pipeline run 42749082528: all checks + release plan green; the user approved; **deploy failed at the AWS login step** ("Not authorized to perform sts:AssumeRoleWithWebIdentity"). Nothing deployed. Cause: this repo has GitHub's *immutable* OIDC subject (`repo:MarcoGarcia650@123526094/project-exfil@1328947560:environment:production`). Fixed in `trust-policy.json` (`4dec04f`). **Next: the user re-runs `sh infra/github-deploy/setup.sh` (updates the trust policy), then Claude pushes and the user approves the new run.** Original plan below for reference: Claude Code's safety check blocks Claude from creating IAM roles and from deploying to production directly, so:
    1. **User:** `gh auth refresh -h github.com -s workflow` (browser). The current token lacks the `workflow` scope, and GitHub rejected the push of `.github/workflows/ci.yml`. **Nothing is on GitHub yet.**
    2. **User:** `sh infra/github-deploy/setup.sh` (OIDC provider, role `exfil-github-deploy`, EB DeploymentPolicy=Immutable). Wait for EB Green.
    3. Push `feature/programs-directory` → CI's first run. Fast-forward `main` → push → **Release plan** → user approves → the pipeline deploys the contract-ready backend + frontend.
@@ -307,6 +307,13 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (first pipeline run) — Claude (VS Code)
+
+- After the user's setup steps: verified the `workflow` scope, the role + policies, and EB DeploymentPolicy=Immutable (the config update finished 03:18 UTC, Green).
+- Pushed `feature/programs-directory` → **CI green on GitHub on the first run** (backend, frontend, e2e). Fast-forwarded and pushed `main` (7b15a7b). The release plan correctly flagged 4 migrations (3 already applied in prod; the contract is pending and runs after the deploy).
+- The user approved the deploy; it failed at `configure-aws-credentials` (OIDC subject mismatch, see open question 5). Production untouched (`sg-cf-b1a1013`, Green). The contract migration was deliberately **not** run.
+- CI notices to handle later: `actions/checkout@v4` targets the deprecated Node 20; `ubuntu-latest` moves to Ubuntu 26.
 
 ### 2026-11-09 (CD pipeline built; go-live pending user steps) — Claude (VS Code)
 
