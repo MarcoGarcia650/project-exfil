@@ -255,7 +255,7 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Lock the EB origin to CloudFront (Claude's proposal, needs user decision):** `TRUST_PROXY=2` is set and verified (see log), but the EB security group allows port 80 from `0.0.0.0/0`, so a client who calls `vetpath-env.eba-rk5q6evh…elasticbeanstalk.com` directly can fake `X-Forwarded-For` and dodge the per-IP limits. The per-email login limit still applies. Fix: allow port 80 only from the AWS-managed CloudFront origin-facing prefix list. This SG is managed by EB's CloudFormation stack, so do it via EB config (`.ebextensions`), not a manual edit that could drift.
+5. **Lock the EB origin to CloudFront (user approved adding it, 2026-11-09; built, NOT deployed):** [01-origin-cloudfront-only.config](backend/.ebextensions/01-origin-cloudfront-only.config) overrides `AWSEBSecurityGroup` ingress to port 80 from `pl-3b927c52` only (commit `d368ff0`). Because the user is holding the contract deploy, a separate bundle `backend/deploy/exfil-backend-b1a1013-sg.zip` (local, gitignored) = the live `swap-b1a1013` bundle + this file only. Background: `TRUST_PROXY=2` is set and verified (see log), but the EB security group allows port 80 from `0.0.0.0/0`, so a client who calls `vetpath-env.eba-rk5q6evh…elasticbeanstalk.com` directly can fake `X-Forwarded-For` and dodge the per-IP limits. The per-email login limit still applies. Fix: allow port 80 only from the AWS-managed CloudFront origin-facing prefix list. This SG is managed by EB's CloudFormation stack, so do it via EB config (`.ebextensions`), not a manual edit that could drift.
 6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
    1. RDS snapshot.
    2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
@@ -300,6 +300,11 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (CloudFront-only origin, prepared) — Claude (VS Code)
+
+- User: hold the contract deploy and the push of `main` (merged locally, fast-forward at `e9753f0`); add the security-group change through EB config.
+- Added `.ebextensions/01-origin-cloudfront-only.config` (CloudFront origin-facing prefix list `pl-3b927c52`, looked up via `describe-managed-prefix-lists`). The SG's logical ID `AWSEBSecurityGroup` and the API distribution's origin (`http-only`, port 80, EB CNAME) were confirmed read-only. Built a live-code + config bundle so it can ship without the contract. **Not deployed; awaiting the user's go-ahead.**
 
 ### 2026-11-09 (live test, TRUST_PROXY, contract) — Claude (VS Code)
 
