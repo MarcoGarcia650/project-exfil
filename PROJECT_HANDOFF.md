@@ -255,7 +255,7 @@ Remaining:
    - Per Scholas split (fetch each course page, batch 2);
    - Oracle OVIP official-page check.
 
-5. **Lock the EB origin to CloudFront (user approved adding it, 2026-11-09; built, NOT deployed):** [01-origin-cloudfront-only.config](backend/.ebextensions/01-origin-cloudfront-only.config) overrides `AWSEBSecurityGroup` ingress to port 80 from `pl-3b927c52` only (commit `d368ff0`). Because the user is holding the contract deploy, a separate bundle `backend/deploy/exfil-backend-b1a1013-sg.zip` (local, gitignored) = the live `swap-b1a1013` bundle + this file only. Background: `TRUST_PROXY=2` is set and verified (see log), but the EB security group allows port 80 from `0.0.0.0/0`, so a client who calls `vetpath-env.eba-rk5q6evh…elasticbeanstalk.com` directly can fake `X-Forwarded-For` and dodge the per-IP limits. The per-email login limit still applies. Fix: allow port 80 only from the AWS-managed CloudFront origin-facing prefix list. This SG is managed by EB's CloudFormation stack, so do it via EB config (`.ebextensions`), not a manual edit that could drift.
+5. **Contract deploy and pushing `main`: on hold (user, 2026-11-09).** When resumed: rebuild the zip from the branch HEAD (`make-deploy-zip.sh`; it now includes `.ebextensions`). **Never deploy a bundle without `.ebextensions/01-origin-cloudfront-only.config`**: EB would restore port 80 to `0.0.0.0/0`. Then deploy the backend, then `migrate deploy` (snapshot `vetpath-db-before-contract` exists). `main` is merged locally at `e9753f0`; fast-forward again before pushing.
 6. **Production rollout checklist so far (phase 6; each step needs the user's go-ahead):**
    1. RDS snapshot.
    2. `prisma migrate deploy` (both migrations: programs-directory expand + awaiting_research), then `prisma generate` (Prisma 7's `migrate dev` no longer generates; this bit phase 5 locally).
@@ -268,6 +268,7 @@ Remaining:
 8. **Deploy bundle hygiene (done 2026-11-09, `275c0d7`):** the last EB bundle (`backend/.elasticbeanstalk/app_versions/`, local) contained the local `backend/.env` (local DB URL + JWT secret) and macOS-built `node_modules` (12,591 files). It worked because EB env properties override dotenv and bcrypt ships Linux prebuilds. Plan: add `backend/.ebignore` (exclude `.env`, `node_modules`, tests, the `app_versions` dir; keep `src/generated`, since it's gitignored but needed at runtime) so EB installs Linux deps itself.
 
 Resolved and removed from this list:
+- EB origin reachable directly (Claude's TRUST_PROXY finding): deployed as `sg-cf-b1a1013` (user go-ahead, 2026-11-09). The SG now allows only `pl-3b927c52` on port 80; direct requests to the elasticbeanstalk.com origin time out; CloudFront 200; live check 12/12; a faked XFF through CloudFront still doesn't change the rate-limit bucket.
 - Deploy-outage prevention (Claude's finding, 2026-11-09): the user chose the swap file. Deployed as `swap-b1a1013`; the log shows `swap: enabled /var/swapfile (1024 MB)` before `npm install` (10s).
 - `awaitingResearch` migration acknowledgement (Claude's phase 5 proposal): approved by the user, 2026-11-09.
 - `.vscode/` (Claude's finding): ignored via root `.gitignore` (user, 2026-11-09).
@@ -300,6 +301,10 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (CloudFront-only origin, deployed) — Claude (VS Code)
+
+- With the user's go-ahead, deployed EB version `sg-cf-b1a1013` (the live `swap-b1a1013` code + `.ebextensions` SG override). Green in about 90s. Verified the SG rule, CloudFront 200, direct origin blocked, live 12/12, rate-limit probe OK. Deleted the stale local contract zip that lacked the config.
 
 ### 2026-11-09 (CloudFront-only origin, prepared) — Claude (VS Code)
 
