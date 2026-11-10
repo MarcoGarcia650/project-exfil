@@ -165,7 +165,7 @@ Data answers (user, 2026-11-08), applied to `programs-staging.json`; validator p
 
 Remaining:
 
-0. ~~iCloud offloading~~: **resolved (user chose to move the repo, 2026-11-09).** Remaining: the user to reopen VS Code at `~/projects/VetTool` and confirm deletion of the old `~/Documents` copy.
+0. ~~iCloud offloading~~: **resolved (user chose to move the repo, 2026-11-09).** The user approved deleting the old `~/Documents` copy (2026-11-09). Claude Code's safety check blocks deleting the active workspace folder, so **the user deletes it manually** after closing that VS Code window, then reopens VS Code at `~/projects/VetTool`. Verified before the attempt: the old copy has no unique commits, stashes or files.
 
 1. ~~Schema approval~~: **approved (user, 2026-11-08).** Phase 1 starting on the local Docker DB only. Production steps (phase 6) still need explicit user go-ahead.
 2. ~~When and where to review listings~~: **decided (user, 2026-11-08)**. Records are reviewed in the admin page's "Drafts to review" list:
