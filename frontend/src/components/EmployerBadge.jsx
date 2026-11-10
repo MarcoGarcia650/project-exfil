@@ -21,9 +21,9 @@ function colorForName(name) {
   return FALLBACK_PALETTE[hash % FALLBACK_PALETTE.length];
 }
 
-export function EmployerBadge({ name }) {
+export function EmployerBadge({ name, size }) {
   return (
-    <div className="employer-badge" style={{ backgroundColor: colorForName(name) }}>
+    <div className={size === "lg" ? "employer-badge lg" : "employer-badge"} style={{ backgroundColor: colorForName(name) }} aria-hidden="true">
       {name.charAt(0).toUpperCase()}
     </div>
   );

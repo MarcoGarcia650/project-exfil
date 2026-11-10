@@ -5,7 +5,7 @@ import { api } from "../lib/api.js";
 import { useSavedProgramIds } from "../lib/useSavedProgramIds.js";
 import { useDocumentTitle } from "../lib/useDocumentTitle.js";
 import { EmployerBadge } from "../components/EmployerBadge.jsx";
-import { ProgramCard } from "../components/ProgramCard.jsx";
+import { ProgramTile } from "../components/ProgramTile.jsx";
 import { NotFoundPage } from "./NotFoundPage.jsx";
 
 // /organizations/:slug — public. Active programs, then archived ones
@@ -61,11 +61,11 @@ export function OrganizationPage() {
       </h2>
       {saveError && <p className="error">{saveError}</p>}
       {org.programs.length === 0 && <p className="muted">No active programs right now.</p>}
-      <ul className="employer-list">
+      <div className="tile-grid">
         {org.programs.map((p) => (
-          <ProgramCard key={p.id} program={p} saved={savedIds.has(p.id)} onSave={save} onUnsave={unsave} showOrg={false} />
+          <ProgramTile key={p.id} program={{ ...p, organization: { ...org } }} saved={savedIds.has(p.id)} onSave={save} onUnsave={unsave} />
         ))}
-      </ul>
+      </div>
 
       {org.archivedPrograms.length > 0 && (
         <>

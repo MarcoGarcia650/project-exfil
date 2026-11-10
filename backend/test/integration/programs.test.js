@@ -24,6 +24,9 @@ test("public directory", async (t) => {
   check("search no match", (await search("zzz-nothing")).length === 0);
   check("search never returns drafts", (await search("microsoft")).length === 0);
   check("blank search = all", (await search("   ")).length === 1);
+  check("multi-value filter (any of)", (await call("GET", "/programs?techTrack=DATA,SOFTWARE_DEV")).data.length === 1);
+  check("multi-value filter, none match", (await call("GET", "/programs?availability=CLOSED,ROLLING")).data.length === 0);
+  check("multi-value with an unknown value", (await call("GET", "/programs?format=BOGUS,TRAINING")).data.length === 1);
   check("search combines with filters", (await call("GET", "/programs?q=vets&availability=CLOSED")).data.length === 0);
 
   check("published page 200", (await call("GET", "/programs/vetswhocode-accelerator")).status === 200);

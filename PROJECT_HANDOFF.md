@@ -45,6 +45,7 @@ Research batch 1 (Claude, 2026-11-08) is drafted and awaiting **human review**. 
 | Agreed (user, 2026-11-09) | **Contact admin = form + admin inbox:** logged-in users send a message from a navbar "Contact" link; the admin page gets a Messages tab; the admin replies with a note the user sees on "My messages" (like submissions). No DMs/email needed; one additive migration. | User chose the recommended option. |
 | Agreed (user, 2026-11-09) | **Admin "Add listing" creates a DRAFT** (same required fields as the validator) that goes through Drafts to review → checklist → Approve & publish. Imports never overwrite it. No listing editing in this version. | User chose the recommended option. |
 | Agreed (user, 2026-11-09) | **Design: mockups first.** Claude makes 2–3 visual directions (light default + dark) for the user to pick before implementing. | User chose the recommended option. |
+| Agreed (user, 2026-11-09) | **Design = Direction D**: B's filter sidebar + card grid (save toggle per card) + search in the navbar; clicking a card opens an A-style detail card as a **modal** over the grid (page dims/blurs; ✕, background click, Escape; "Open full page"). Light theme default with a navbar dark/light switch (dark = the current colors). Canvas: https://claude.ai/artifact/A6wxmK1z1FmNCtQQSkfEkm | User: "lets do D, i love it". |
 
 ## Latest implementation state
 
@@ -305,6 +306,31 @@ Update this file at meaningful checkpoints, before handing off, and before endin
 - Preserve the other agent's useful findings. Inspect current files and git status before editing; do not overwrite concurrent work.
 
 ## Activity log
+
+### 2026-11-09 (STOPPING POINT: chunk 2 redesign WIP) — Claude (VS Code)
+
+**Resume here.** The user hit their usage limit; work stopped mid-chunk 2.
+
+- **Chunk 1** (search, unsave, home when logged in, favicon) was pushed to `main` (68250bb); the pipeline run 42753726255 was approved by the user. **Not yet verified:** confirm it finished green (`gh run view 42753726255`) and the live site shows search + unsave.
+- **Chunk 2 = Direction D redesign: built, committed as WIP on `feature/programs-directory` only (NOT on main, NOT deployed).** Done:
+  - backend multi-value filters (`?techTrack=CLOUD,DATA`, any-of; integration 41/41);
+  - theme system (light default, `[data-theme=dark]` = old colors, saved in localStorage `exfil-theme`, applied pre-paint in `index.html`; Inter font);
+  - `NavBar.jsx` (site search → `/programs?q=`, ThemeToggle, avatar) and `ThemeToggle.jsx`;
+  - `ProgramTile.jsx` (card + save toggle; whole card clickable; phones navigate to the page);
+  - `ProgramModal.jsx` (native `<dialog>` + blurred backdrop; Escape/✕/backdrop close; `?listing=slug` in the URL; Back closes);
+  - `ProgramSummary.jsx` (shared by the modal + the detail page);
+  - `ProgramsPage.jsx` rewritten as D (sidebar checkboxes, tile grid);
+  - org page uses tiles; `ProgramCard.jsx` deleted; `index.css` fully rewritten (tokens for both themes, dark buttons use dark text on the light accent for contrast).
+  - Screenshots checked: browse light/dark, modal light/dark, phone 390px (no horizontal scroll), detail page. All good.
+- **e2e: 1/4 passing after the redesign. Fixes needed (test-side, diagnosed):**
+  1. `accounts.spec.js` + `community.spec.js` username steps use `fill("input", …)`, which now hits the **navbar search input** first. Change to `getByLabel("Username")`.
+  2. `directory.spec.js` checkbox step: the checkboxes are controlled (they update after the URL changes), so Playwright's `.check()` complains. Use `.click()` then `expect(...).toBeChecked()`.
+  3. `directory.spec.js` ~line 107 still uses `.employer-card` (browse is now `.tile`); review the remaining steps for the new structure.
+  - Then run backend `npm test` + `npm run test:integration` and `cd e2e && npm test`, check lint/build, then merge to `main` → pipeline → user approves.
+- **Remaining v2 after chunk 2:**
+  - chunk 3: About page, FAQ page (Claude drafts copy, user edits), contact-admin (form + admin Messages tab + "My messages"; additive migration; navbar "Contact" for logged-in non-admins);
+  - chunk 4: admin "Add listing" form → creates a DRAFT (same required fields as the validator).
+  - Add About/FAQ/Contact links to the NavBar when those pages exist.
 
 ### 2026-11-09 (v2 chunk 1 + design mockups) — Claude (VS Code)
 

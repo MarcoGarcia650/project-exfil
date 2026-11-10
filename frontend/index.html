@@ -8,6 +8,17 @@
     <meta name="description" content="Tech career programs open to veterans after separation, each checked against the provider's official page." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Exfil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <script>
+      // Apply the saved theme before first paint (no flash). Light is the default.
+      (function () {
+        var t = "light";
+        try { if (localStorage.getItem("exfil-theme") === "dark") t = "dark"; } catch (e) {}
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

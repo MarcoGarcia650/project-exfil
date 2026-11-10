@@ -7,43 +7,74 @@ test("public directory and saving", async ({ page }) => {
   const pub = (await api("GET", "/programs")).data;
   const first = pub[0];
 
+  const AVAIL = { ACCEPTING: "Accepting applications", ROLLING: "Rolling applications", CLOSED: "Applications closed", UNKNOWN: "Application status unknown" };
+  const filterPanel = page.locator(".filter-panel");
+
   await test.step("logged-out browse", async () => {
     await page.goto("/programs");
     await expect(page.locator(".result-count")).toBeVisible();
-    await expect(page.locator(".employer-card")).toHaveCount(pub.length);
-    await expect(page.getByText("Log in to save").first()).toBeVisible();
-    await expect(page.locator(".navbar").getByText("Browse")).toBeVisible();
+    await expect(page.locator(".tile")).toHaveCount(pub.length);
+    await expect(page.getByRole("link", { name: /^Log in to save/ }).first()).toBeVisible();
+    await expect(page.locator(".navbar").getByRole("link", { name: "Browse" })).toBeVisible();
   });
 
-  await test.step("filters live in the URL; empty state; clear", async () => {
+  await test.step("checkbox filters live in the URL; empty state; clear", async () => {
     // A value no published listing has, so the empty state must appear.
-    const other = ["ACCEPTING", "ROLLING", "CLOSED", "UNKNOWN"].find((a) => !pub.some((p) => p.applicationAvailability === a));
-    await page.selectOption('select[name="availability"]', other);
+    const other = Object.keys(AVAIL).find((a) => !pub.some((p) => p.applicationAvailability === a));
+    await filterPanel.getByLabel(AVAIL[other]).check();
     await expect(page.locator(".empty-state")).toBeVisible();
     expect(page.url()).toContain(`availability=${other}`);
     await expect(page.getByRole("link", { name: "Suggest a program" })).toBeVisible();
-    await page.locator(".empty-state").getByRole("button", { name: "Clear filters" }).click();
-    await expect(page.locator(".employer-card").first()).toBeVisible();
+    // Adding a second value widens the results (any-of).
+    await filterPanel.getByLabel(AVAIL[first.applicationAvailability]).check();
+    await expect(page.locator(".tile").first()).toBeVisible();
+    expect(decodeURIComponent(page.url())).toMatch(new RegExp(`availability=(${other},${first.applicationAvailability}|${first.applicationAvailability},${other})`));
+    await filterPanel.getByRole("button", { name: "Clear all" }).click();
+    await expect(page.locator(".tile")).toHaveCount(pub.length);
     expect(new URL(page.url()).search).toBe("");
     await page.goto(`/programs?availability=${first.applicationAvailability}&techTrack=BOGUS`);
-    await expect(page.locator('select[name="availability"]')).toHaveValue(first.applicationAvailability);
+    await expect(filterPanel.getByLabel(AVAIL[first.applicationAvailability])).toBeChecked();
     // The bogus techTrack is ignored; only the availability filter applies.
-    await expect(page.locator(".employer-card")).toHaveCount(pub.filter((p) => p.applicationAvailability === first.applicationAvailability).length);
+    await expect(page.locator(".tile")).toHaveCount(pub.filter((p) => p.applicationAvailability === first.applicationAvailability).length);
   });
 
-  await test.step("keyword search lives in the URL", async () => {
-    await page.goto("/programs");
+  await test.step("navbar search lives in the URL", async () => {
+    await page.goto("/organizations/hoh");
     await page.getByLabel("Search programs").fill("vets who");
-    await page.getByRole("button", { name: "Search" }).click();
-    await page.waitForURL(/q=vets\+who|q=vets%20who/);
-    await expect(page.locator(".employer-card")).toHaveCount(1);
-    await expect(page.locator(".employer-card")).toContainText("Vets Who Code");
+    await page.getByLabel("Search programs").press("Enter");
+    await page.waitForURL(/\/programs\?q=vets/);
+    await expect(page.locator(".tile")).toHaveCount(1);
+    await expect(page.locator(".tile")).toContainText("Vets Who Code");
+    await expect(page.locator(".search-chip")).toContainText("vets who");
     await page.getByLabel("Search programs").fill("zzz-nothing");
-    await page.getByRole("button", { name: "Search" }).click();
+    await page.getByLabel("Search programs").press("Enter");
     await expect(page.getByText("No programs match “zzz-nothing”")).toBeVisible();
     await page.locator(".empty-state").getByRole("button", { name: "Clear filters" }).click();
     await expect(page.getByLabel("Search programs")).toHaveValue("");
-    await expect(page.locator(".employer-card")).toHaveCount(pub.length);
+    await expect(page.locator(".tile")).toHaveCount(pub.length);
+  });
+
+  await test.step("card opens a modal over the grid; Escape, ✕ and Back close it", async () => {
+    await page.goto("/programs");
+    await page.locator(".tile .card-title-link").first().click();
+    const dialog = page.getByRole("dialog", { name: first.name });
+    await expect(dialog).toBeVisible();
+    expect(page.url()).toContain(`listing=${first.slug}`);
+    await expect(dialog.locator(".veteran-route")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    expect(page.url()).not.toContain("listing=");
+    await expect(page.locator(".tile .card-title-link").first()).toBeFocused();
+    await page.locator(".tile .card-title-link").first().click();
+    await page.getByRole("button", { name: "Close details" }).click();
+    await expect(dialog).toHaveCount(0);
+    await page.locator(".tile .card-title-link").first().click();
+    await expect(dialog).toBeVisible();
+    await page.goBack();
+    await expect(dialog).toHaveCount(0);
+    // A shared link opens straight into the modal.
+    await page.goto(`/programs?listing=${first.slug}`);
+    await expect(dialog).toBeVisible();
   });
 
   await test.step("legacy /employers redirect keeps query", async () => {
@@ -51,9 +82,10 @@ test("public directory and saving", async ({ page }) => {
     await page.waitForURL(/\/programs\?format=TRAINING/);
   });
 
-  await test.step("listing page", async () => {
+  await test.step("listing page via the modal's Open full page", async () => {
     await page.goto("/programs");
-    await page.locator(".card-title-link").first().click();
+    await page.locator(".tile .card-title-link").first().click();
+    await page.getByRole("dialog").getByRole("link", { name: "Open full page" }).click();
     await page.waitForURL(new RegExp(`/programs/${first.slug}$`));
     await expect(page.locator(".veteran-route")).toBeVisible();
     await expect(page.getByText(/Last verified/)).toBeVisible();

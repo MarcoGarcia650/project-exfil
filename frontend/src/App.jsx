@@ -1,7 +1,6 @@
-import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
-import { Compass, LogOut } from "lucide-react";
-import { useAuth } from "./context/AuthContext.jsx";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
+import { NavBar } from "./components/NavBar.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { SignupPage } from "./pages/SignupPage.jsx";
@@ -16,37 +15,6 @@ import { ThreadPage } from "./pages/ThreadPage.jsx";
 import { MySubmissionsPage } from "./pages/MySubmissionsPage.jsx";
 import { AdminPage } from "./pages/admin/AdminPage.jsx";
 import { DashboardPage } from "./pages/DashboardPage.jsx";
-
-function NavBar() {
-  const { isAuthenticated, logout, user } = useAuth();
-
-  return (
-    <nav className="navbar">
-      <Link to="/" className="navbar-brand">
-        <Compass size={20} strokeWidth={2} />
-        Project Exfil
-      </Link>
-      <div className="navbar-links">
-        <Link to="/programs">Browse</Link>
-        {isAuthenticated ? (
-          <>
-            <Link to="/dashboard">Dashboard</Link>
-            {user?.role === "ADMIN" && <Link to="/admin">Admin</Link>}
-            <button onClick={logout} className="navbar-logout">
-              <LogOut size={16} />
-              Log out
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Log in</Link>
-            <Link to="/signup">Sign up</Link>
-          </>
-        )}
-      </div>
-    </nav>
-  );
-}
 
 function Footer() {
   return (
@@ -63,12 +31,20 @@ function LegacyEmployersRedirect() {
   return <Navigate to={`/programs${search}`} replace />;
 }
 
+// Browse and admin use the full width; reading pages keep a narrow column.
+const WIDE_ROUTES = ["/programs", "/admin"];
+
 export default function App() {
+  const { pathname } = useLocation();
+  const wide = WIDE_ROUTES.includes(pathname);
 
   return (
     <>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <NavBar />
-      <main className="page">
+      <main id="main" className={wide ? "page page-wide" : "page"}>
         <Routes>
           <Route
             path="/"
