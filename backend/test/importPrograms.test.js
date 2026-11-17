@@ -135,3 +135,12 @@ test("an in-app edited row whose content matches staging is just UNCHANGED", () 
   const existing = rowFrom(rec(), "PUBLISHED", { editedInAppAt: new Date() });
   assert.equal(planFor(rec(), existing).action, "UNCHANGED");
 });
+
+test("a REMOVED listing is never touched by staging, even with changes, archive, restore or overwrite", () => {
+  const existing = rowFrom(rec(), "REMOVED", { removedAt: new Date(), removedFromStatus: "PUBLISHED" });
+  assert.equal(planFor(rec(), existing).action, "SKIP_REMOVED");
+  assert.equal(planFor(rec({ cost: "Free" }), existing).action, "SKIP_REMOVED");
+  assert.equal(planFor(rec({ archiveReason: "ended" }), existing).action, "SKIP_REMOVED");
+  assert.equal(planFor(rec({ restore: true }), existing).action, "SKIP_REMOVED");
+  assert.equal(planFor(rec({ cost: "Free" }), existing, { overwriteAppEdits: true }).action, "SKIP_REMOVED");
+});

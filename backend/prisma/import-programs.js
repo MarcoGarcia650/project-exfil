@@ -20,6 +20,9 @@
 //   REJECTED, content unchanged         → stays REJECTED (the fix hasn't landed)
 //   REJECTED, content changed           → DRAFT for re-review, rejection cleared
 //   NEEDS_RESEARCH record already in DB → flagged only, never changed
+//   REMOVED by an admin                 → skipped and reported, whatever
+//                                         staging says (only the admin page
+//                                         restores it)
 //   edited in the admin page, content differs → skipped and reported
 //                                         (--overwrite-app-edits: staging wins
 //                                          and the in-app edit flag is cleared)
@@ -96,6 +99,12 @@ export function planFor(rec, existing, { overwriteAppEdits = false } = {}) {
       return { action: "CREATE_ARCHIVED", data: { ...base, publishStatus: "ARCHIVED", archivedAt: new Date(), archiveReason: rec.archiveReason } };
     }
     return { action: "CREATE_DRAFT", data: { ...base, publishStatus: "DRAFT" } };
+  }
+
+  // Removed by an admin: the admin page owns it. Staging never revives,
+  // updates or unpublishes it (even with --overwrite-app-edits).
+  if (existing.publishStatus === "REMOVED") {
+    return { action: "SKIP_REMOVED", data: null };
   }
 
   // A row still awaiting research (legacy backfill) counts as changed, so
@@ -175,7 +184,12 @@ async function main() {
   // 3. Report.
   console.log(`\n${APPLY ? "APPLYING" : "DRY RUN"} — ${file}\n`);
   for (const p of plans) {
-    const why = p.action === "SKIP_EDITED_IN_APP" ? " (edited in the admin page; staging differs — app copy kept. Update staging to match, or use --overwrite-app-edits)" : "";
+    const why =
+      p.action === "SKIP_EDITED_IN_APP"
+        ? " (edited in the admin page; staging differs — app copy kept. Update staging to match, or use --overwrite-app-edits)"
+        : p.action === "SKIP_REMOVED"
+          ? " (removed by an admin — left as is; restore it from the admin page's Removed tab)"
+          : "";
     console.log(`${p.action.padEnd(22)} ${p.rec.id}${why}`);
   }
   for (const p of flagged) console.log(`${"FLAG_NOT_VERIFIED".padEnd(22)} ${p.id} (${p.reviewStatus} in staging, row exists in DB — left unchanged; admin decision)`);
@@ -191,12 +205,15 @@ async function main() {
   // 4. Apply in one transaction — all or nothing.
   await prisma.$transaction(async (tx) => {
     for (const p of plans) {
-      if (p.action === "UNCHANGED" || p.action === "SKIP_EDITED_IN_APP") continue;
+      if (p.action === "UNCHANGED" || p.action.startsWith("SKIP_")) continue;
       const org = orgsById.get(p.rec.organizationId);
       const orgSlug = orgSlugFrom(org.id);
+      // An organization edited in the admin page keeps its app name/website.
+      const existingOrg = await tx.organization.findUnique({ where: { slug: orgSlug }, select: { editedInAppAt: true } });
+      const orgFields = existingOrg?.editedInAppAt ? {} : { name: org.name, websiteUrl: orNull(org.website) };
       const organization = await tx.organization.upsert({
         where: { slug: orgSlug },
-        update: { name: org.name, websiteUrl: orNull(org.website) },
+        update: orgFields,
         create: { slug: orgSlug, name: org.name, websiteUrl: orNull(org.website) },
       });
       if (p.action.startsWith("CREATE")) {

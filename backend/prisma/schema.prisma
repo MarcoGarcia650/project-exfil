@@ -85,6 +85,9 @@ model Organization {
   slug       String    @unique // "amazon" — stable URL + import key
   name       String
   websiteUrl String?
+  // Set when an admin edits the name/website in the app; the importer then
+  // leaves those fields alone (same rule as Program.editedInAppAt).
+  editedInAppAt DateTime?
   programs   Program[]
   comments   Comment[] // general discussion about the organization
   createdAt  DateTime  @default(now())
@@ -114,6 +117,7 @@ enum PublishStatus {
   PUBLISHED
   ARCHIVED // readable at its URL with archiveReason; hidden from browse
   REJECTED // failed admin review — never public; a re-import with changed content returns it to DRAFT
+  REMOVED // taken down by an admin from a public listing — never public; restorable; the importer never revives it
 }
 
 // Can someone APPLY right now? (the provider's state, as of verifiedOn)
@@ -171,6 +175,11 @@ model Program {
   // Set when the admin rejects a DRAFT. Admin-only; never sent publicly.
   rejectedAt      DateTime?
   rejectionReason String?
+
+  // Set when an admin removes a public listing (publishStatus REMOVED).
+  // removedFromStatus is what "Restore" returns it to. Admin-only.
+  removedAt         DateTime?
+  removedFromStatus PublishStatus?
 
   // Review metadata describes exactly what was reviewed: a PUBLISHED row
   // always has reviewedContentHash == contentHash. A content change sends

@@ -31,7 +31,12 @@ export function useAdminAction() {
       setBusy(true);
       setError(null);
       try {
-        const result = method === "PUT" ? await api.put(path, body, token) : await api.post(path, body, token);
+        const result =
+          method === "PUT"
+            ? await api.put(path, body, token)
+            : method === "DELETE"
+              ? await api.delete(path, token)
+              : await api.post(path, body, token);
         return result ?? true;
       } catch (err) {
         setError(err.message);

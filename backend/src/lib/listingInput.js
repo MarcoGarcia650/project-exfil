@@ -21,14 +21,14 @@ export function slugify(text) {
     .replace(/-+$/, "");
 }
 
-function str(value, max, what, { required = false } = {}) {
+export function str(value, max, what, { required = false } = {}) {
   const v = typeof value === "string" ? value.trim() : "";
   if (!v) return required ? { error: `${what} is required` } : { value: null };
   if (v.length > max) return { error: `${what} must be at most ${max} characters` };
   return { value: v };
 }
 
-function httpsUrl(value, what, { required = false } = {}) {
+export function httpsUrl(value, what, { required = false } = {}) {
   const v = typeof value === "string" ? value.trim() : "";
   if (!v) return required ? { error: `${what} is required` } : { value: null };
   try {

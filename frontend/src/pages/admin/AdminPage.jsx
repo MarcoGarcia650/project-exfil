@@ -7,6 +7,7 @@ import { SubmissionsTab } from "./SubmissionsTab.jsx";
 import { UsersTab } from "./UsersTab.jsx";
 import { DraftsTab } from "./DraftsTab.jsx";
 import { RejectedTab } from "./RejectedTab.jsx";
+import { RemovedTab } from "./RemovedTab.jsx";
 import { MessagesTab } from "./MessagesTab.jsx";
 import { AddListingTab } from "./AddListingTab.jsx";
 
@@ -17,6 +18,7 @@ const TABS = [
   { id: "users", label: "Users", Component: UsersTab },
   { id: "drafts", label: "Drafts to review", count: "drafts", Component: DraftsTab },
   { id: "rejected", label: "Rejected", Component: RejectedTab },
+  { id: "removed", label: "Removed", Component: RemovedTab },
   { id: "add", label: "Add listing", Component: AddListingTab },
 ];
 

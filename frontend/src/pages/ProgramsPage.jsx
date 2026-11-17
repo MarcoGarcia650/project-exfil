@@ -7,6 +7,7 @@ import { useDocumentTitle } from "../lib/useDocumentTitle.js";
 import { ProgramTile } from "../components/ProgramTile.jsx";
 import { ProgramModal } from "../components/ProgramModal.jsx";
 import { TECH_TRACK_LABELS, FORMAT_LABELS, AVAILABILITY_LABELS } from "../lib/programLabels.js";
+import { adminNotice } from "../lib/adminNotice.js";
 
 // Everything lives in the URL so any view can be shared or bookmarked:
 //   ?q=cloud&techTrack=CLOUD,DATA&format=TRAINING&availability=ACCEPTING&listing=<slug>
@@ -51,6 +52,30 @@ export function ProgramsPage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [apiQuery]);
+
+  // Re-fetch quietly after an admin change (no "Loading…" flash; an open
+  // popup stays open and shows the updated listing).
+  function refresh() {
+    api
+      .get(`/programs${apiQuery ? `?${apiQuery}` : ""}`)
+      .then(setPrograms)
+      .catch((err) => setError(err.message));
+  }
+
+  // Confirmation after an admin action, here or on a listing page that
+  // sent the admin back to Browse.
+  const [notice, setNotice] = useState(location.state?.notice ?? null);
+
+  function handleAdminChange(outcome) {
+    setNotice(adminNotice(outcome, openProgram.name));
+    close(); // archived/removed/deleted listings leave Browse
+    refresh();
+  }
+
+  function handleEdited(result) {
+    setNotice(result.changed ? `Updated "${openProgram.name}".` : "No changes to save.");
+    refresh();
+  }
 
   function update(mutate, options = { replace: true }) {
     const next = new URLSearchParams(params);
@@ -156,6 +181,11 @@ export function ProgramsPage() {
           </p>
         )}
 
+        {notice && (
+          <p className="success" role="status">
+            {notice}
+          </p>
+        )}
         {saveError && <p className="error">{saveError}</p>}
         {error && <p className="error">{error}</p>}
         {loading && <p className="muted">Loading…</p>}
@@ -193,6 +223,8 @@ export function ProgramsPage() {
           onSave={save}
           onUnsave={unsave}
           onClose={close}
+          onAdminChange={handleAdminChange}
+          onEdited={handleEdited}
         />
       )}
     </div>

@@ -38,6 +38,10 @@ each listing's and organization's discussion.
   submitter, user lookup with one-time password-reset links, a contact inbox, and listing management: add a
   listing, edit any listing, and a **Drafts to review** queue where each draft must pass a checklist before
   **Approve & publish** (or is rejected with a private reason).
+- **Admin tools on the browse pages:** admins edit a listing in place (in the browse popup or on its page),
+  archive it with a public note, remove it (hidden everywhere, restorable from the admin page), or delete it
+  permanently when no user has saved, discussed or suggested changes to it. Organizations can be renamed or
+  have their website changed from their page, and deleted once they have no listings or discussion.
 - **Trust safeguards:** server-side validation, rate limits on login and posting, sessions that end on
   password reset, admin roles checked on every request, and listings that are only ever public when
   published or archived.
@@ -59,12 +63,13 @@ each listing's and organization's discussion.
 - `Organization` → `Program`: one organization can run several programs, and each program is its own listing
   with a stable slug (`/programs/:slug`).
 - `Program.publishStatus`: `DRAFT` (awaiting admin review), `PUBLISHED`, `ARCHIVED` (public at its URL with a
-  reason, hidden from browse), `REJECTED` (failed review, never public). Only `PUBLISHED`/`ARCHIVED` are ever
+  reason, hidden from browse), `REJECTED` (failed review, never public), `REMOVED` (taken down by an admin,
+  never public, restorable; the importer never revives it). Only `PUBLISHED`/`ARCHIVED` are ever
   served publicly; application availability (accepting, rolling, closed, unknown) is tracked separately.
 - Listing content arrives two ways: the research pipeline (`research/programs-staging.json` → validator →
   `import-programs.js`, which creates drafts) and the admin page's add/edit form. A content fingerprint ties
-  each approval to exactly what was reviewed, and the importer never overwrites a listing an admin edited in
-  the app.
+  each approval to exactly what was reviewed, and the importer never overwrites a listing or organization an
+  admin edited in the app.
 - `SavedEmployer` + `ActionItem`: a user's saved program, status and checklist.
 - `Comment` (threaded; belongs to exactly one listing or organization), `Report`, `Submission`, and
   `ContactMessage`: community discussion with reactive moderation, user suggestions, and messages to the admin.

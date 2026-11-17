@@ -5,8 +5,10 @@ import { parseListingInput } from "../lib/listingInput.js";
 import { contentHashFor } from "../../prisma/lib/programContent.js";
 
 // Every handler here runs behind requireAuth + requireAdmin.
-// Moderation is reactive and status-only: no handler edits listing content
-// or comment text. Listing changes still go staging → validator → import.
+// Moderation is reactive and status-only: no handler here edits comment
+// text. Listing content changes come from the research import or the
+// admin listing form (createListing/updateListing below); archive, remove,
+// restore and delete live in adminManageController.js.
 
 const NOTE_MAX = 1000;
 const HIDE_REASON_MAX = 500;
@@ -20,14 +22,15 @@ function trimmedText(value, max, what, { required }) {
 
 // GET /admin/summary — counts for the admin tabs.
 export async function summary(req, res) {
-  const [openReports, pendingSubmissions, drafts, rejected, openMessages] = await Promise.all([
+  const [openReports, pendingSubmissions, drafts, rejected, openMessages, removed] = await Promise.all([
     prisma.comment.count({ where: { reports: { some: { status: "OPEN" } } } }),
     prisma.submission.count({ where: { status: "PENDING" } }),
     prisma.program.count({ where: { publishStatus: "DRAFT" } }),
     prisma.program.count({ where: { publishStatus: "REJECTED" } }),
     prisma.contactMessage.count({ where: { status: "OPEN" } }),
+    prisma.program.count({ where: { publishStatus: "REMOVED" } }),
   ]);
-  res.json({ openReports, pendingSubmissions, drafts, rejected, openMessages });
+  res.json({ openReports, pendingSubmissions, drafts, rejected, openMessages, removed });
 }
 
 // ---------- Reports ----------
@@ -401,6 +404,7 @@ export async function getListing(req, res) {
 //   DRAFT     → stays a draft (still needs Approve & publish)
 //   ARCHIVED  → stays archived
 //   REJECTED  → back to DRAFT, rejection cleared
+//   REMOVED   → stays removed (Restore decides where it goes)
 // Marks editedInAppAt so the importer won't overwrite it with staging.
 export async function updateListing(req, res) {
   const current = await prisma.program.findUnique({

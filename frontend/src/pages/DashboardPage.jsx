@@ -104,7 +104,7 @@ export function DashboardPage() {
             {se.program.publishStatus === "DRAFT" && (
               <p className="listing-notice">Under review: this listing is being re-verified.</p>
             )}
-            {se.program.publishStatus === "REJECTED" && (
+            {(se.program.publishStatus === "REJECTED" || se.program.publishStatus === "REMOVED") && (
               <p className="listing-notice">This listing isn't available right now.</p>
             )}
             {se.program.publishStatus === "ARCHIVED" && (

@@ -6,6 +6,10 @@ import {
   rejectDraft, listRejected, restoreRejected, listMessages, replyToMessage,
   listOrganizations, createListing, getListing, updateListing,
 } from "../controllers/adminController.js";
+import {
+  getListingUsage, archiveListing, unarchiveListing, removeListing, restoreRemoved, listRemoved, deleteListing,
+  getOrganizationAdmin, updateOrganization, deleteOrganization,
+} from "../controllers/adminManageController.js";
 
 const router = Router();
 
@@ -32,6 +36,16 @@ router.get("/organizations", listOrganizations);
 router.post("/listings", createListing);
 router.get("/listings/:id", getListing);
 router.put("/listings/:id", updateListing);
+router.get("/listings/:id/usage", getListingUsage);
+router.post("/listings/:id/archive", archiveListing);
+router.post("/listings/:id/unarchive", unarchiveListing);
+router.post("/listings/:id/remove", removeListing);
+router.delete("/listings/:id", deleteListing);
+router.get("/removed", listRemoved);
+router.post("/removed/:id/restore", restoreRemoved);
+router.get("/organizations/:slug", getOrganizationAdmin);
+router.put("/organizations/:id", updateOrganization);
+router.delete("/organizations/:id", deleteOrganization);
 router.post("/messages/:id/reply", replyToMessage);
 
 export default router;

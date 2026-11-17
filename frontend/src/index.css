@@ -1763,3 +1763,62 @@ button.nav-link:hover:not(:disabled) {
 .admin-item-head h2 {
   margin: 0;
 }
+
+/* ---------- admin tools on browse pages ---------- */
+
+.admin-bar {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.program-modal .admin-bar {
+  margin: 16px 0 0;
+}
+
+.admin-bar-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.admin-bar .admin-actions button,
+.admin-bar .admin-actions .button-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-bar-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.org-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  max-width: 520px;
+}
+
+.org-edit-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.modal-edit-title {
+  margin: 0 48px 12px 0;
+}
+
+.listing-editor > .button-link {
+  margin-top: 12px;
+}

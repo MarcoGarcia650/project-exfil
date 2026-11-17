@@ -5,8 +5,9 @@ import { isPublicStatus } from "../lib/publishStatus.js";
 //   PUBLISHED → the listing summary
 //   ARCHIVED  → the summary plus "Archived" and the reason (user decision)
 //   DRAFT     → name, organization and "Under review" only — draft content
-//   REJECTED  → name and organization only (failed review; never shown)
 //               is never shown, even to someone who saved it earlier
+//   REJECTED  → name and organization only (failed review; never shown)
+//   REMOVED   → name and organization only (taken down by an admin)
 function dashboardView(program) {
   const base = {
     id: program.id,
